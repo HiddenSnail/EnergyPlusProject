@@ -115,7 +115,7 @@
 			"confirmKey": "XPS Extruded Polystyrene  - CO2 Blowing_.0719",
 			"structData": [
 				"!XPS Extruded Polystyrene  - CO2 Blowing-thickness.0719",
-				"Material,", 
+                "Material,",
 				"	XPS Extruded Polystyrene  - CO2 Blowing_.0719,	!- Name",
 				"	Rough,                                        	!- Roughness",
                	"	.0719,                                        	!- Thickness {m}",
