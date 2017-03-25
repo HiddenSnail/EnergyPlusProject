@@ -111,11 +111,13 @@ int HandleMachine::getInsertLocation(std::vector<std::string> text, std::string 
         }
     }
 
-    if (!isFindKey2) return targetLoc;
-    else return -1;
+    if (!isFindKey1 && !isFindKey2) {
+        if (targetLoc > -1) return targetLoc;
+        else return lineIndex;
+    } else return -1;
 }
 
-void HandleMachine::initData(std::string cityName, std::string sourceFilePath, std::string cityFilePath)
+void HandleMachine::initCityData(std::string cityName, std::string sourceFilePath, std::string cityFilePath)
 {
     std::ifstream iSourceFile(sourceFilePath);
     std::ifstream iCityFile(cityFilePath);
@@ -149,13 +151,41 @@ void HandleMachine::initData(std::string cityName, std::string sourceFilePath, s
         return;
     }
 
-    //内容替换部分
-    Json::Value contentChange = root["contentChange"];
-    if (!contentChange.isNull()) {
-        for (int i = 0; i<contentChange.size(); i++) {
-            std::string locationKey = contentChange[i]["locationKey"].asString();
-            std::string confirmKey = contentChange[i]["confirmKey"].asString();
-            Json::Value structData = contentChange[i]["structData"];
+    //内容部分替换部分
+    Json::Value contentPartChange = root["contentPartReplace"];
+    if (!contentPartChange.isNull()) {
+        for (int i = 0; i < contentPartChange.size(); i++) {
+            std::string locationKey = contentPartChange[i]["locationKey"].asString();
+            std::string confirmKey = contentPartChange[i]["confirmKey"].asString();
+            Json::Value rpData = contentPartChange[i]["rpData"];
+
+            int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
+            if (beginLoc > -1) {
+                for (int cur = 0; cur < rpData.size(); cur++) {
+                    std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
+                    std::string fmt;
+                    std::string prefix = "$01";
+                    std::string suffix = "$03$04";
+
+                    int targetPos = beginLoc+rpData[cur]["offset"].asInt();
+                    std::string data = rpData[cur]["data"].asString();
+                    std::string textLine = content[targetPos];
+                    fmt = prefix + data + suffix;
+
+                    std::string newLine = std::regex_replace(textLine, reg, fmt);
+                    content[targetPos] = newLine;
+                }
+            }
+        }
+    }
+
+    //内容全部替换部分
+    Json::Value contentAllChange = root["contentAllReplace"];
+    if (!contentAllChange.isNull()) {
+        for (int i = 0; i < contentAllChange.size(); i++) {
+            std::string locationKey = contentAllChange[i]["locationKey"].asString();
+            std::string confirmKey = contentAllChange[i]["confirmKey"].asString();
+            Json::Value structData = contentAllChange[i]["structData"];
 
             int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
             if (beginLoc > -1) {
@@ -175,7 +205,6 @@ void HandleMachine::initData(std::string cityName, std::string sourceFilePath, s
             Json::Value structData = contentInsert[i]["structData"];
 
             int beginLoc = getInsertLocation(content, locationKey, confirmKey);
-            std::cout << beginLoc << std::endl;
             if (beginLoc > -1) {
                 std::vector<std::string> structDataVec;
                 for (int j = 0; j < structData.size(); j++) {
@@ -187,7 +216,7 @@ void HandleMachine::initData(std::string cityName, std::string sourceFilePath, s
         }
     }
 
-    std::ofstream outfile("E:\\WorkSpace\\output\\base.idf", std::ios::out | std::ios::trunc);
+    std::ofstream outfile("E:\\WorkSpace\\output\\25->city.idf", std::ios::out | std::ios::trunc);
     if (!outfile.is_open()) {
         std::cerr << "can't output base source file!" << std::endl;
         return;
@@ -201,3 +230,5 @@ void HandleMachine::initData(std::string cityName, std::string sourceFilePath, s
     iCityFile.close();
     outfile.close();
 }
+
+

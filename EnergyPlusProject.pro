@@ -20,7 +20,8 @@ HEADERS += \
     json/reader.h \
     json/value.h \
     json/writer.h \
-    mainwindow.h
+    mainwindow.h \
+    util.h
 
 SOURCES += \
     main.cpp \
@@ -36,8 +37,8 @@ SOURCES += \
 DISTFILES += \
     README.md \
     jsoncpp/sconscript \
-    cityfiles/Harbin.json \
-    json/sconscript
+    json/sconscript \
+    cityfiles/Harbin.json
 
 FORMS += \
     mainwindow.ui

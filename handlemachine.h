@@ -15,7 +15,7 @@ private:
     int getInsertLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey);
 public:
     HandleMachine() {}
-    void initData(std::string cityName, std::string sourceFilePath, std::string cityFilePath);
+    void initCityData(std::string cityName, std::string sourceFilePath, std::string cityFilePath);
 };
 
 #endif // HANDLEMACHINE_H

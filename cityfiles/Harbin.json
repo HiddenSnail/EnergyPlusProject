@@ -1,38 +1,46 @@
 {
 	"city": "Harbin",
-	"contentChange": [
+	"contentPartReplace": [
 		{
 			"locationKey": "Construction",
 			"confirmKey": "Project wall",
-			"structData": [
-				"Construction,", 
-				"	Project wall,									!- Name",
-				"	Brickwork Outer Leaf_.1,						!- Outside Layer",                      
-				"	XPS Extruded Polystyrene  - CO2 Blowing_.0719,	!- Layer 2",
-				"	Concrete Block (Medium)_.1,						!- Layer 3",                    
-				"	Gypsum Plastering_.013;							!- Layer 4"]
+			"rpData": [
+				{
+					"offset": "2",
+					"data": "XPS Extruded Polystyrene  - CO2 Blowing_.0719"
+				},
+			]
 		},
 		{
 			"locationKey": "Construction",
 			"confirmKey": "Project wall_Rev",
-			"structData": [
-				"Construction,", 
-				"	Project wall_Rev,",
-				"	Gypsum Plastering_.013,",
-				"	Concrete Block (Medium)_.1,",                      
-				"	XPS Extruded Polystyrene  - CO2 Blowing_.0719,",                    
-				"	Brickwork Outer Leaf_.1;"]
+			"rpData": [
+				{
+					"offset": "3",
+					"data": "XPS Extruded Polystyrene  - CO2 Blowing_.0719"
+				}
+			]
 		},
 		{
 			"locationKey": "WindowMaterial:SimpleGlazingSystem",
 			"confirmKey": "Simple 1001",
-			"structData": [
-				"WindowMaterial:SimpleGlazingSystem,", 
-				"	Simple 1001,",
-				"	1.9,",                                         
-   				"	.43,",                                        
-   				"	.7;"]
-		},
+			"rpData": [
+				{
+					"offset": "2",
+					"data": "1.9"
+				},
+				{
+					"offset": "3",
+					"data": ".43"
+				},
+				{
+					"offset": "4",
+					"data": ".7"
+				}
+			]
+		}
+	],
+	"contentAllReplace": [
 		{
 			"locationKey": "SizingPeriod:DesignDay",
 			"confirmKey": "WinterDesignDay",
