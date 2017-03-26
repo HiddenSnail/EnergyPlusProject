@@ -9,8 +9,9 @@
 
 class HandleMachine {
 private:
-    std::vector<std::string> originContent;
-    std::vector<std::string> content;
+    std::vector<std::string> _originContent;
+    std::vector<std::string> _content;
+    std::string _sourfileName;
 
     bool isTheKeyLine(std::string key, std::string line);
     bool isTheEndLine(std::string line);
@@ -28,8 +29,8 @@ public:
             std::cerr << sourceFilePath << " source file open fail!" << std::endl;
         } else {
             std::string line;
-            while (std::getline(input, line)) originContent.push_back(line);
-            content.assign(originContent.begin(), originContent.end());
+            while (std::getline(input, line)) _originContent.push_back(line);
+            _content.assign(_originContent.begin(), _originContent.end());
         }
     }
     void initCityData(std::string cityName, std::string cityFilePath);

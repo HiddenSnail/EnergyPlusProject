@@ -3,6 +3,9 @@
 #include <string>
 #include <fstream>
 #include "json/json.h"
+
+class Util
+
 bool checkJsonFile(std::string filePath) {
     std::ifstream inFile(filePath);
     if (inFile.is_open()) {
@@ -19,6 +22,19 @@ bool checkJsonFile(std::string filePath) {
         std::cerr << "File open fail" << std::endl;
         return false;
     }
+}
+
+std::string getFileName(std::string filePath)
+{
+    std::string::iterator sPos;
+    for (int i = filePath.end(); i != filePath.begin()-1; i--)
+    {
+        if (*i == '\\') {
+            sPos = i;
+            return std::string::assign(sPos, filePath.end());
+        }
+    }
+    return "";
 }
 
 #endif // UTIL_H

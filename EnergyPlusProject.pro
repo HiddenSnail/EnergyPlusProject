@@ -21,7 +21,7 @@ HEADERS += \
     json/value.h \
     json/writer.h \
     mainwindow.h \
-    util.h
+    utils.h
 
 SOURCES += \
     main.cpp \
@@ -32,11 +32,11 @@ SOURCES += \
     json/json_value.cpp \
     json/json_valueiterator.inl \
     json/json_writer.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    utils.cpp
 
 DISTFILES += \
     README.md \
-    jsoncpp/sconscript \
     json/sconscript \
     cityfiles/Harbin.json
 

@@ -132,7 +132,7 @@ bool HandleMachine::replacePartStruct(Json::Value root)
                 std::string confirmKey = structPartReplace[i]["confirmKey"].asString();
                 Json::Value rpData = structPartReplace[i]["rpData"];
 
-                int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
+                int beginLoc = getReplaceLocation(_content, locationKey, confirmKey);
                 if (beginLoc > -1) {
                     for (int cur = 0; cur < rpData.size(); cur++) {
                         std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
@@ -142,11 +142,11 @@ bool HandleMachine::replacePartStruct(Json::Value root)
 
                         int targetPos = beginLoc+rpData[cur]["offset"].asInt();
                         std::string data = rpData[cur]["data"].asString();
-                        std::string textLine = content[targetPos];
+                        std::string textLine = _content[targetPos];
                         fmt = prefix + data + suffix;
 
                         std::string newLine = std::regex_replace(textLine, reg, fmt);
-                        content[targetPos] = newLine;
+                        _content[targetPos] = newLine;
                     }
                 }
             }
@@ -171,10 +171,10 @@ bool HandleMachine::replaceAllStruct(Json::Value root)
                 std::string confirmKey = structAllReplace[i]["confirmKey"].asString();
                 Json::Value structData = structAllReplace[i]["structData"];
 
-                int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
+                int beginLoc = getReplaceLocation(_content, locationKey, confirmKey);
                 if (beginLoc > -1) {
                     for (int j = 0; j < structData.size(); j++) {
-                        content[beginLoc++] = structData[j].asString();
+                        _content[beginLoc++] = structData[j].asString();
                     }
                 }
             }
@@ -199,14 +199,14 @@ bool HandleMachine::insertStruct(Json::Value root)
                 std::string confirmKey = structInsert[i]["confirmKey"].asString();
                 Json::Value structData = structInsert[i]["structData"];
 
-                int beginLoc = getInsertLocation(content, locationKey, confirmKey);
+                int beginLoc = getInsertLocation(_content, locationKey, confirmKey);
                 if (beginLoc > -1) {
                     std::vector<std::string> structDataVec;
                     for (int j = 0; j < structData.size(); j++) {
                         structDataVec.push_back(structData[j].asString());
                     }
                     structDataVec.push_back("");
-                    content.insert(content.begin()+beginLoc, structDataVec.begin(), structDataVec.end());
+                    _content.insert(_content.begin()+beginLoc, structDataVec.begin(), structDataVec.end());
                 }
             }
         }
@@ -298,7 +298,7 @@ bool HandleMachine::operate(std::string opFilePath ,std::string opKey, std::vect
                 Json::Value offsets = opObject["offsets"];
 
                 if (offsets.size() == dataVec.size()) {
-                    int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
+                    int beginLoc = getReplaceLocation(_content, locationKey, confirmKey);
                     if (beginLoc > -1) {
                         for (int index = 0; index < offsets.size(); index++) {
                             std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
@@ -307,11 +307,11 @@ bool HandleMachine::operate(std::string opFilePath ,std::string opKey, std::vect
                             std::string suffix = "$03$04";
 
                             int targetPos = beginLoc + offsets[index].asInt();
-                            std::string textLine = content[targetPos];
+                            std::string textLine = _content[targetPos];
                             fmt = prefix + dataVec[index] + suffix;
 
                             std::string newLine = std::regex_replace(textLine, reg, fmt);
-                            content[targetPos] = newLine;
+                            _content[targetPos] = newLine;
                         }
                         return true;
                     } else {
@@ -345,10 +345,10 @@ bool HandleMachine::separate()
 
     std::cout << "Separeting..." << std::endl;
 
-    for (int i = 0; i < content.size(); i++) {
-        nr << content[i] << std::endl;
-        r << content[i] << std::endl;
-        rp << content[i] << std::endl;
+    for (int i = 0; i < _content.size(); i++) {
+        nr << _content[i] << std::endl;
+        r << _content[i] << std::endl;
+        rp << _content[i] << std::endl;
     }
     nr.close();
     r.close();
@@ -366,8 +366,8 @@ void HandleMachine::output()
     }
 
     std::cout << "Output" << std::endl;
-    for (int i = 0; i < content.size(); i++) {
-        outfile << content[i] << std::endl;
+    for (int i = 0; i < _content.size(); i++) {
+        outfile << _content[i] << std::endl;
     }
     outfile.close();
 }
