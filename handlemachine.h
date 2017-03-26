@@ -9,13 +9,34 @@
 
 class HandleMachine {
 private:
+    std::vector<std::string> originContent;
+    std::vector<std::string> content;
+
     bool isTheKeyLine(std::string key, std::string line);
     bool isTheEndLine(std::string line);
+
     int getReplaceLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey);
     int getInsertLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey);
+
+    bool replacePartStruct(Json::Value root);
+    bool replaceAllStruct(Json::Value root);
+    bool insertStruct(Json::Value root);
 public:
-    HandleMachine() {}
-    void initCityData(std::string cityName, std::string sourceFilePath, std::string cityFilePath);
+    HandleMachine(std::string sourceFilePath) {
+        std::ifstream input(sourceFilePath);
+        if (!input.is_open()) {
+            std::cerr << sourceFilePath << " source file open fail!" << std::endl;
+        } else {
+            std::string line;
+            while (std::getline(input, line)) originContent.push_back(line);
+            content.assign(originContent.begin(), originContent.end());
+        }
+    }
+    void initCityData(std::string cityName, std::string cityFilePath);
+    void configure(std::string cfgFilePath);
+    bool operate(std::string opFilePath, std::string opKey, std::vector<std::string> dataVec);
+    bool separate();
+    void output();
 };
 
 #endif // HANDLEMACHINE_H

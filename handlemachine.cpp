@@ -8,7 +8,7 @@
  */
 bool HandleMachine::isTheKeyLine(std::string key, std::string line)
 {
-    //关键词__default_key__将会被默认为true, 即不能用来作为idf文件的变量
+    //关键词__default_key__将会被默认为true, 它不能用来作为idf文件的变量
     if (key.compare(DEFAULT_KEY) == 0) return true;
     std::regex reg("^(\\s)*" + key + ",.*");
     if (std::regex_match(line, reg)) {
@@ -44,26 +44,24 @@ bool HandleMachine::isTheEndLine(std::string line)
 int HandleMachine::getReplaceLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey)
 {
     bool isFindKey1 = false, isFindKey2 = false;
-    int spacing = 0, targetLoc = -1;
+    int  targetLoc = -1;
 
     for (int lineIndex = 0; lineIndex < text.size(); lineIndex++) {
         if (!isFindKey1 && !isFindKey2) {
             if (isTheKeyLine(locationKey, text[lineIndex])) {
                 isFindKey1 = true;
+                targetLoc = lineIndex;
             }
         }
         else if (isFindKey1 && !isFindKey2) {
             if (isTheKeyLine(confirmKey, text[lineIndex])) {
                 isFindKey2 = true;
-                targetLoc = lineIndex - spacing - 1;
                 break;
             } else {
                 if (isTheEndLine((text[lineIndex]))) {
                     isFindKey1 = false;
                     isFindKey2 = false;
-                    spacing = 0;
-                } else {
-                    spacing += 1;
+                    targetLoc = -1;
                 }
             }
         }
@@ -117,31 +115,122 @@ int HandleMachine::getInsertLocation(std::vector<std::string> text, std::string 
     } else return -1;
 }
 
-void HandleMachine::initCityData(std::string cityName, std::string sourceFilePath, std::string cityFilePath)
+/**
+ * @brief HandleMachine::replacePartStruct >> 替换源.idf文本中一些结构的部分内容(对json文件的结构有要求)
+ * @param root
+ * @return
+ */
+bool HandleMachine::replacePartStruct(Json::Value root)
 {
-    std::ifstream iSourceFile(sourceFilePath);
-    std::ifstream iCityFile(cityFilePath);
-    if (!iSourceFile.is_open()) {
-        std::cerr << ".idf source file open fail!" << std::endl;
-        return;
-    }
-    if (!iCityFile.is_open()) {
-        std::cerr << "city source file open fail!" << std::endl;
-        return;
-    }
+    Json::Value structPartReplace = root["structPartReplace"];
+    if (!structPartReplace.isNull()) {
+        if (structPartReplace.isInt() && structPartReplace.asInt() == 0) {
+            return true;
+        } else {
+            for (int i = 0; i < structPartReplace.size(); i++) {
+                std::string locationKey = structPartReplace[i]["locationKey"].asString();
+                std::string confirmKey = structPartReplace[i]["confirmKey"].asString();
+                Json::Value rpData = structPartReplace[i]["rpData"];
 
-    //将原始数据读入vector
-    std::string line;
-    std::vector<std::string> content;
-    while (std::getline(iSourceFile, line)) {
-        content.push_back(line);
+                int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
+                if (beginLoc > -1) {
+                    for (int cur = 0; cur < rpData.size(); cur++) {
+                        std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
+                        std::string fmt;
+                        std::string prefix = "$01";
+                        std::string suffix = "$03$04";
+
+                        int targetPos = beginLoc+rpData[cur]["offset"].asInt();
+                        std::string data = rpData[cur]["data"].asString();
+                        std::string textLine = content[targetPos];
+                        fmt = prefix + data + suffix;
+
+                        std::string newLine = std::regex_replace(textLine, reg, fmt);
+                        content[targetPos] = newLine;
+                    }
+                }
+            }
+        }
+    } else return false;
+}
+
+/**
+ * @brief HandleMachine::replaceAllStruct >> 替换源.idf文本中一些结构的全部内容(对json文件的结构有要求)
+ * @param root
+ * @return
+ */
+bool HandleMachine::replaceAllStruct(Json::Value root)
+{
+    Json::Value structAllReplace = root["structAllReplace"];
+    if (!structAllReplace.isNull()) {
+        if (structAllReplace.isInt() && structAllReplace.asInt() == 0) {
+            return true;
+        } else {
+            for (int i = 0; i < structAllReplace.size(); i++) {
+                std::string locationKey = structAllReplace[i]["locationKey"].asString();
+                std::string confirmKey = structAllReplace[i]["confirmKey"].asString();
+                Json::Value structData = structAllReplace[i]["structData"];
+
+                int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
+                if (beginLoc > -1) {
+                    for (int j = 0; j < structData.size(); j++) {
+                        content[beginLoc++] = structData[j].asString();
+                    }
+                }
+            }
+        }
+    } else return false;
+}
+
+/**
+ * @brief HandleMachine::insertStruct >> 向源.idf文本中插入新的结构(对json文件的结构有要求)
+ * @param root
+ * @return
+ */
+bool HandleMachine::insertStruct(Json::Value root)
+{
+    Json::Value structInsert = root["structInsert"];
+    if (!structInsert.isNull()) {
+        if (structInsert.isInt() && structInsert.asInt() == 0) {
+            return true;
+        } else {
+            for (int i = 0; i < structInsert.size(); i++) {
+                std::string locationKey = structInsert[i]["locationKey"].asString();
+                std::string confirmKey = structInsert[i]["confirmKey"].asString();
+                Json::Value structData = structInsert[i]["structData"];
+
+                int beginLoc = getInsertLocation(content, locationKey, confirmKey);
+                if (beginLoc > -1) {
+                    std::vector<std::string> structDataVec;
+                    for (int j = 0; j < structData.size(); j++) {
+                        structDataVec.push_back(structData[j].asString());
+                    }
+                    structDataVec.push_back("");
+                    content.insert(content.begin()+beginLoc, structDataVec.begin(), structDataVec.end());
+                }
+            }
+        }
+    } else return false;
+}
+
+/**
+ * @brief HandleMachine::initCityData >> 根据city变量对源.idf文本进行初始化设置
+ * @param cityName
+ * @param cityFilePath
+ */
+void HandleMachine::initCityData(std::string cityName, std::string cityFilePath)
+{
+    std::ifstream iCityFile(cityFilePath);
+    if (!iCityFile.is_open()) {
+        std::cerr << "City source file open fail!" << std::endl;
+        return;
     }
 
     //读取json文件，并进行内容修改操作
     Json::Value root;
     Json::Reader reader;
     if (!reader.parse(iCityFile, root, false)) {
-        std::cerr << "the city source file may have error!" << std::endl;
+        std::cerr << "The city source file may have error!" << std::endl;
         return;
     }
 
@@ -151,72 +240,126 @@ void HandleMachine::initCityData(std::string cityName, std::string sourceFilePat
         return;
     }
 
-    //内容部分替换部分
-    Json::Value contentPartChange = root["contentPartReplace"];
-    if (!contentPartChange.isNull()) {
-        for (int i = 0; i < contentPartChange.size(); i++) {
-            std::string locationKey = contentPartChange[i]["locationKey"].asString();
-            std::string confirmKey = contentPartChange[i]["confirmKey"].asString();
-            Json::Value rpData = contentPartChange[i]["rpData"];
+    if (replacePartStruct(root) && replaceAllStruct(root) && insertStruct(root)) {
+        std::cout << "Init city data success!" << std::endl;
+    } else {
+        std::cout << "Fail" << std::endl;
+    }
+    iCityFile.close();
+}
 
-            int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
-            if (beginLoc > -1) {
-                for (int cur = 0; cur < rpData.size(); cur++) {
-                    std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
-                    std::string fmt;
-                    std::string prefix = "$01";
-                    std::string suffix = "$03$04";
-
-                    int targetPos = beginLoc+rpData[cur]["offset"].asInt();
-                    std::string data = rpData[cur]["data"].asString();
-                    std::string textLine = content[targetPos];
-                    fmt = prefix + data + suffix;
-
-                    std::string newLine = std::regex_replace(textLine, reg, fmt);
-                    content[targetPos] = newLine;
-                }
-            }
-        }
+/**
+ * @brief HandleMachine::configure >> 对源.idf文本进行初始化配置
+ * @param cfgFilePath
+ */
+void HandleMachine::configure(std::string cfgFilePath)
+{
+    std::ifstream cfgFile(cfgFilePath);
+    if (!cfgFile.is_open()) {
+        std::cerr << "Configure file open fail!" << std::endl;
+        return;
     }
 
-    //内容全部替换部分
-    Json::Value contentAllChange = root["contentAllReplace"];
-    if (!contentAllChange.isNull()) {
-        for (int i = 0; i < contentAllChange.size(); i++) {
-            std::string locationKey = contentAllChange[i]["locationKey"].asString();
-            std::string confirmKey = contentAllChange[i]["confirmKey"].asString();
-            Json::Value structData = contentAllChange[i]["structData"];
-
-            int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
-            if (beginLoc > -1) {
-                for (int j = 0; j < structData.size(); j++) {
-                    content[beginLoc++] = structData[j].asString();
-                }
-            }
-        }
+    //读取json文件，并进行内容修改操作
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(cfgFile, root, false)) {
+        std::cerr << "The configure file may have error!" << std::endl;
+        return;
     }
 
-    //内容插入部分
-    Json::Value contentInsert = root["contentInsert"];
-    if (!contentInsert.isNull()) {
-        for (int i = 0; i < contentInsert.size(); i++) {
-            std::string locationKey = contentInsert[i]["locationKey"].asString();
-            std::string confirmKey = contentInsert[i]["confirmKey"].asString();
-            Json::Value structData = contentInsert[i]["structData"];
-
-            int beginLoc = getInsertLocation(content, locationKey, confirmKey);
-            if (beginLoc > -1) {
-                std::vector<std::string> structDataVec;
-                for (int j = 0; j < structData.size(); j++) {
-                    structDataVec.push_back(structData[j].asString());
-                }
-                structDataVec.push_back("");
-                content.insert(content.begin()+beginLoc, structDataVec.begin(), structDataVec.end());
-            }
-        }
+    if (replacePartStruct(root) && replaceAllStruct(root) && insertStruct(root)) {
+        std::cout << "Configure success!" << std::endl;
+    } else {
+        std::cerr << "Configure fail!" << std::endl;
     }
+    cfgFile.close();
+}
 
-    std::ofstream outfile("E:\\WorkSpace\\output\\25->city.idf", std::ios::out | std::ios::trunc);
+
+/**
+ * @brief HandleMachine::operate >> 对.idf文本进行动作配置，即配置数据来自外部输入
+ * @param opFilePath
+ * @param opKey
+ * @param dataVec
+ * @return
+ */
+bool HandleMachine::operate(std::string opFilePath ,std::string opKey, std::vector<std::string> dataVec)
+{
+    std::ifstream opFile(opFilePath);
+    if (opFile.is_open()) {
+        Json::Reader reader;
+        Json::Value root;
+        if (reader.parse(opFile, root, false)) {
+            Json::Value opObject = root[opKey];
+            if (!opObject.isNull()) {
+                std::string locationKey = opObject["locationKey"].asString();
+                std::string confirmKey = opObject["confirmKey"].asString();
+                Json::Value offsets = opObject["offsets"];
+
+                if (offsets.size() == dataVec.size()) {
+                    int beginLoc = getReplaceLocation(content, locationKey, confirmKey);
+                    if (beginLoc > -1) {
+                        for (int index = 0; index < offsets.size(); index++) {
+                            std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
+                            std::string fmt;
+                            std::string prefix = "$01";
+                            std::string suffix = "$03$04";
+
+                            int targetPos = beginLoc + offsets[index].asInt();
+                            std::string textLine = content[targetPos];
+                            fmt = prefix + dataVec[index] + suffix;
+
+                            std::string newLine = std::regex_replace(textLine, reg, fmt);
+                            content[targetPos] = newLine;
+                        }
+                        return true;
+                    } else {
+                        std::cerr << "Can't locate the position!" << std::endl;
+                    }
+                } else {
+                    std::cerr << "The dataVec is unacceptale!" << std::endl;
+                }
+            } else {
+                std::cerr << "Can't find the opKey: [" << opKey << "]" << std::endl;
+            }
+        } else {
+            std::cerr << "The operation file may have error!" << std::endl;
+        }
+    } else {
+        std::cerr << "The operation file open fail" << std::endl;
+    }
+    return false;
+}
+
+bool HandleMachine::separate()
+{
+    //待租
+    std::ofstream nr("E:\\WorkSpace\\output\\25_nr.idf",std::ios::out | std::ios::trunc);
+    //已租无人
+    std::ofstream r("E:\\WorkSpace\\output\\25_r.idf",std::ios::out | std::ios::trunc);
+    //已租有人
+    std::ofstream rp("E:\\WorkSpace\\output\\25_rp.idf",std::ios::out | std::ios::trunc);
+
+    if (!nr.is_open() && !r.is_open() && !rp.is_open()) return false;
+
+    std::cout << "Separeting..." << std::endl;
+
+    for (int i = 0; i < content.size(); i++) {
+        nr << content[i] << std::endl;
+        r << content[i] << std::endl;
+        rp << content[i] << std::endl;
+    }
+    nr.close();
+    r.close();
+    rp.close();
+    std::cout << "Separeting success!" << std::endl;
+    return true;
+}
+
+void HandleMachine::output()
+{
+    std::ofstream outfile("E:\\WorkSpace\\output\\modify.idf", std::ios::out | std::ios::trunc);
     if (!outfile.is_open()) {
         std::cerr << "can't output base source file!" << std::endl;
         return;
@@ -226,9 +369,6 @@ void HandleMachine::initCityData(std::string cityName, std::string sourceFilePat
     for (int i = 0; i < content.size(); i++) {
         outfile << content[i] << std::endl;
     }
-    iSourceFile.close();
-    iCityFile.close();
     outfile.close();
 }
-
 
