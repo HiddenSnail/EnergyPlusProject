@@ -142,6 +142,7 @@ bool HandleMachine::replacePartStruct(Json::Value root)
 
                         int targetPos = beginLoc+rpData[cur]["offset"].asInt();
                         std::string data = rpData[cur]["data"].asString();
+
                         std::string textLine = _content[targetPos];
                         fmt = prefix + data + suffix;
 
@@ -218,46 +219,23 @@ bool HandleMachine::insertStruct(Json::Value root)
  * @param cityName
  * @param cityFilePath
  */
-void HandleMachine::initCityData(std::string cityName, std::string cityFilePath)
+bool HandleMachine::initCityData(std::string cityName)
 {
-    std::ifstream iCityFile(cityFilePath);
-    if (!iCityFile.is_open()) {
-        std::cerr << "City source file open fail!" << std::endl;
-        return;
-    }
-
-    //读取json文件，并进行内容修改操作
-    Json::Value root;
-    Json::Reader reader;
-    if (!reader.parse(iCityFile, root, false)) {
-        std::cerr << "The city source file may have error!" << std::endl;
-        return;
-    }
-
-    std::string city = root["city"].asString();
-    if (cityName.compare(city) != 0) {
-        std::cerr << "non correct city source file" << std::endl;
-        return;
-    }
-
-    if (replacePartStruct(root) && replaceAllStruct(root) && insertStruct(root)) {
-        std::cout << "Init city data success!" << std::endl;
-    } else {
-        std::cout << "Fail" << std::endl;
-    }
-    iCityFile.close();
+    std::string cityFilePath;
+    cityFilePath = cityFilePath + BASE_MODEL_DIR + "\\" + cityName + ".json";
+    return configure(cityFilePath);
 }
 
 /**
  * @brief HandleMachine::configure >> 对源.idf文本进行初始化配置
  * @param cfgFilePath
  */
-void HandleMachine::configure(std::string cfgFilePath)
+bool HandleMachine::configure(std::string cfgFilePath)
 {
     std::ifstream cfgFile(cfgFilePath);
     if (!cfgFile.is_open()) {
         std::cerr << "Configure file open fail!" << std::endl;
-        return;
+        return false;
     }
 
     //读取json文件，并进行内容修改操作
@@ -265,15 +243,17 @@ void HandleMachine::configure(std::string cfgFilePath)
     Json::Reader reader;
     if (!reader.parse(cfgFile, root, false)) {
         std::cerr << "The configure file may have error!" << std::endl;
-        return;
+        return false;
     }
 
     if (replacePartStruct(root) && replaceAllStruct(root) && insertStruct(root)) {
         std::cout << "Configure success!" << std::endl;
     } else {
         std::cerr << "Configure fail!" << std::endl;
+        return false;
     }
     cfgFile.close();
+    return true;
 }
 
 
@@ -308,13 +288,17 @@ bool HandleMachine::operate(std::string opFilePath ,std::string opKey, std::vect
 
                             int targetPos = beginLoc + offsets[index].asInt();
                             std::string textLine = _content[targetPos];
-                            fmt = prefix + dataVec[index] + suffix;
+
+                            if (0 != dataVec[index].compare(DEFAUL_VALUE))
+                                fmt = prefix + dataVec[index] + suffix;
+                            else continue;
 
                             std::string newLine = std::regex_replace(textLine, reg, fmt);
                             _content[targetPos] = newLine;
                         }
                         return true;
                     } else {
+                        std::cerr << "The location: " + beginLoc << std::endl;
                         std::cerr << "Can't locate the position!" << std::endl;
                     }
                 } else {
@@ -334,32 +318,49 @@ bool HandleMachine::operate(std::string opFilePath ,std::string opKey, std::vect
 
 bool HandleMachine::separate()
 {
-    //待租
-    std::ofstream nr("E:\\WorkSpace\\output\\25_nr.idf",std::ios::out | std::ios::trunc);
-    //已租无人
-    std::ofstream r("E:\\WorkSpace\\output\\25_r.idf",std::ios::out | std::ios::trunc);
-    //已租有人
-    std::ofstream rp("E:\\WorkSpace\\output\\25_rp.idf",std::ios::out | std::ios::trunc);
+    std::string outputDir;
+    outputDir = ".\\output\\" + _sourfileName;
+    if (Utils::checkDir(outputDir)) {
+        //基本
+        std::string baseDir = outputDir + "\\base";
+        mkdir(baseDir.c_str());
+        //未租
+        std::string nrDir = outputDir + "\\nr";
+        mkdir(nrDir.c_str());
+        //已租有人
+        std::string rpDir = outputDir + "\\rp";
+        mkdir(rpDir.c_str());
+        //已租无人
+        std::string rDir = outputDir + "\\r";
+        mkdir(rDir.c_str());
 
-    if (!nr.is_open() && !r.is_open() && !rp.is_open()) return false;
+        std::ofstream base(baseDir + "\\base.idf");
+        std::ofstream nr(nrDir + "\\nr.idf");
+        std::ofstream rp(rpDir + "\\np.idf");
+        std::ofstream r(rDir + "\\r.idf");
 
-    std::cout << "Separeting..." << std::endl;
-
-    for (int i = 0; i < _content.size(); i++) {
-        nr << _content[i] << std::endl;
-        r << _content[i] << std::endl;
-        rp << _content[i] << std::endl;
+        if (base.is_open()&&nr.is_open() && rp.is_open() && r.is_open()) {
+            for (int i = 0; i < _content.size(); i++) {
+                base << _content[i] << std::endl;
+                nr << _content[i] << std::endl;
+                rp << _content[i] << std::endl;
+                r << _content[i] << std::endl;
+            }
+            base.close();
+            nr.close();
+            rp.close();
+            r.close();
+            std::cout << "Separeting success!" << std::endl;
+            return true;
+        }
     }
-    nr.close();
-    r.close();
-    rp.close();
-    std::cout << "Separeting success!" << std::endl;
-    return true;
+    std::cout << "Separeting fail!" << std::endl;
+    return false;
 }
 
 void HandleMachine::output()
 {
-    std::ofstream outfile("E:\\WorkSpace\\output\\modify.idf", std::ios::out | std::ios::trunc);
+    std::ofstream outfile(_sourfilePath, std::ios::out | std::ios::trunc);
     if (!outfile.is_open()) {
         std::cerr << "can't output base source file!" << std::endl;
         return;

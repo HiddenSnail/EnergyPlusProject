@@ -21,7 +21,8 @@ HEADERS += \
     json/value.h \
     json/writer.h \
     mainwindow.h \
-    utils.h
+    utils.h \
+    path.h
 
 SOURCES += \
     main.cpp \

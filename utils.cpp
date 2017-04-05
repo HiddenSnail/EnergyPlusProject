@@ -41,6 +41,32 @@ std::vector<std::string> Utils::split(std::string str, std::string delim)
 std::string Utils::getFileName(std::string filePath)
 {
    std::vector<std::string> vec = split(filePath, "\\");
-   if (vec.size() > 0) return vec.back();
+   if (vec.size() > 0) {
+      std::string fullName = vec.back();
+      size_t dotPos = fullName.find('.');
+      return fullName.substr(0, dotPos);
+   }
    else return "";
+}
+
+
+bool Utils::checkDir(std::string dirPath)
+{
+    if (access(dirPath.c_str(), 00) != -1) return true;
+    else {
+        std::regex reg("([^\\\\\\s]+\\\\)+[^\\\\\\s]*");
+        if (std::regex_match(dirPath, reg)) {
+            std::vector<std::string> dirVec = split(dirPath, "\\");
+            std::string curDir = "";
+            for (int i = 0; i < dirVec.size(); i++) {
+                curDir += dirVec[i] + "\\";
+                if (access(curDir.c_str(), 00) == -1) mkdir(curDir.c_str());
+                else continue;
+            }
+        } else {
+            std::cerr << "The Dirpath format error!" << std::endl;
+            return false;
+        }
+        return true;
+    }
 }
