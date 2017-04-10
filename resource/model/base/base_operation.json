@@ -1,0 +1,12 @@
+{
+	"opElectricEquipment": {
+		"locationKey": "ElectricEquipment",
+		"confirmKey": "Equipment 1",
+		"offsets":[6]
+	},
+	"opLights": {
+		"locationKey": "Lights",
+		"confirmKey": "General lighting",
+		"offsets":[6]
+	}
+}

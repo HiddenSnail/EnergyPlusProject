@@ -2,50 +2,56 @@
 #define HANDLEMACHINE_H
 #define DEFAULT_KEY "__default_key__"
 #define DEFAUL_VALUE "__default_value__"
-#define SEPARTE_MODELS_NUM 3
-#include <iostream>
-#include <string>
-#include <regex>
-#include <fstream>
-#include "json/json.h"
+#include <QRegExp>
+#include <QtCore>
+#include <QJsonDocument>
+#include <QtDebug>
 #include "utils.h"
 #include "path.h"
+#include "global.h"
 
 class HandleMachine {
 private:
-    std::vector<std::string> _originContent;
-    std::vector<std::string> _content;
-    std::string _sourfilePath;
-    std::string _sourfileName;
+    QVector<QString> _originContent;
+    QVector<QString> _content;
+    QString _sourfilePath;
+    QString _sourfileName;
 
-    bool isTheKeyLine(std::string key, std::string line);
-    bool isTheEndLine(std::string line);
+    bool isTheKeyLine(QString key, QString line);
+    bool isTheEndLine(QString line);
 
-    int getReplaceLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey);
-    int getInsertLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey);
+    int getReplaceLocation(QString locationKey, QString confirmKey);
+    int getInsertLocation(QString locationKey, QString confirmKey);
 
-    bool replacePartStruct(Json::Value root);
-    bool replaceAllStruct(Json::Value root);
-    bool insertStruct(Json::Value root);
+    bool replacePartStruct(QJsonObject root);
+    bool replaceAllStruct(QJsonObject root);
+    bool insertStruct(QJsonObject root);
 public:
-    HandleMachine(std::string sourceFilePath) {
-        std::ifstream input(sourceFilePath);
-        if (!input.is_open()) {
-            std::cerr << sourceFilePath << " source file open fail!" << std::endl;
-        } else {
+    HandleMachine(QString sourceFilePath) {
+        QFile sourceFile(sourceFilePath);
+        sourceFile.open(QFile::ReadOnly);
+        if (sourceFile.isOpen ()) {
             _sourfilePath = sourceFilePath;
-            _sourfileName = Utils::getFileName(sourceFilePath);
-            std::string line;
-            while (std::getline(input, line)) _originContent.push_back(line);
-            _content.assign(_originContent.begin(), _originContent.end());
-            input.close();
+            _sourfileName = sourceFilePath.split("/").last();
+            QTextStream in(&sourceFile);
+            while (!in.atEnd()) {
+                QString line = in.readLine();
+                _originContent.push_back(line);
+            }
+            _content = _originContent;
+            sourceFile.close();
+        } else {
+            qFatal("Source File open fail");
         }
     }
-    bool initCityData(std::string cityName);
-    bool configure(std::string cfgFilePath);
-    bool operate(std::string opFilePath, std::string opKey, std::vector<std::string> dataVec);
+
+    bool initCityData(QString cityName);
+    bool configure(QString cfgFilePath);
+    bool operate(QString opFilePath, QString opKey, QVector<QString> dataVec);
+    void save();
     bool separate();
-    void output();
+//    void startMachine(QString cityName);
+    void printFile();
 };
 
 #endif // HANDLEMACHINE_H

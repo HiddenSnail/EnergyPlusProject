@@ -1,24 +1,5 @@
 #include "utils.h"
 
-bool Utils::checkJsonFile(std::string filePath)
-{
-    std::ifstream inFile(filePath);
-    if (inFile.is_open()) {
-        Json::Reader reader;
-        Json::Value root;
-        if (reader.parse(inFile, root)) {
-            std::cout << "Good file" << std::endl;
-            return true;
-        } else {
-            std::cerr << "Bad file" << std::endl;
-            return false;
-        }
-    } else {
-        std::cerr << "File open fail" << std::endl;
-        return false;
-    }
-}
-
 std::vector<std::string> Utils::split(std::string str, std::string delim)
 {
     std::vector<std::string> resultVec;
@@ -41,14 +22,18 @@ std::vector<std::string> Utils::split(std::string str, std::string delim)
 std::string Utils::getFileName(std::string filePath)
 {
    std::vector<std::string> vec = split(filePath, "\\");
-   if (vec.size() > 0) {
-      std::string fullName = vec.back();
-      size_t dotPos = fullName.find('.');
-      return fullName.substr(0, dotPos);
-   }
-   else return "";
+   return vec.back();
 }
 
+std::string Utils::getFileDir(std::string filePath)
+{
+    std::vector<std::string> vec = split(filePath, "\\");
+    std::string dir = vec[0];
+    for (int i = 1; i < vec.size()-1; i++) {
+        dir += "\\" + vec[i];
+    }
+    return dir;
+}
 
 bool Utils::checkDir(std::string dirPath)
 {

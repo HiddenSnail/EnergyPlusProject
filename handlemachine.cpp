@@ -6,16 +6,13 @@
  * @param line
  * @return
  */
-bool HandleMachine::isTheKeyLine(std::string key, std::string line)
+bool HandleMachine::isTheKeyLine(QString key, QString line)
 {
     //关键词__default_key__将会被默认为true, 它不能用来作为idf文件的变量
-    if (key.compare(DEFAULT_KEY) == 0) return true;
-    std::regex reg("^(\\s)*" + key + ",.*");
-    if (std::regex_match(line, reg)) {
-        return true;
-    } else {
-        return false;
-    }
+    if (DEFAULT_KEY == key) return true;
+    QString pattern = QString("^(\\s)*%1,.*").arg(key);
+    QRegExp reg(pattern);
+    return reg.exactMatch(line);
 }
 
 /**
@@ -23,42 +20,42 @@ bool HandleMachine::isTheKeyLine(std::string key, std::string line)
  * @param line
  * @return
  */
-bool HandleMachine::isTheEndLine(std::string line)
+bool HandleMachine::isTheEndLine(QString line)
 {
     //正则表达式待修正
-    std::regex reg(".*;.*");
-    if (std::regex_match(line, reg)) {
-        return true;
-    } else {
-        return false;
-    }
+    QString pattern = QString(".*;.*");
+    QRegExp reg(pattern);
+    return reg.exactMatch(line);
 }
 
 /**
  * @brief getReplaceLocation >> 获取替换本文的开始位置
- * @param text
  * @param locationKey
  * @param confirmKey
  * @return
  */
-int HandleMachine::getReplaceLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey)
+int HandleMachine::getReplaceLocation(QString locationKey, QString confirmKey)
 {
+    if (locationKey.isEmpty() || confirmKey.isEmpty()) {
+        qDebug() << "The two keys maybe have one empty!";
+        return -1;
+    }
     bool isFindKey1 = false, isFindKey2 = false;
     int  targetLoc = -1;
 
-    for (int lineIndex = 0; lineIndex < text.size(); lineIndex++) {
+    for (int lineIndex = 0; lineIndex < _content.size(); lineIndex++) {
         if (!isFindKey1 && !isFindKey2) {
-            if (isTheKeyLine(locationKey, text[lineIndex])) {
+            if (isTheKeyLine(locationKey, _content[lineIndex])) {
                 isFindKey1 = true;
                 targetLoc = lineIndex;
             }
         }
         else if (isFindKey1 && !isFindKey2) {
-            if (isTheKeyLine(confirmKey, text[lineIndex])) {
+            if (isTheKeyLine(confirmKey, _content[lineIndex])) {
                 isFindKey2 = true;
                 break;
             } else {
-                if (isTheEndLine((text[lineIndex]))) {
+                if (isTheEndLine((_content[lineIndex]))) {
                     isFindKey1 = false;
                     isFindKey2 = false;
                     targetLoc = -1;
@@ -66,7 +63,8 @@ int HandleMachine::getReplaceLocation(std::vector<std::string> text, std::string
             }
         }
         else {
-            std::cerr << "Something wrong happen! [GetReLoc] operation fail!" << std::endl;
+            qDebug() << "Flag states:" << isFindKey1 << "&&" << isFindKey2;
+            qDebug() << _content.size();
             return -1;
         }
     }
@@ -80,39 +78,46 @@ int HandleMachine::getReplaceLocation(std::vector<std::string> text, std::string
  * @param confirmKey
  * @return
  */
-int HandleMachine::getInsertLocation(std::vector<std::string> text, std::string locationKey, std::string confirmKey)
+int HandleMachine::getInsertLocation(QString locationKey, QString confirmKey)
 {
+    if (locationKey.isEmpty() || confirmKey.isEmpty()) {
+        qDebug() << "The two keys maybe have one empty!";
+        return -1;
+    }
     bool isFindKey1 = false, isFindKey2 = false;
-    int targetLoc = -1;
+    int targetLoc = -1, blankPos = 0;
     int lineIndex;
-    for (lineIndex = 0; lineIndex < text.size(); lineIndex++) {
+    for (lineIndex = 0; lineIndex < _content.size(); lineIndex++) {
+        //找到里targetLoc最近的空白行
+        if (targetLoc == -1 && _content[lineIndex].isEmpty()) blankPos = lineIndex;
         if (!isFindKey1 && !isFindKey2) {
-            if (isTheKeyLine(locationKey, text[lineIndex])) {
+            if (isTheKeyLine(locationKey, _content[lineIndex])) {
                 isFindKey1 = true;
-                if (targetLoc == -1) targetLoc = lineIndex;
+                if (targetLoc == -1) targetLoc = blankPos;
             }
         }
         else if (isFindKey1 && !isFindKey2) {
-            if (isTheKeyLine(confirmKey, text[lineIndex])) {
+            //找到了与带插入文本相同的文本，故不必插入，返回-1
+            if (isTheKeyLine(confirmKey, _content[lineIndex])) {
                 isFindKey2 = true;
                 return -1;
             } else {
-                if (isTheEndLine(text[lineIndex])) {
+                if (isTheEndLine(_content[lineIndex])) {
                     isFindKey1 = false;
                     isFindKey2 = false;
                 }
             }
         }
         else {
-            std::cerr << "Something wrong happen! [GetInLoc] operation fail!" << std::endl;
+            qDebug() << "Flag states:" << isFindKey1 << "&&" << isFindKey2;
+            qDebug() << targetLoc;
+            qDebug() << _content.size();
             return -1;
         }
     }
 
-    if (!isFindKey1 && !isFindKey2) {
-        if (targetLoc > -1) return targetLoc;
-        else return lineIndex;
-    } else return -1;
+    if (targetLoc > -1) return targetLoc;
+    else return lineIndex;
 }
 
 /**
@@ -120,39 +125,40 @@ int HandleMachine::getInsertLocation(std::vector<std::string> text, std::string 
  * @param root
  * @return
  */
-bool HandleMachine::replacePartStruct(Json::Value root)
+bool HandleMachine::replacePartStruct(QJsonObject root)
 {
-    Json::Value structPartReplace = root["structPartReplace"];
-    if (!structPartReplace.isNull()) {
-        if (structPartReplace.isInt() && structPartReplace.asInt() == 0) {
-            return true;
-        } else {
-            for (int i = 0; i < structPartReplace.size(); i++) {
-                std::string locationKey = structPartReplace[i]["locationKey"].asString();
-                std::string confirmKey = structPartReplace[i]["confirmKey"].asString();
-                Json::Value rpData = structPartReplace[i]["rpData"];
+    if (root.isEmpty()) {
+        qInfo() << "The root is empty";
+        return false;
+    }
+    QJsonValue structPartReplace = root["structPartReplace"];
+    if (structPartReplace.isNull()) return false;
 
-                int beginLoc = getReplaceLocation(_content, locationKey, confirmKey);
-                if (beginLoc > -1) {
-                    for (int cur = 0; cur < rpData.size(); cur++) {
-                        std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
-                        std::string fmt;
-                        std::string prefix = "$01";
-                        std::string suffix = "$03$04";
+    if (0 == structPartReplace.toInt(-1)) {
+        qInfo() << "No need to replace!";
+    } else {
+        //断言structPartReplace是一个Json数组
+        Q_ASSERT(structPartReplace.isArray());
+        QJsonArray dataArray = structPartReplace.toArray();
+        for (int i = 0; i < dataArray.size(); i++) {
+            QString locationKey = dataArray[i].toObject()["locationKey"].toString();
+            QString confirmKey = dataArray[i].toObject()["confirmKey"].toString();
+            QJsonArray rpData = dataArray[i].toObject()["rpData"].toArray();
+            int beginLoc = getReplaceLocation(locationKey, confirmKey);
 
-                        int targetPos = beginLoc+rpData[cur]["offset"].asInt();
-                        std::string data = rpData[cur]["data"].asString();
-
-                        std::string textLine = _content[targetPos];
-                        fmt = prefix + data + suffix;
-
-                        std::string newLine = std::regex_replace(textLine, reg, fmt);
-                        _content[targetPos] = newLine;
-                    }
+            if (beginLoc > -1) {
+                for (int cur = 0; cur < rpData.size(); cur++) {
+                    QRegExp reg("(^\\s*)(.*)(,|;)(.*)");
+                    QString fmt, prefix("\\1"), suffix("\\3\\4");
+                    int targetPos = beginLoc + rpData[cur].toObject()["offset"].toInt();
+                    QString data = rpData[cur].toObject()["data"].toString();
+                    fmt = prefix + data + suffix;
+                    _content[targetPos].replace(reg, fmt);
                 }
             }
         }
-    } else return false;
+    }
+    return true;
 }
 
 /**
@@ -160,27 +166,34 @@ bool HandleMachine::replacePartStruct(Json::Value root)
  * @param root
  * @return
  */
-bool HandleMachine::replaceAllStruct(Json::Value root)
+bool HandleMachine::replaceAllStruct(QJsonObject root)
 {
-    Json::Value structAllReplace = root["structAllReplace"];
-    if (!structAllReplace.isNull()) {
-        if (structAllReplace.isInt() && structAllReplace.asInt() == 0) {
-            return true;
-        } else {
-            for (int i = 0; i < structAllReplace.size(); i++) {
-                std::string locationKey = structAllReplace[i]["locationKey"].asString();
-                std::string confirmKey = structAllReplace[i]["confirmKey"].asString();
-                Json::Value structData = structAllReplace[i]["structData"];
+    if (root.isEmpty()) {
+        qInfo() << "The root is empty";
+        return false;
+    }
+    QJsonValue structAllReplace = root["structAllReplace"];
+    if (structAllReplace.isNull()) return false;
+    if (0 == structAllReplace.toInt(-1)) {
+        qInfo() << "No need to all replace";
+    } else {
+        Q_ASSERT_X(structAllReplace.isArray(), "json try to array", "this json value isn't array");
+        QJsonArray dataArray = structAllReplace.toArray();
+        for (int i = 0; i < dataArray.size(); i++) {
+            QJsonObject obj = dataArray[i].toObject();
+            QString locationKey = obj["locationKey"].toString();
+            QString confirmKey = obj["confirmKey"].toString();
+            QJsonArray structData = obj["structData"].toArray();
 
-                int beginLoc = getReplaceLocation(_content, locationKey, confirmKey);
-                if (beginLoc > -1) {
-                    for (int j = 0; j < structData.size(); j++) {
-                        _content[beginLoc++] = structData[j].asString();
-                    }
+            int beginLoc = getReplaceLocation(locationKey, confirmKey);
+            if (beginLoc > -1) {
+                for (int j = 0; j < structData.size(); j++) {
+                    _content[beginLoc++] = structData[j].toString();
                 }
             }
         }
-    } else return false;
+    }
+    return true;
 }
 
 /**
@@ -188,30 +201,35 @@ bool HandleMachine::replaceAllStruct(Json::Value root)
  * @param root
  * @return
  */
-bool HandleMachine::insertStruct(Json::Value root)
+bool HandleMachine::insertStruct(QJsonObject root)
 {
-    Json::Value structInsert = root["structInsert"];
-    if (!structInsert.isNull()) {
-        if (structInsert.isInt() && structInsert.asInt() == 0) {
-            return true;
-        } else {
-            for (int i = 0; i < structInsert.size(); i++) {
-                std::string locationKey = structInsert[i]["locationKey"].asString();
-                std::string confirmKey = structInsert[i]["confirmKey"].asString();
-                Json::Value structData = structInsert[i]["structData"];
-
-                int beginLoc = getInsertLocation(_content, locationKey, confirmKey);
-                if (beginLoc > -1) {
-                    std::vector<std::string> structDataVec;
-                    for (int j = 0; j < structData.size(); j++) {
-                        structDataVec.push_back(structData[j].asString());
-                    }
-                    structDataVec.push_back("");
-                    _content.insert(_content.begin()+beginLoc, structDataVec.begin(), structDataVec.end());
+    if (root.isEmpty()) {
+        qInfo() << "The root is empty!";
+        return false;
+    }
+    QJsonValue structInsert = root["structInsert"];
+    if (structInsert.isNull()) return false;
+    if (0 == structInsert.toInt(-1)) {
+        qInfo() << "No need to insert";
+    } else {
+        Q_ASSERT_X(structInsert.isArray(), "json try to array", "this json value isn't array");
+        QJsonArray dataArray = structInsert.toArray();
+        for (int i = 0; i < dataArray.size(); i++) {
+            QJsonObject obj = dataArray[i].toObject();
+            QString locationKey = obj["locationKey"].toString();
+            QString confirmKey = obj["confirmKey"].toString();
+            QJsonArray structData = obj["structData"].toArray();
+            int beginLoc = getInsertLocation(locationKey, confirmKey);
+            if (beginLoc > -1) {
+                QVector<QString> structDataVec;
+                _content.insert(beginLoc++, "");
+                for (int j = 0; j < structData.size(); j++) {
+                    _content.insert(beginLoc++, structData[j].toString());
                 }
             }
         }
-    } else return false;
+    }
+    return true;
 }
 
 /**
@@ -219,41 +237,43 @@ bool HandleMachine::insertStruct(Json::Value root)
  * @param cityName
  * @param cityFilePath
  */
-bool HandleMachine::initCityData(std::string cityName)
+bool HandleMachine::initCityData(QString cityName)
 {
-    std::string cityFilePath;
-    cityFilePath = cityFilePath + BASE_MODEL_DIR + "\\" + cityName + ".json";
+    QString pathPrefix(BASE_MODEL_DIR);
+    QString cityFilePath = QString(pathPrefix + "/%1.json").arg(cityName.toLower());
     return configure(cityFilePath);
+    return true;
 }
 
 /**
  * @brief HandleMachine::configure >> 对源.idf文本进行初始化配置
  * @param cfgFilePath
  */
-bool HandleMachine::configure(std::string cfgFilePath)
+bool HandleMachine::configure(QString cfgFilePath)
 {
-    std::ifstream cfgFile(cfgFilePath);
-    if (!cfgFile.is_open()) {
-        std::cerr << "Configure file open fail!" << std::endl;
+    QFile cfgFile(cfgFilePath);
+    if (!cfgFile.open(QFile::ReadOnly)) {
+        qInfo() << "Configure file open fail!";
         return false;
     }
 
-    //读取json文件，并进行内容修改操作
-    Json::Value root;
-    Json::Reader reader;
-    if (!reader.parse(cfgFile, root, false)) {
-        std::cerr << "The configure file may have error!" << std::endl;
-        return false;
-    }
-
-    if (replacePartStruct(root) && replaceAllStruct(root) && insertStruct(root)) {
-        std::cout << "Configure success!" << std::endl;
-    } else {
-        std::cerr << "Configure fail!" << std::endl;
-        return false;
-    }
+    QTextStream inStream(&cfgFile);
+    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
     cfgFile.close();
-    return true;
+
+    if (!doc.isObject() || doc.isNull()) {
+        qInfo() << "The configure file maybe broken!";
+        return false;
+    } else {
+         QJsonObject root = doc.object();
+         if (replacePartStruct(root) && replaceAllStruct(root) && insertStruct(root)) {
+             qInfo() << "Configure success!";
+             return true;
+         } else {
+             qInfo() << "Configure fail!";
+             return false;
+         }
+    }
 }
 
 
@@ -264,112 +284,195 @@ bool HandleMachine::configure(std::string cfgFilePath)
  * @param dataVec
  * @return
  */
-bool HandleMachine::operate(std::string opFilePath ,std::string opKey, std::vector<std::string> dataVec)
+bool HandleMachine::operate(QString opFilePath ,QString opKey, QVector<QString> dataVec)
 {
-    std::ifstream opFile(opFilePath);
-    if (opFile.is_open()) {
-        Json::Reader reader;
-        Json::Value root;
-        if (reader.parse(opFile, root, false)) {
-            Json::Value opObject = root[opKey];
-            if (!opObject.isNull()) {
-                std::string locationKey = opObject["locationKey"].asString();
-                std::string confirmKey = opObject["confirmKey"].asString();
-                Json::Value offsets = opObject["offsets"];
-
-                if (offsets.size() == dataVec.size()) {
-                    int beginLoc = getReplaceLocation(_content, locationKey, confirmKey);
-                    if (beginLoc > -1) {
-                        for (int index = 0; index < offsets.size(); index++) {
-                            std::regex reg("(^\\s*)([^]*?)(,|;)(.*)");
-                            std::string fmt;
-                            std::string prefix = "$01";
-                            std::string suffix = "$03$04";
-
-                            int targetPos = beginLoc + offsets[index].asInt();
-                            std::string textLine = _content[targetPos];
-
-                            if (0 != dataVec[index].compare(DEFAUL_VALUE))
-                                fmt = prefix + dataVec[index] + suffix;
-                            else continue;
-
-                            std::string newLine = std::regex_replace(textLine, reg, fmt);
-                            _content[targetPos] = newLine;
-                        }
-                        return true;
-                    } else {
-                        std::cerr << "The location: " + beginLoc << std::endl;
-                        std::cerr << "Can't locate the position!" << std::endl;
-                    }
-                } else {
-                    std::cerr << "The dataVec is unacceptale!" << std::endl;
-                }
-            } else {
-                std::cerr << "Can't find the opKey: [" << opKey << "]" << std::endl;
-            }
-        } else {
-            std::cerr << "The operation file may have error!" << std::endl;
-        }
-    } else {
-        std::cerr << "The operation file open fail" << std::endl;
+    QFile opFile(opFilePath);
+    if (!opFile.open(QFile::ReadOnly)) {
+        qInfo() << "Operation file open fail!";
+        return false;
     }
-    return false;
+    QTextStream inStream(&opFile);
+    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
+    opFile.close();
+
+    if (!doc.isObject() || doc.isNull()) {
+        qInfo() << "The Operation file maybe broken!";
+        return false;
+    } else {
+        QJsonObject opObject = doc.object()[opKey].toObject();
+        if (!opObject.isEmpty()) {
+            QString locationKey = opObject["locationKey"].toString();
+            QString confirmKey = opObject["confirmKey"].toString();
+            Q_ASSERT_X(opObject["offsets"].isArray(), "json try to array", "this json value isn't array");
+            QJsonArray offsets = opObject["offsets"].toArray();
+            Q_ASSERT_X(offsets.size() == dataVec.size(), "operation args", "the operation args number is wrong");
+            int beginLoc = getReplaceLocation(locationKey, confirmKey);
+            if (beginLoc > -1) {
+                for (int index = 0; index < offsets.size(); index++) {
+                    QRegExp reg("(^\\s*)(.*)(,|;)(.*)");
+                    QString fmt, prefix("\\1"), suffix("\\3\\4");
+                    int targetPos = beginLoc + offsets[index].toInt();
+
+                    if (DEFAUL_VALUE != dataVec[index]) {
+                        fmt = prefix + dataVec[index] + suffix;
+                         _content[targetPos].replace(reg, fmt);
+                    }
+                    else continue;
+                }
+                qInfo() << "Operation success!";
+                return true;
+            }
+        }
+        qInfo() << "Operation fail!";
+        return false;
+    }
+}
+
+/**
+ * @brief HandleMachine::save >> 保存配置操作后的.idf文件
+ */
+void HandleMachine::save()
+{
+    QFile file(_sourfilePath);
+    if (file.open(QFile::WriteOnly)) {
+        QTextStream out(&file);
+        for (int i = 0; i < _content.size(); i++)
+            out << _content[i] << endl;
+        file.close();
+        qInfo() << "Save success!";
+    } else {
+        qInfo() << "Save fail!";
+    }
 }
 
 bool HandleMachine::separate()
 {
-    std::string outputDir;
-    outputDir = ".\\output\\" + _sourfileName;
-    if (Utils::checkDir(outputDir)) {
+    QString outputDir;
+    int dotPos = _sourfileName.indexOf('.');
+    QString realName = _sourfileName.left(dotPos);
+
+    outputDir = ".\\output\\" + realName;
+
+    if (Utils::checkDir(outputDir.toStdString())) {
         //基本
-        std::string baseDir = outputDir + "\\base";
-        mkdir(baseDir.c_str());
+        QString baseDir = outputDir + "\\base";
+        mkdir(baseDir.toStdString().c_str());
         //未租
-        std::string nrDir = outputDir + "\\nr";
-        mkdir(nrDir.c_str());
+        QString nrDir = outputDir + "\\nr";
+        mkdir(nrDir.toStdString().c_str());
         //已租有人
-        std::string rpDir = outputDir + "\\rp";
-        mkdir(rpDir.c_str());
+        QString rpDir = outputDir + "\\rp";
+        mkdir(rpDir.toStdString().c_str());
         //已租无人
-        std::string rDir = outputDir + "\\r";
-        mkdir(rDir.c_str());
+        QString rDir = outputDir + "\\r";
+        mkdir(rDir.toStdString().c_str());
 
-        std::ofstream base(baseDir + "\\base.idf");
-        std::ofstream nr(nrDir + "\\nr.idf");
-        std::ofstream rp(rpDir + "\\np.idf");
-        std::ofstream r(rDir + "\\r.idf");
+        QFile baseFile(baseDir + "\\base.idf");
+        QFile nrFile(nrDir + "\\nr.idf");
+        QFile rpFile(rpDir + "\\np.idf");
+        QFile rFile(rDir + "\\r.idf");
+        if (baseFile.open(QFile::WriteOnly) && nrFile.open(QFile::WriteOnly)
+                && rpFile.open(QFile::WriteOnly) && rFile.open(QFile::WriteOnly)) {
+            QTextStream baseStream(&baseFile);
+            QTextStream nrStream(&nrFile);
+            QTextStream rpStream(&rpFile);
+            QTextStream rStream(&rFile);
 
-        if (base.is_open()&&nr.is_open() && rp.is_open() && r.is_open()) {
             for (int i = 0; i < _content.size(); i++) {
-                base << _content[i] << std::endl;
-                nr << _content[i] << std::endl;
-                rp << _content[i] << std::endl;
-                r << _content[i] << std::endl;
+                baseStream << _content[i] << endl;
+                nrStream << _content[i] << endl;
+                rpStream << _content[i] << endl;
+                rStream << _content[i] << endl;
             }
-            base.close();
-            nr.close();
-            rp.close();
-            r.close();
-            std::cout << "Separeting success!" << std::endl;
+            baseFile.close();
+            nrFile.close();
+            rpFile.close();
+            rFile.close();
+            qInfo() << "Separeting success!";
             return true;
         }
     }
-    std::cout << "Separeting fail!" << std::endl;
+    qDebug() << "Separeting fail!";
     return false;
 }
 
-void HandleMachine::output()
-{
-    std::ofstream outfile(_sourfilePath, std::ios::out | std::ios::trunc);
-    if (!outfile.is_open()) {
-        std::cerr << "can't output base source file!" << std::endl;
-        return;
-    }
+//void HandleMachine::startMachine(std::string cityName)
+//{
+//     std::string targetDir = Utils::getFileDir(_sourfilePath);
+//    //将.ini文件拷贝至当前idf文件所在文件夹
+//    std::ifstream sourceIddFile(EP_IDD_FILE);
+//    std::ofstream destIddFile(targetDir + "\\" + Utils::getFileName(EP_IDD_FILE));
+//    if (sourceIddFile.is_open() && destIddFile.is_open()) {
+//        std::string line("");
+//        while (std::getline(sourceIddFile, line))
+//            destIddFile << line << std::endl;
+//        sourceIddFile.close();
+//        destIddFile.close();
+//    } else {
+//        std::cerr << "Idd file open fail!" << std::endl;
+//        return;
+//    }
 
-    std::cout << "Output" << std::endl;
-    for (int i = 0; i < _content.size(); i++) {
-        outfile << _content[i] << std::endl;
+//    //将要执行idf文件拷贝出一份新的，名为in.idf的文件
+//    std::ofstream destCoreFile(targetDir + "\\" + "in.idf");
+//    std::ifstream sourceCoreFile(_sourfilePath);
+//    if (destCoreFile.is_open() && sourceCoreFile.is_open()) {
+//        std::string line("");
+//        while (std::getline(sourceCoreFile, line))
+//            destCoreFile << line << std::endl;
+//        sourceCoreFile.close();
+//        destCoreFile.close();
+//    } else {
+//        std::cerr << "Core file open fail!" << std::endl;
+//        return;
+//    }
+
+//    //将当前城市的天气文件拷贝至当前idf文件所在文件夹
+//    std::ofstream destWeatherFile(targetDir + "\\" + "in.epw");
+//    std::string weatherFilePath("");
+//    weatherFilePath = weatherFilePath + WEATHER_DIR + "\\" + cityName + "_IWEC.epw";
+//    std::ifstream sourceWeatherFile(weatherFilePath);
+//    if (destWeatherFile.is_open() && sourceWeatherFile.is_open()) {
+//        std::string line("");
+//        while (std::getline(sourceWeatherFile, line))
+//            destWeatherFile << line << std::endl;
+//        sourceWeatherFile.close();
+//        destWeatherFile.close();
+//    } else {
+//        std::cerr << "Weather file open fail!" << std::endl;
+//        return;
+//    }
+
+//    char buffer[1000];
+//    _getcwd(buffer,1000);
+//    std::string workDir(buffer); //当前工作路径
+//    _chdir(targetDir.c_str()); //将工作路径定位到targetDir
+
+//    //调用ExpandObjects.exe
+//    std::string epObjPath("");
+//    epObjPath = epObjPath + workDir + "\\" + EP_OBJ_EXE;
+//    std::cout << epObjPath << std::endl;
+//    system(epObjPath.c_str());
+
+//    //调用EnergyPlus.exe
+//    std::string epPath("");
+//    epPath = epPath + workDir + "\\" + EP_EXE;
+//    std::cout << epPath << std::endl;
+
+//    system(epPath.c_str());
+//    _chdir(workDir.c_str()); //恢复原工作路径
+//}
+
+void HandleMachine::printFile()
+{
+    QFile fs("out.txt");
+    if (fs.open(QIODevice::ReadWrite)) {
+        QTextStream out(&fs);
+        for (int i = 0; i < _content.size(); i++) {
+            out << _content[i] << endl;
+        }
+        out.flush();
+        fs.close();
     }
-    outfile.close();
 }
 

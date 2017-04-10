@@ -1,32 +1,27 @@
-#include <iostream>
 #include <QApplication>
 #include "mainwindow.h"
 #include "handlemachine.h"
 #include "utils.h"
 #include <direct.h>
 #include <stdlib.h>
+#include "debug.h"
+#include <QJsonDocument>
+#include "global.h"
 
 int main(int arg, char* argv[]) {
+    qInstallMessageHandler(debugMessage);
 //    QApplication app(arg, argv);
 //    MainWindow win;
 //    win.show();
 //    app.exec();
-    HandleMachine baseMachine("source\\25.idf");
-    baseMachine.initCityData("beijing");
-    std::vector<std::string> v = {DEFAUL_VALUE};
-    baseMachine.operate(BASE_OP_FILE, "opElectricEquipment", v);
-    baseMachine.separate();
-//    std::string workDir = "E:\\WorkSpace\\QT\\build-EnergyPlusProject-Desktop_Qt_5_8_0_MSVC2015_64bit-Debug";
-//    std::string targetPath = "E:\\WorkSpace\\QT\\build-EnergyPlusProject-Desktop_Qt_5_8_0_MSVC2015_64bit-Debug\\output\\25";
-//    _chdir(targetPath.c_str());
-//    char buffer[10000];
-//    _getcwd(buffer,10000);
-//    std::cout << buffer << std::endl;
-//    std::string s1 = workDir + "\\EneryPlus\\EnergyPlusV8-1-0\\ExpandObjects.exe";
-//    system(s1.c_str());
-//    rename("in.idf","in.idf.original");
-//    rename("expanded.idf","in.idf");
-//    std::string s2 = workDir + "\\EneryPlus\\EnergyPlusV8-1-0\\EnergyPlus.exe";
-//    system(s2.c_str());
+//    HandleMachine h(":/data/resource/source/20.idf");
+//    h.initCityData("Harbin");
+//    QVector<QString> s = {"999"};
+//    h.operate(":/data/resource/model/base/base_operation.json", "opElectricEquipment", s);
+//    h.separate();
+    HandleMachine s("output\\20\\base\\base.idf");
+    QVector<QString> y = {"66666"};
+    s.operate(":/data/resource/model/base/base_operation.json", "opElectricEquipment", y);
+    s.save();
     return 0;
 }

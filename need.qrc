@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/data">
+        <file>resource/weather/Beijing_IWEC.epw</file>
+        <file>resource/weather/Guangzhou_IWEC.epw</file>
+        <file>resource/weather/Harbin_IWEC.epw</file>
+        <file>resource/weather/Shanghai_IWEC.epw</file>
+        <file>resource/source/20.idf</file>
+        <file>resource/source/25.idf</file>
+        <file>resource/source/30.idf</file>
+        <file>resource/source/35.idf</file>
+        <file>resource/source/40.idf</file>
+        <file>resource/source/45.idf</file>
+        <file>resource/source/50.idf</file>
+        <file>resource/source/54.idf</file>
+        <file>resource/source/60.idf</file>
+        <file>resource/model/base/base_config.json</file>
+        <file>resource/model/base/base_operation.json</file>
+        <file>resource/model/base/beijing.json</file>
+        <file>resource/model/base/guangzhou.json</file>
+        <file>resource/model/base/harbin.json</file>
+        <file>resource/model/base/shanghai.json</file>
+        <file>resource/model/proposed/proposed_config.json</file>
+        <file>resource/model/proposed/proposed_operation.json</file>
+        <file>resource/model/proposed/nr/nr_config.json</file>
+        <file>resource/model/proposed/nr/nr_operation.json</file>
+        <file>resource/model/proposed/r/r_config.json</file>
+        <file>resource/model/proposed/r/r_operation.json</file>
+        <file>resource/model/proposed/rp/rp_config.json</file>
+        <file>resource/model/proposed/rp/rp_operation.json</file>
+    </qresource>
+</RCC>

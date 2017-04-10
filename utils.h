@@ -6,13 +6,13 @@
 #include <io.h>
 #include <regex>
 #include <direct.h>
-#include "json/json.h"
+#include <iostream>
 
 class Utils {
 public:
-    static bool checkJsonFile(std::string filePath);
     static std::vector<std::string> split(std::string str, std::string delim);
     static std::string getFileName(std::string filePath);
+    static std::string getFileDir(std::string filePath);
     static bool checkDir(std::string dirPath);
 };
 
