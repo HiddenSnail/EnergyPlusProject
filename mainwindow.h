@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QDebug>
 #include "global.h"
+#include "handlemachine.h"
 
 namespace Ui {
 class MainWindow;
@@ -14,6 +15,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 signals:
     void dataPackage(int data);
+    void weahter(QString weather);
 
 private slots:
     void on_btn_start_clicked();

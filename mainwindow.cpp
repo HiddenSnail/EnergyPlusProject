@@ -68,12 +68,29 @@ void MainWindow::init()
     ui->edit_sec7_lightUsingNum->setValidator(new QRegExpValidator(percent0To1Reg, this));
     ui->edit_sec7_fridge->setValidator(new QIntValidator(0, 1000000, this));
     ui->edit_sec7_otherDevice->setValidator(new QIntValidator(0, 1000000, this));
+
 }
 
 
 void MainWindow::on_btn_start_clicked()
 {
-//    int size = ui->edit_sec1_size->;
+    HandleMachine *h1 = new HandleMachine(PathManager::instance()->getPath("OutPutDir") + "/25/base.idf");
+    HandleMachine *h2 = new HandleMachine(PathManager::instance()->getPath("OutPutDir") + "/20/nr.idf");
+    QThread *t1 = new QThread();
+    QThread *t2 = new QThread();
+    h1->moveToThread(t1);
+    h2->moveToThread(t2);
+    QObject::connect(this, SIGNAL(weahter(QString)), h1, SLOT(startMachine(QString)));
+    QObject::connect(this, SIGNAL(weahter(QString)), h2, SLOT(startMachine(QString)));
+
+    QObject::connect(h1, SIGNAL(finishExec()), h1, SLOT(deleteLater()));
+    QObject::connect(h1, SIGNAL(finishExec()), t1,SLOT(quit()));
+
+    QObject::connect(h2, SIGNAL(finishExec()), h2, SLOT(deleteLater()));
+    QObject::connect(h2, SIGNAL(finishExec()), t2, SLOT(quit()));
+    emit weahter("Harbin");
+    t1->start();
+    t2->start();
 }
 
 void MainWindow::on_checkBox_sec2_year_stateChanged(int arg1)

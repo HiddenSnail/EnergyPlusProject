@@ -12,7 +12,7 @@ void debugMessage(QtMsgType type, const QMessageLogContext &context, const QStri
     QString text;
     switch (type) {
     case QtDebugMsg:
-        text = QString("Debug:");
+        text = QString(QString("Debug:"));
         break;
     case QtInfoMsg:
         text = QString("Info:");
@@ -32,7 +32,7 @@ void debugMessage(QtMsgType type, const QMessageLogContext &context, const QStri
     QString contextInfo = QString("  Message:{ %1 }\n  File:{ %2 }\n  Line:{ %3 }\n  Func:{ %4 }\n  Time:{ %5 }\n")
             .arg(msg).arg(QString(context.file)).arg(QString::number(context.line))
             .arg(QString(context.function)).arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ddd"));
-    qout << text << "\n" << contextInfo << endl;
+    qout << text << QThread::currentThreadId() << "\n" << contextInfo << endl;
     mutex.unlock();
 }
 

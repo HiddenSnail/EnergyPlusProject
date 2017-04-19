@@ -1,5 +1,7 @@
 #include "handlemachine.h"
 
+QMutex HandleMachine::_lock;
+
 /**
  * @brief HandleMachine::isTheKeyLine >> 判断是否为key所在的行
  * @param key
@@ -239,7 +241,7 @@ bool HandleMachine::insertStruct(QJsonObject root)
  */
 bool HandleMachine::initCityData(QString cityName)
 {
-    QString pathPrefix(BASE_MODEL_DIR);
+    QString pathPrefix = PathManager::instance()->getPath("BaseModelDir");
     QString cityFilePath = QString(pathPrefix + "/%1.json").arg(cityName.toLower());
     return configure(cityFilePath);
     return true;
@@ -331,148 +333,205 @@ bool HandleMachine::operate(QString opFilePath ,QString opKey, QVector<QString> 
 /**
  * @brief HandleMachine::save >> 保存配置操作后的.idf文件
  */
-void HandleMachine::save()
+bool HandleMachine::save()
 {
-    QFile file(_sourfilePath);
+    QFile file(_filePath);
     if (file.open(QFile::WriteOnly)) {
         QTextStream out(&file);
         for (int i = 0; i < _content.size(); i++)
             out << _content[i] << endl;
         file.close();
         qInfo() << "Save success!";
+        return true;
     } else {
         qInfo() << "Save fail!";
+        return false;
     }
 }
 
+/**
+ * @brief HandleMachine::separate >> 4个对比模型分离函数
+ * @return
+ */
 bool HandleMachine::separate()
 {
-    QString outputDir;
-    int dotPos = _sourfileName.indexOf('.');
-    QString realName = _sourfileName.left(dotPos);
-
-    outputDir = ".\\output\\" + realName;
-
-    if (Utils::checkDir(outputDir.toStdString())) {
-        //基本
-        QString baseDir = outputDir + "\\base";
-        mkdir(baseDir.toStdString().c_str());
-        //未租
-        QString nrDir = outputDir + "\\nr";
-        mkdir(nrDir.toStdString().c_str());
-        //已租有人
-        QString rpDir = outputDir + "\\rp";
-        mkdir(rpDir.toStdString().c_str());
-        //已租无人
-        QString rDir = outputDir + "\\r";
-        mkdir(rDir.toStdString().c_str());
-
-        QFile baseFile(baseDir + "\\base.idf");
-        QFile nrFile(nrDir + "\\nr.idf");
-        QFile rpFile(rpDir + "\\np.idf");
-        QFile rFile(rDir + "\\r.idf");
-        if (baseFile.open(QFile::WriteOnly) && nrFile.open(QFile::WriteOnly)
-                && rpFile.open(QFile::WriteOnly) && rFile.open(QFile::WriteOnly)) {
-            QTextStream baseStream(&baseFile);
-            QTextStream nrStream(&nrFile);
-            QTextStream rpStream(&rpFile);
-            QTextStream rStream(&rFile);
-
-            for (int i = 0; i < _content.size(); i++) {
-                baseStream << _content[i] << endl;
-                nrStream << _content[i] << endl;
-                rpStream << _content[i] << endl;
-                rStream << _content[i] << endl;
-            }
-            baseFile.close();
-            nrFile.close();
-            rpFile.close();
-            rFile.close();
-            qInfo() << "Separeting success!";
-            return true;
-        }
+    QDir appDir(QApplication::applicationDirPath());
+    QString outPutPath = PathManager::instance()->getPath("OutPutDir");
+    QDir outputDir(outPutPath);
+    if (!outputDir.exists()) {
+        appDir.mkdir("output");
     }
-    qDebug() << "Separeting fail!";
-    return false;
+
+    QDir targetDir(outPutPath + "/" + _baseName);
+    if (outputDir.exists()) {
+        targetDir.removeRecursively();
+        outputDir.mkdir(_baseName);
+    } else {
+        outputDir.mkdir(_baseName);
+    }
+
+    QString filePath = QString(targetDir.path() + "/%1." + _fileSuffix);
+    QFile baseFile(filePath.arg("base"));
+    if (baseFile.open(QFile::WriteOnly)) {
+         QTextStream stream(&baseFile);
+         for (int i = 0; i < _content.size(); i++) {
+             stream << _content[i] << endl;
+         }
+         baseFile.close();
+    } else {
+        qDebug() << "Can't create base model!";
+        return false;
+    }
+
+    if (baseFile.copy(filePath.arg("nr")) && baseFile.copy(filePath.arg("rp")) && baseFile.copy(filePath.arg("r"))) {
+        qInfo() << "Separate success!";
+        return true;
+    } else {
+        qDebug() << "Separate fail!";
+        return false;
+    }
 }
 
-//void HandleMachine::startMachine(std::string cityName)
-//{
-//     std::string targetDir = Utils::getFileDir(_sourfilePath);
-//    //将.ini文件拷贝至当前idf文件所在文件夹
-//    std::ifstream sourceIddFile(EP_IDD_FILE);
-//    std::ofstream destIddFile(targetDir + "\\" + Utils::getFileName(EP_IDD_FILE));
-//    if (sourceIddFile.is_open() && destIddFile.is_open()) {
-//        std::string line("");
-//        while (std::getline(sourceIddFile, line))
-//            destIddFile << line << std::endl;
-//        sourceIddFile.close();
-//        destIddFile.close();
-//    } else {
-//        std::cerr << "Idd file open fail!" << std::endl;
-//        return;
-//    }
-
-//    //将要执行idf文件拷贝出一份新的，名为in.idf的文件
-//    std::ofstream destCoreFile(targetDir + "\\" + "in.idf");
-//    std::ifstream sourceCoreFile(_sourfilePath);
-//    if (destCoreFile.is_open() && sourceCoreFile.is_open()) {
-//        std::string line("");
-//        while (std::getline(sourceCoreFile, line))
-//            destCoreFile << line << std::endl;
-//        sourceCoreFile.close();
-//        destCoreFile.close();
-//    } else {
-//        std::cerr << "Core file open fail!" << std::endl;
-//        return;
-//    }
-
-//    //将当前城市的天气文件拷贝至当前idf文件所在文件夹
-//    std::ofstream destWeatherFile(targetDir + "\\" + "in.epw");
-//    std::string weatherFilePath("");
-//    weatherFilePath = weatherFilePath + WEATHER_DIR + "\\" + cityName + "_IWEC.epw";
-//    std::ifstream sourceWeatherFile(weatherFilePath);
-//    if (destWeatherFile.is_open() && sourceWeatherFile.is_open()) {
-//        std::string line("");
-//        while (std::getline(sourceWeatherFile, line))
-//            destWeatherFile << line << std::endl;
-//        sourceWeatherFile.close();
-//        destWeatherFile.close();
-//    } else {
-//        std::cerr << "Weather file open fail!" << std::endl;
-//        return;
-//    }
-
-//    char buffer[1000];
-//    _getcwd(buffer,1000);
-//    std::string workDir(buffer); //当前工作路径
-//    _chdir(targetDir.c_str()); //将工作路径定位到targetDir
-
-//    //调用ExpandObjects.exe
-//    std::string epObjPath("");
-//    epObjPath = epObjPath + workDir + "\\" + EP_OBJ_EXE;
-//    std::cout << epObjPath << std::endl;
-//    system(epObjPath.c_str());
-
-//    //调用EnergyPlus.exe
-//    std::string epPath("");
-//    epPath = epPath + workDir + "\\" + EP_EXE;
-//    std::cout << epPath << std::endl;
-
-//    system(epPath.c_str());
-//    _chdir(workDir.c_str()); //恢复原工作路径
-//}
-
-void HandleMachine::printFile()
+/**
+ * @brief HandleMachine::startMachine >> 开启测评
+ * @param weatherFileName
+ */
+void HandleMachine::startMachine(QString weatherFileName)
 {
-    QFile fs("out.txt");
-    if (fs.open(QIODevice::ReadWrite)) {
-        QTextStream out(&fs);
-        for (int i = 0; i < _content.size(); i++) {
-            out << _content[i] << endl;
+    _lock.lock();
+
+    //修改Eplus的配置文件(.ini)
+    QFile epIniFile(PathManager::instance()->getPath("EpIniFile"));
+    QFile newEpIniFile("new.ini");
+    if (epIniFile.open(QFile::ReadWrite) && newEpIniFile.open(QFile::WriteOnly)) {
+        QTextStream stream1(&epIniFile);
+        QTextStream stream2(&newEpIniFile);
+        int flag = 0;  //0:未找到目标行, 1:已找到目标行, 2:已修改目标行
+        while (!stream1.atEnd()) {
+            QString line = stream1.readLine();
+            switch (flag) {
+            case 0: {
+                QRegExp reg("\\[program\\]");
+                if (reg.exactMatch(line)) {
+                    flag = 1;
+                }
+                break;
+            }
+            case 1: {
+                QDir epDir(PathManager::instance()->getPath("EplusDir"));
+                line = QString("dir=%1\\").arg(epDir.path().replace("/", "\\"));
+                flag = 2;
+            }
+            default:
+                break;
+            }
+            stream2 << line << endl;
         }
-        out.flush();
-        fs.close();
+        epIniFile.close();
+        if (epIniFile.remove()) {
+            newEpIniFile.rename(PathManager::instance()->getPath("EpIniFile"));
+            newEpIniFile.close();
+            qInfo() << "Energy+.ini configure success.";
+        }
+    } else {
+        qDebug() << "Can't find Energy+.ini File!";
+        return;
     }
+
+    //修改Eplus的批处理文件(.bat)
+    QFile epRunFile(PathManager::instance()->getPath("EpRunFile"));
+    QFile newEpRunFile("new.bat");
+    if (epRunFile.open(QFile::ReadWrite) && newEpRunFile.open(QFile::WriteOnly)) {
+        QTextStream stream1(&epRunFile);
+        QTextStream stream2(&newEpRunFile);
+        int flag = 0;  //0:未找到目标行, 1:已修改input_path行, 2:已修改ouput_path行, 3:已修改weather_path行
+        while (!stream1.atEnd()) {
+            QString line = stream1.readLine();
+            switch (flag) {
+            case 0: {
+                //input_path所在行定位
+                QRegExp reg("(^\\s*set input_path=).*");
+                if (reg.exactMatch(line)) {
+                    line.replace(reg, QString("\\1%1\\").arg(_fileDir).replace("/", "\\"));
+                    flag = 1;
+                }
+                break;
+            }
+            case 1: {
+                //output_path所在行定位
+                QRegExp reg("(^\\s*set output_path=).*");
+                if (reg.exactMatch(line)) {
+                    line.replace(reg, QString("\\1%1\\").arg(_fileDir).replace("/", "\\"));
+                    flag = 2;
+                }
+                break;
+            }
+            case 2: {
+                //weather_path所在行定位
+                QRegExp reg("(^\\s*set weather_path=).*");
+                if (reg.exactMatch(line)) {
+                    QString weatherDir = PathManager::instance()->getPath("WeatherDir");
+                    line.replace(reg, QString("\\1%1\\").arg(weatherDir).replace("/", "\\"));
+                    flag = 3;
+                }
+                break;
+            }
+            default:
+                break;
+            }
+            stream2 << line << endl;
+        }
+        epRunFile.close();
+        if (epRunFile.remove()) {
+            newEpRunFile.rename(PathManager::instance()->getPath("EpRunFile"));
+            newEpIniFile.close();
+            qInfo() << "RunEPlus.bat configure success.";
+        }
+    } else {
+        qDebug() << "Can't find or replace RunEPlus.bat File!";
+        return;
+    }
+
+    //执行RunEPlus.bat
+    if (save()) {
+        QProcess *p_proc = new QProcess();
+        if (p_proc != NULL) {
+            //设置脚本执行环境,而并非当前程序运行环境
+            p_proc->setWorkingDirectory(PathManager::instance()->getPath("EplusDir"));
+            //获取脚本文件信息
+            QFileInfo shell =  QFileInfo(PathManager::instance()->getPath("EpRunFile"));
+            //设置脚本参数
+            QStringList args;
+
+            args << _baseName << weatherFileName;
+            //启动脚本
+            p_proc->start(shell.absoluteFilePath(), args);
+
+            if (p_proc->waitForStarted()) {
+                qInfo() << "EnergyPlus process start!";
+            } else {
+                qDebug() << "EnergyPlus process start error!";
+                return;
+            }
+
+            if(p_proc->waitForFinished()) {
+                if (0 == p_proc->exitCode()) {
+                    qInfo() << "Execute normal!";
+                } else {
+                    qDebug() << "Execute error!";
+                    return;
+                }
+            } else {
+                qDebug() << "Time out!";
+                return;
+            }
+            delete p_proc;
+            p_proc = NULL;
+            //发射完成信号
+            emit finishExec();
+        }
+    }
+
+    _lock.unlock();
 }
 

@@ -12,15 +12,16 @@ HEADERS += \
     handlemachine.h \
     mainwindow.h \
     utils.h \
-    path.h \
     debug.h \
-    global.h
+    global.h \
+    pathmanager.h
 
 SOURCES += \
     main.cpp \
     handlemachine.cpp \
     mainwindow.cpp \
-    utils.cpp
+    utils.cpp \
+    pathmanager.cpp
 
 DISTFILES += \
     README.md \
@@ -29,5 +30,4 @@ DISTFILES += \
 FORMS += \
     mainwindow.ui
 
-RESOURCES += \
-    need.qrc
+RESOURCES +=
