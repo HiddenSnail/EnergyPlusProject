@@ -1,7 +1,6 @@
 #include "handlemachine.h"
 
-QMutex HandleMachine::_lock;
-
+QMutex HandleMachine::_startLock;
 /**
  * @brief HandleMachine::isTheKeyLine >> 判断是否为key所在的行
  * @param key
@@ -130,17 +129,16 @@ int HandleMachine::getInsertLocation(QString locationKey, QString confirmKey)
 bool HandleMachine::replacePartStruct(QJsonObject root)
 {
     if (root.isEmpty()) {
-        qInfo() << "The root is empty";
+        qDebug() << "The root is empty";
         return false;
     }
     QJsonValue structPartReplace = root["structPartReplace"];
     if (structPartReplace.isNull()) return false;
-
     if (0 == structPartReplace.toInt(-1)) {
         qInfo() << "No need to replace!";
     } else {
-        //断言structPartReplace是一个Json数组
-        Q_ASSERT(structPartReplace.isArray());
+        if(!structPartReplace.isArray()) { qFatal("Target is not array! Configure file maybe broken!"); }
+
         QJsonArray dataArray = structPartReplace.toArray();
         for (int i = 0; i < dataArray.size(); i++) {
             QString locationKey = dataArray[i].toObject()["locationKey"].toString();
@@ -179,7 +177,8 @@ bool HandleMachine::replaceAllStruct(QJsonObject root)
     if (0 == structAllReplace.toInt(-1)) {
         qInfo() << "No need to all replace";
     } else {
-        Q_ASSERT_X(structAllReplace.isArray(), "json try to array", "this json value isn't array");
+        if(!structAllReplace.isArray()) { qFatal("Target is not array! Configure file maybe broken!"); }
+
         QJsonArray dataArray = structAllReplace.toArray();
         for (int i = 0; i < dataArray.size(); i++) {
             QJsonObject obj = dataArray[i].toObject();
@@ -214,7 +213,7 @@ bool HandleMachine::insertStruct(QJsonObject root)
     if (0 == structInsert.toInt(-1)) {
         qInfo() << "No need to insert";
     } else {
-        Q_ASSERT_X(structInsert.isArray(), "json try to array", "this json value isn't array");
+        if(!structInsert.isArray()) { qFatal("Target is not array! Configure file maybe broken!"); }
         QJsonArray dataArray = structInsert.toArray();
         for (int i = 0; i < dataArray.size(); i++) {
             QJsonObject obj = dataArray[i].toObject();
@@ -223,7 +222,6 @@ bool HandleMachine::insertStruct(QJsonObject root)
             QJsonArray structData = obj["structData"].toArray();
             int beginLoc = getInsertLocation(locationKey, confirmKey);
             if (beginLoc > -1) {
-                QVector<QString> structDataVec;
                 _content.insert(beginLoc++, "");
                 for (int j = 0; j < structData.size(); j++) {
                     _content.insert(beginLoc++, structData[j].toString());
@@ -244,7 +242,6 @@ bool HandleMachine::initCityData(QString cityName)
     QString pathPrefix = PathManager::instance()->getPath("BaseModelDir");
     QString cityFilePath = QString(pathPrefix + "/%1.json").arg(cityName.toLower());
     return configure(cityFilePath);
-    return true;
 }
 
 /**
@@ -253,80 +250,24 @@ bool HandleMachine::initCityData(QString cityName)
  */
 bool HandleMachine::configure(QString cfgFilePath)
 {
+    qInfo() << QString("Start configure! [%1]").arg(_fileName);
     QFile cfgFile(cfgFilePath);
-    if (!cfgFile.open(QFile::ReadOnly)) {
-        qInfo() << "Configure file open fail!";
-        return false;
-    }
+    if (!cfgFile.open(QFile::ReadOnly)) { qFatal("Configure file open fail!"); }
 
     QTextStream inStream(&cfgFile);
     QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
     cfgFile.close();
 
     if (!doc.isObject() || doc.isNull()) {
-        qInfo() << "The configure file maybe broken!";
-        return false;
+        qFatal("The configure file maybe broken!");
     } else {
          QJsonObject root = doc.object();
          if (replacePartStruct(root) && replaceAllStruct(root) && insertStruct(root)) {
-             qInfo() << "Configure success!";
+             qInfo() << QString("Configure success! [%1]").arg(_fileName);
              return true;
          } else {
-             qInfo() << "Configure fail!";
-             return false;
+             qFatal("Configure fail![%s]", _fileName.toStdString().c_str());
          }
-    }
-}
-
-
-/**
- * @brief HandleMachine::operate >> 对.idf文本进行动作配置，即配置数据来自外部输入
- * @param opFilePath
- * @param opKey
- * @param dataVec
- * @return
- */
-bool HandleMachine::operate(QString opFilePath ,QString opKey, QVector<QString> dataVec)
-{
-    QFile opFile(opFilePath);
-    if (!opFile.open(QFile::ReadOnly)) {
-        qInfo() << "Operation file open fail!";
-        return false;
-    }
-    QTextStream inStream(&opFile);
-    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
-    opFile.close();
-
-    if (!doc.isObject() || doc.isNull()) {
-        qInfo() << "The Operation file maybe broken!";
-        return false;
-    } else {
-        QJsonObject opObject = doc.object()[opKey].toObject();
-        if (!opObject.isEmpty()) {
-            QString locationKey = opObject["locationKey"].toString();
-            QString confirmKey = opObject["confirmKey"].toString();
-            Q_ASSERT_X(opObject["offsets"].isArray(), "json try to array", "this json value isn't array");
-            QJsonArray offsets = opObject["offsets"].toArray();
-            Q_ASSERT_X(offsets.size() == dataVec.size(), "operation args", "the operation args number is wrong");
-            int beginLoc = getReplaceLocation(locationKey, confirmKey);
-            if (beginLoc > -1) {
-                for (int index = 0; index < offsets.size(); index++) {
-                    QRegExp reg("(^\\s*)(.*)(,|;)(.*)");
-                    QString fmt, prefix("\\1"), suffix("\\3\\4");
-                    int targetPos = beginLoc + offsets[index].toInt();
-
-                    if (DEFAUL_VALUE != dataVec[index]) {
-                        fmt = prefix + dataVec[index] + suffix;
-                         _content[targetPos].replace(reg, fmt);
-                    }
-                    else continue;
-                }
-                qInfo() << "Operation success!";
-                return true;
-            }
-        }
-        qInfo() << "Operation fail!";
-        return false;
     }
 }
 
@@ -341,11 +282,10 @@ bool HandleMachine::save()
         for (int i = 0; i < _content.size(); i++)
             out << _content[i] << endl;
         file.close();
-        qInfo() << "Save success!";
+        qInfo() << QString("Save success! [%1]").arg(_fileName);
         return true;
     } else {
-        qInfo() << "Save fail!";
-        return false;
+        qFatal("Save fail! [%s]", _fileName.toStdString().c_str());
     }
 }
 
@@ -353,8 +293,10 @@ bool HandleMachine::save()
  * @brief HandleMachine::separate >> 4个对比模型分离函数
  * @return
  */
-bool HandleMachine::separate()
+void HandleMachine::separate()
 {
+    qInfo() << QString("Start seperate! [%1]").arg(_fileName);
+
     QDir appDir(QApplication::applicationDirPath());
     QString outPutPath = PathManager::instance()->getPath("OutPutDir");
     QDir outputDir(outPutPath);
@@ -379,16 +321,14 @@ bool HandleMachine::separate()
          }
          baseFile.close();
     } else {
-        qDebug() << "Can't create base model!";
-        return false;
+        qFatal("Can't create base model!");
     }
 
     if (baseFile.copy(filePath.arg("nr")) && baseFile.copy(filePath.arg("rp")) && baseFile.copy(filePath.arg("r"))) {
-        qInfo() << "Separate success!";
-        return true;
+        qInfo() << QString("Separate success! [%1]").arg(_fileName);
+        emit finishSep();
     } else {
-        qDebug() << "Separate fail!";
-        return false;
+        qFatal("Separate fail! [%s]", _fileName.toStdString().c_str());
     }
 }
 
@@ -398,12 +338,12 @@ bool HandleMachine::separate()
  */
 void HandleMachine::startMachine(QString weatherFileName)
 {
-    _lock.lock();
-
+    qInfo() << QString("Start execute... [%1]").arg(_fileName);
+    _startLock.lock();
     //修改Eplus的配置文件(.ini)
     QFile epIniFile(PathManager::instance()->getPath("EpIniFile"));
     QFile newEpIniFile("new.ini");
-    if (epIniFile.open(QFile::ReadWrite) && newEpIniFile.open(QFile::WriteOnly)) {
+    if (epIniFile.open(QFile::ReadOnly) && newEpIniFile.open(QFile::WriteOnly)) {
         QTextStream stream1(&epIniFile);
         QTextStream stream2(&newEpIniFile);
         int flag = 0;  //0:未找到目标行, 1:已找到目标行, 2:已修改目标行
@@ -428,20 +368,21 @@ void HandleMachine::startMachine(QString weatherFileName)
             stream2 << line << endl;
         }
         epIniFile.close();
+        newEpIniFile.close();
+
         if (epIniFile.remove()) {
             newEpIniFile.rename(PathManager::instance()->getPath("EpIniFile"));
-            newEpIniFile.close();
             qInfo() << "Energy+.ini configure success.";
         }
     } else {
-        qDebug() << "Can't find Energy+.ini File!";
-        return;
+        qFatal("Can't find Energy+.ini File!");
     }
 
     //修改Eplus的批处理文件(.bat)
     QFile epRunFile(PathManager::instance()->getPath("EpRunFile"));
     QFile newEpRunFile("new.bat");
-    if (epRunFile.open(QFile::ReadWrite) && newEpRunFile.open(QFile::WriteOnly)) {
+
+    if (epRunFile.open(QFile::ReadOnly) && newEpRunFile.open(QFile::WriteOnly)) {
         QTextStream stream1(&epRunFile);
         QTextStream stream2(&newEpRunFile);
         int flag = 0;  //0:未找到目标行, 1:已修改input_path行, 2:已修改ouput_path行, 3:已修改weather_path行
@@ -482,14 +423,13 @@ void HandleMachine::startMachine(QString weatherFileName)
             stream2 << line << endl;
         }
         epRunFile.close();
+        newEpIniFile.close();
         if (epRunFile.remove()) {
             newEpRunFile.rename(PathManager::instance()->getPath("EpRunFile"));
-            newEpIniFile.close();
             qInfo() << "RunEPlus.bat configure success.";
         }
     } else {
-        qDebug() << "Can't find or replace RunEPlus.bat File!";
-        return;
+        qFatal("Can't find or replace RunEPlus.bat File!");
     }
 
     //执行RunEPlus.bat
@@ -510,20 +450,17 @@ void HandleMachine::startMachine(QString weatherFileName)
             if (p_proc->waitForStarted()) {
                 qInfo() << "EnergyPlus process start!";
             } else {
-                qDebug() << "EnergyPlus process start error!";
-                return;
+                qFatal("EnergyPlus process start error!");
             }
 
             if(p_proc->waitForFinished()) {
                 if (0 == p_proc->exitCode()) {
-                    qInfo() << "Execute normal!";
+                    qInfo() << QString("Execute normal [%1]!").arg(_fileName);
                 } else {
-                    qDebug() << "Execute error!";
-                    return;
+                    qFatal("Execute error! [%s]", _fileName.toStdString().c_str());
                 }
             } else {
-                qDebug() << "Time out!";
-                return;
+                qFatal("Time out! [%s]", _fileName.toStdString().c_str());
             }
             delete p_proc;
             p_proc = NULL;
@@ -531,7 +468,6 @@ void HandleMachine::startMachine(QString weatherFileName)
             emit finishExec();
         }
     }
-
-    _lock.unlock();
+    _startLock.unlock();
 }
 

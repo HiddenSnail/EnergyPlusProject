@@ -10,6 +10,12 @@
     <height>1000</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>1600</width>
+    <height>1000</height>
+   </size>
+  </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
@@ -825,22 +831,6 @@ border-radius: 10px;</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
-              <widget class="QCheckBox" name="checkBox_sec2_year">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>年</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec2_rentRateType</string>
-               </attribute>
-              </widget>
-             </item>
              <item row="2" column="2" colspan="2">
               <widget class="QLineEdit" name="edit_sec2_year">
                <property name="minimumSize">
@@ -893,22 +883,6 @@ border-radius: 0;</string>
                </property>
               </spacer>
              </item>
-             <item row="3" column="1">
-              <widget class="QCheckBox" name="checkBox_sec2_quarter">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>季度</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec2_rentRateType</string>
-               </attribute>
-              </widget>
-             </item>
              <item row="3" column="2" colspan="2">
               <widget class="QLineEdit" name="edit_sec2_quarter">
                <property name="minimumSize">
@@ -955,24 +929,8 @@ border-radius: 0;</string>
                </property>
               </spacer>
              </item>
-             <item row="4" column="1">
-              <widget class="QCheckBox" name="checkBox_sec2_day">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>日</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec2_rentRateType</string>
-               </attribute>
-              </widget>
-             </item>
              <item row="4" column="2" colspan="2">
-              <widget class="QLineEdit" name="edit_sec2_day">
+              <widget class="QLineEdit" name="edit_sec2_month">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -1109,6 +1067,54 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
+             <item row="2" column="1">
+              <widget class="QRadioButton" name="radioButton_sec2_year">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>年</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec2_rentRateType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QRadioButton" name="radioButton_sec2_quarter">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>季度</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec2_rentRateType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QRadioButton" name="radioButton_sec2_month">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>月</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec2_rentRateType</string>
+               </attribute>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -1227,8 +1233,15 @@ border-radius: 10px;</string>
                </property>
               </widget>
              </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="lab_sec3_checkOut">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;客人退房:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
              <item row="2" column="1">
-              <widget class="QCheckBox" name="checkBox_sec3_LR_keep">
+              <widget class="QRadioButton" name="radioButton_sec3_LR_keep">
                <property name="cursor">
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
@@ -1241,7 +1254,7 @@ border-radius: 10px;</string>
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QCheckBox" name="checkBox_sec3_LR_close">
+              <widget class="QRadioButton" name="radioButton_sec3_LR_close">
                <property name="cursor">
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
@@ -1253,15 +1266,8 @@ border-radius: 10px;</string>
                </attribute>
               </widget>
              </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="lab_sec3_checkOut">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;客人退房:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
              <item row="3" column="1">
-              <widget class="QCheckBox" name="checkBox_sec3_CO_keep">
+              <widget class="QRadioButton" name="radioButton_sec3_CO_keep">
                <property name="cursor">
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
@@ -1274,7 +1280,7 @@ border-radius: 10px;</string>
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QCheckBox" name="checkBox_sec3_CO_close">
+              <widget class="QRadioButton" name="radioButton_sec3_CO_close">
                <property name="cursor">
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
@@ -1361,19 +1367,6 @@ border-radius: 10px;</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0" colspan="3">
-              <widget class="QCheckBox" name="checkBox_sec4_useCard">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>普通插卡取电</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">bntg_sec4_elecType</string>
-               </attribute>
-              </widget>
-             </item>
              <item row="3" column="0">
               <spacer name="horizontalSpacer_14">
                <property name="orientation">
@@ -1415,19 +1408,6 @@ border-radius: 10px;</string>
                 <string notr="true">border: 2px solid rgb(202, 202, 202);
 border-radius: 0;</string>
                </property>
-              </widget>
-             </item>
-             <item row="4" column="0" colspan="3">
-              <widget class="QCheckBox" name="checkBox_sec4_useCardAndId">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>普通带身份插卡取电</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">bntg_sec4_elecType</string>
-               </attribute>
               </widget>
              </item>
              <item row="5" column="0">
@@ -1473,19 +1453,6 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="0" colspan="3">
-              <widget class="QCheckBox" name="checkBox_sec4_noCard">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>无插卡取电</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">bntg_sec4_elecType</string>
-               </attribute>
-              </widget>
-             </item>
              <item row="7" column="0">
               <spacer name="horizontalSpacer_16">
                <property name="orientation">
@@ -1518,16 +1485,55 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
+             <item row="2" column="0" colspan="3">
+              <widget class="QRadioButton" name="radioButton_sec4_useCard">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="text">
+                <string>普通插卡取电</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">bntg_sec4_elecType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="3">
+              <widget class="QRadioButton" name="radioButton_sec4_useCardAndId">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="text">
+                <string>普通带身份插卡取电</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">bntg_sec4_elecType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="6" column="0" colspan="3">
+              <widget class="QRadioButton" name="radioButton_sec4_noCard">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="text">
+                <string>无插卡取电</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">bntg_sec4_elecType</string>
+               </attribute>
+              </widget>
+             </item>
             </layout>
             <zorder>lab_sec4_title</zorder>
             <zorder>line_sec4_1</zorder>
-            <zorder>checkBox_sec4_useCard</zorder>
-            <zorder>checkBox_sec4_useCardAndId</zorder>
+            <zorder>radioButton_sec4_useCard</zorder>
+            <zorder>radioButton_sec4_useCardAndId</zorder>
             <zorder>lab_sec4_UC_noCardNum</zorder>
             <zorder>edit_sec4_UC_noCardNum</zorder>
             <zorder>lab_sec4_UCI_noCardNum</zorder>
             <zorder>edit_sec4_UCI_noCardNum</zorder>
-            <zorder>checkBox_sec4_noCard</zorder>
+            <zorder>radioButton_sec4_noCard</zorder>
             <zorder>horizontalSpacer_14</zorder>
             <zorder>horizontalSpacer_15</zorder>
             <zorder>lab_sec4_describe</zorder>
@@ -1565,25 +1571,6 @@ border-radius: 10px;</string>
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_5">
-             <item row="4" column="0">
-              <widget class="QCheckBox" name="checkBox_sec5_2pip">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>2管制</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec5_pipType</string>
-               </attribute>
-              </widget>
-             </item>
              <item row="0" column="0">
               <widget class="QLabel" name="lab_sec5_title">
                <property name="sizePolicy">
@@ -1632,34 +1619,8 @@ border-radius: 10px;</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0">
-              <widget class="QCheckBox" name="checkBox_sec5_0to10Machine">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>0-10V风机</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec5_machineType</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QCheckBox" name="checkBox_sec5_hmlMachine">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>高、中、低风机</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec5_machineType</string>
-               </attribute>
-              </widget>
-             </item>
              <item row="3" column="0">
-              <widget class="QCheckBox" name="checkBox_sec5_4pip">
+              <widget class="QRadioButton" name="radioButton_sec5_4pip">
                <property name="cursor">
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
@@ -1674,6 +1635,51 @@ border-radius: 10px;</string>
                </property>
                <attribute name="buttonGroup">
                 <string notr="true">btng_sec5_pipType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QRadioButton" name="radioButton_sec5_2pip">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::LeftToRight</enum>
+               </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>2管制</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec5_pipType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QRadioButton" name="radioButton_sec5_hmlMachine">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="text">
+                <string>高、中、低风机</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec5_machineType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QRadioButton" name="radioButton_sec5_0to10Machine">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="text">
+                <string>0-10V风机</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec5_machineType</string>
                </attribute>
               </widget>
              </item>
@@ -1735,390 +1741,6 @@ border-radius: 10px;</string>
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_8">
-             <item row="4" column="3">
-              <widget class="QLineEdit" name="edit_sec6_keepHeatTempSet">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="5">
-              <widget class="Line" name="line_sec6_1">
-               <property name="styleSheet">
-                <string notr="true">background-color: #969696;</string>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0" colspan="2">
-              <widget class="QCheckBox" name="checkBox_sec6_keepHeat">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>保温模式</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_keepHeatTempSet">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="4">
-              <widget class="QLabel" name="lab_sec6_degree1">
-               <property name="minimumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>℃</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_keepHeatWindSet">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;风速设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="5">
-              <widget class="QLabel" name="lab_sec6_title">
-               <property name="minimumSize">
-                <size>
-                 <width>200</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;空调状态&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="lab_sec6_ranted">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color: rgb(122, 122, 122);
-color: rgb(255, 255, 255);
-border-radius:0;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;已租状态&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="17" column="0" colspan="2">
-              <widget class="QCheckBox" name="checkBox_sec6_keepHeatNR">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>保温模式</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec6_noRentedState</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="11" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_nightEndTime">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;结束时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="18" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_keepHeatTempSetNR">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="3">
-              <widget class="QTimeEdit" name="timeEdit_sec6_nightEndTime">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="0" colspan="4">
-              <widget class="QCheckBox" name="checkBox_sec6_nightTempOffset">
-               <property name="minimumSize">
-                <size>
-                 <width>300</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>夜间模式设定温度偏差值</string>
-               </property>
-              </widget>
-             </item>
-             <item row="15" column="0" colspan="5">
-              <widget class="Line" name="line_sec6_2">
-               <property name="styleSheet">
-                <string notr="true">background-color: rgba(195, 195, 195, 150);</string>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_nightStartTime">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;结束时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_nightTempOffset">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="3">
-              <widget class="QLineEdit" name="edit_sec6_lowTemp">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="5">
-              <widget class="QCheckBox" name="checkBox_sec6_airconTempSet">
-               <property name="minimumSize">
-                <size>
-                 <width>350</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>空调面板可设定温度范围</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="4">
-              <widget class="QLabel" name="lab_sec6_degree4">
-               <property name="minimumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>℃</string>
-               </property>
-              </widget>
-             </item>
              <item row="5" column="3">
               <widget class="QComboBox" name="comboBox_sec6_keepHeatWindSet">
                <property name="minimumSize">
@@ -2169,6 +1791,71 @@ border-radius: 0;</string>
                </item>
               </widget>
              </item>
+             <item row="4" column="4">
+              <widget class="QLabel" name="lab_sec6_degree1">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>℃</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="3">
+              <widget class="QLineEdit" name="edit_sec6_lowTemp">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QLineEdit" name="edit_sec6_keepHeatTempSet">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::LeftToRight</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+              </widget>
+             </item>
              <item row="7" column="0" colspan="2">
               <widget class="QLabel" name="lab_sec6_lowTemp">
                <property name="minimumSize">
@@ -2191,8 +1878,8 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_highTemp">
+             <item row="5" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_keepHeatWindSet">
                <property name="minimumSize">
                 <size>
                  <width>150</width>
@@ -2205,38 +1892,12 @@ border-radius: 0;</string>
                  <height>30</height>
                 </size>
                </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;最低设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;风速设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="10" column="3">
-              <widget class="QTimeEdit" name="timeEdit_sec6_nightStartTime">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="2">
+             <item row="12" column="2">
               <widget class="QLabel" name="lab_sec6_offset">
                <property name="minimumSize">
                 <size>
@@ -2280,104 +1941,7 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="3">
-              <widget class="QLineEdit" name="edit_sec6_highTemp">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="3">
-              <widget class="QLineEdit" name="edit_sec6_nightTempOffset">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="14" column="0" colspan="5">
-              <widget class="QCheckBox" name="checkBox_sec6_ETM">
-               <property name="minimumSize">
-                <size>
-                 <width>360</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>ETM模式 (即无任何控制模式)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0" colspan="4">
-              <widget class="QCheckBox" name="checkBox_sec6_nightStartEndTime">
-               <property name="minimumSize">
-                <size>
-                 <width>300</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>夜间模式起止时间</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="4">
-              <widget class="QLabel" name="lab_sec6_degree3">
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>℃</string>
-               </property>
-              </widget>
-             </item>
-             <item row="16" column="0">
+             <item row="15" column="0">
               <widget class="QLabel" name="lab_sec6_noRanted">
                <property name="minimumSize">
                 <size>
@@ -2401,8 +1965,76 @@ border-radius:0;</string>
                </property>
               </widget>
              </item>
-             <item row="20" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_startTimeNR">
+             <item row="12" column="4">
+              <widget class="QLabel" name="lab_sec6_degree4">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>℃</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="5">
+              <widget class="Line" name="line_sec6_1">
+               <property name="styleSheet">
+                <string notr="true">background-color: #969696;</string>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="17" column="3">
+              <widget class="QLineEdit" name="edit_sec6_keepHeatTempSetNR">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="4">
+              <widget class="QLabel" name="lab_sec6_degree3">
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>℃</string>
+               </property>
+              </widget>
+             </item>
+             <item row="18" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_keepHeatWindSetNR">
                <property name="minimumSize">
                 <size>
                  <width>150</width>
@@ -2415,61 +2047,72 @@ border-radius:0;</string>
                  <height>30</height>
                 </size>
                </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;起始时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;风速设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="23" column="1" colspan="2" alignment="Qt::AlignRight">
-              <widget class="QLineEdit" name="edit_sec6_averUsingTime">
+             <item row="0" column="0" colspan="5">
+              <widget class="QLabel" name="lab_sec6_title">
                <property name="minimumSize">
                 <size>
-                 <width>80</width>
+                 <width>200</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>80</width>
+                 <width>16777215</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
+                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
                </property>
                <property name="text">
-                <string/>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;空调状态&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="20" column="3">
-              <widget class="QTimeEdit" name="timeEdit_sec6_startTimeNR">
+             <item row="20" column="0">
+              <widget class="QLabel" name="lab_sec6_averUsingTime">
                <property name="minimumSize">
                 <size>
-                 <width>100</width>
+                 <width>180</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>100</width>
+                 <width>16777215</width>
                  <height>30</height>
                 </size>
                </property>
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;用时(小时/天):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="18" column="4">
+             <item row="3" column="0" colspan="2">
+              <widget class="QCheckBox" name="checkBox_sec6_keepHeat">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>保温模式</string>
+               </property>
+              </widget>
+             </item>
+             <item row="17" column="4">
               <widget class="QLabel" name="lab_sec6_degree5">
                <property name="styleSheet">
                 <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
@@ -2479,52 +2122,7 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="22" column="0" colspan="2">
-              <widget class="QCheckBox" name="checkBox_sec6_newWind">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>新风模式</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec6_noRentedState</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="21" column="3">
-              <widget class="QTimeEdit" name="timeEdit_sec6_endTimeNR">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="19" column="3">
+             <item row="18" column="3">
               <widget class="QComboBox" name="comboBox_sec6_keepHeatWindSetNR">
                <property name="minimumSize">
                 <size>
@@ -2571,46 +2169,8 @@ border-radius: 0;</string>
                </item>
               </widget>
              </item>
-             <item row="19" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_keepHeatWindSetNR">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;风速设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="23" column="0">
-              <widget class="QLabel" name="lab_sec6_averUsingTime">
-               <property name="minimumSize">
-                <size>
-                 <width>120</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;平均用时:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="21" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec6_endTimeNR">
+             <item row="8" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_highTemp">
                <property name="minimumSize">
                 <size>
                  <width>150</width>
@@ -2627,12 +2187,199 @@ border-radius: 0;</string>
                 <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;结束时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;最低设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="18" column="3">
-              <widget class="QLineEdit" name="edit_sec6_keepHeatTempSetNR">
+             <item row="4" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_keepHeatTempSet">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::LeftToRight</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_nightStartTime">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;开始时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="20" column="3">
+              <widget class="QLineEdit" name="edit_sec6_averUsingTime">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0" colspan="5">
+              <widget class="QCheckBox" name="checkBox_sec6_airconTempSet">
+               <property name="minimumSize">
+                <size>
+                 <width>350</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>空调面板可设定温度范围</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="lab_sec6_ranted">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(122, 122, 122);
+color: rgb(255, 255, 255);
+border-radius:0;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;已租状态&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0" colspan="5">
+              <widget class="QCheckBox" name="checkBox_sec6_nightSETT">
+               <property name="minimumSize">
+                <size>
+                 <width>350</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>夜间模式时间设置及温度偏差</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_nightEndTime">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;持续时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="3">
+              <widget class="QLineEdit" name="edit_sec6_nightTempOffset">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="0" colspan="5">
+              <widget class="Line" name="line_sec6_2">
+               <property name="styleSheet">
+                <string notr="true">background-color: rgba(195, 195, 195, 150);</string>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="3">
+              <widget class="QLineEdit" name="edit_sec6_highTemp">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -2651,8 +2398,8 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="23" column="3">
-              <widget class="QLabel" name="lab_sec6_hourPerDay">
+             <item row="10" column="3">
+              <widget class="QTimeEdit" name="timeEdit_sec6_nightStartTime">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -2665,8 +2412,205 @@ border-radius: 0;</string>
                  <height>30</height>
                 </size>
                </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="17" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_keepHeatTempSetNR">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;小时/天&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="0" colspan="2">
+              <widget class="QLabel" name="lab_sec6_nightTempOffset">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QLabel" name="lab_sec6_offset_2">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; vertical-align:super;&quot;&gt;±&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="19" column="0" colspan="2">
+              <widget class="QRadioButton" name="radioButton_sec6_newWind">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>新风模式</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec6_noRentedState</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="13" column="0" colspan="5">
+              <widget class="QRadioButton" name="radioButton_sec6_ETM">
+               <property name="minimumSize">
+                <size>
+                 <width>360</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>ETM模式 (即无任何控制模式)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="16" column="0" colspan="2">
+              <widget class="QRadioButton" name="radioButton_sec6_keepHeatNR">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>保温模式</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec6_noRentedState</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="17" column="2">
+              <widget class="QLabel" name="lab_sec6_offset_3">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; vertical-align:super;&quot;&gt;±&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="3">
+              <widget class="QLineEdit" name="edit_sec6_keepTime">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="4">
+              <widget class="QLabel" name="lab_sec6_h">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;h&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -3502,12 +3446,12 @@ border-radius: 10px;</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btng_sec5_machineType"/>
-  <buttongroup name="btng_sec5_pipType"/>
-  <buttongroup name="btng_sec3_checkOut"/>
-  <buttongroup name="btng_sec6_noRentedState"/>
-  <buttongroup name="bntg_sec4_elecType"/>
-  <buttongroup name="btng_sec3_leaveRoom"/>
   <buttongroup name="btng_sec2_rentRateType"/>
+  <buttongroup name="btng_sec3_checkOut"/>
+  <buttongroup name="bntg_sec4_elecType"/>
+  <buttongroup name="btng_sec5_pipType"/>
+  <buttongroup name="btng_sec6_noRentedState"/>
+  <buttongroup name="btng_sec5_machineType"/>
+  <buttongroup name="btng_sec3_leaveRoom"/>
  </buttongroups>
 </ui>
