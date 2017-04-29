@@ -11,17 +11,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
     handlemachine.h \
     mainwindow.h \
-    utils.h \
     debug.h \
     global.h \
-    pathmanager.h
+    pathmanager.h \
+    csvreader.h \
+    energyform.h
 
 SOURCES += \
     main.cpp \
     handlemachine.cpp \
     mainwindow.cpp \
-    utils.cpp \
-    pathmanager.cpp
+    pathmanager.cpp \
+    csvreader.cpp
 
 DISTFILES += \
     README.md \

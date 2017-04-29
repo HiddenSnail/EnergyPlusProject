@@ -68,7 +68,7 @@ public:
     bool operate(QString opFilePath , QString opKey, T* handleObj, QStringList (T::*handleFunc)(QStringList oldData));
 
     bool save();
-    void separate();
+    void separate(QStringList fileNameList);
     void startMachine(QString weatherFileName);
 signals:
     void finishExec();

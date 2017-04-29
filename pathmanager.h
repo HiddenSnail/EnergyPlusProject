@@ -11,8 +11,10 @@ private:
         _pathMap.insert("AppDir", appDir);
         _pathMap.insert("WeatherDir", appDir + "/weather");
         _pathMap.insert("SourceDir", appDir + "/source");
+        _pathMap.insert("SourceNoPeDir", appDir + "/source/no_people");
         _pathMap.insert("OutPutDir", appDir + "/output");
         _pathMap.insert("EplusDir", appDir + "/EnergyPlusV8-1-0");
+        _pathMap.insert("ProfileDir", appDir + "/profiles");
 
         _pathMap.insert("BaseModelDir", appDir + "/model/base");
         _pathMap.insert("NrModelDir", appDir + "/model/proposed/nr");

@@ -3446,12 +3446,12 @@ border-radius: 10px;</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btng_sec2_rentRateType"/>
   <buttongroup name="btng_sec3_checkOut"/>
   <buttongroup name="bntg_sec4_elecType"/>
-  <buttongroup name="btng_sec5_pipType"/>
-  <buttongroup name="btng_sec6_noRentedState"/>
-  <buttongroup name="btng_sec5_machineType"/>
   <buttongroup name="btng_sec3_leaveRoom"/>
+  <buttongroup name="btng_sec2_rentRateType"/>
+  <buttongroup name="btng_sec6_noRentedState"/>
+  <buttongroup name="btng_sec5_pipType"/>
+  <buttongroup name="btng_sec5_machineType"/>
  </buttongroups>
 </ui>

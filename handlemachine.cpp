@@ -290,10 +290,11 @@ bool HandleMachine::save()
 }
 
 /**
- * @brief HandleMachine::separate >> 4个对比模型分离函数
+ * @brief HandleMachine::separate >> 分离函数
+ * @param fileNameList: 分离厚度的文件名列表
  * @return
  */
-void HandleMachine::separate()
+void HandleMachine::separate(QStringList fileNameList)
 {
     qInfo() << QString("Start seperate! [%1]").arg(_fileName);
 
@@ -305,27 +306,30 @@ void HandleMachine::separate()
     }
 
     QDir targetDir(outPutPath + "/" + _baseName);
-    if (outputDir.exists()) {
-        targetDir.removeRecursively();
-        outputDir.mkdir(_baseName);
-    } else {
+    if (!targetDir.exists()) {
         outputDir.mkdir(_baseName);
     }
 
     QString filePath = QString(targetDir.path() + "/%1." + _fileSuffix);
-    QFile baseFile(filePath.arg("base"));
-    if (baseFile.open(QFile::WriteOnly)) {
-         QTextStream stream(&baseFile);
-         for (int i = 0; i < _content.size(); i++) {
-             stream << _content[i] << endl;
-         }
-         baseFile.close();
+    QFile sampleFile(filePath.arg(fileNameList.constFirst()));
+    if (sampleFile.open(QFile::WriteOnly)) {
+        QTextStream stream(&sampleFile);
+        for (int i = 0; i < _content.size(); i++) {
+            stream << _content[i] << endl;
+        }
+        sampleFile.close();
     } else {
-        qFatal("Can't create base model!");
+        qFatal("Can't create %s model!", fileNameList.constFirst().toStdString().c_str());
     }
 
-    if (baseFile.copy(filePath.arg("nr")) && baseFile.copy(filePath.arg("rp")) && baseFile.copy(filePath.arg("r"))) {
-        qInfo() << QString("Separate success! [%1]").arg(_fileName);
+    bool sepState = true;
+    for (int i = 1; i < fileNameList.size(); i++) {
+        QFile file(filePath.arg(fileNameList[i]));
+        if (file.exists()) { file.remove(); }
+        sepState = sepState && sampleFile.copy(filePath.arg(fileNameList[i]));
+    }
+
+    if (sepState) {
         emit finishSep();
     } else {
         qFatal("Separate fail! [%s]", _fileName.toStdString().c_str());

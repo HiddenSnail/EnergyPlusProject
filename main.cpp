@@ -1,7 +1,6 @@
 #include <QApplication>
 #include "mainwindow.h"
 #include "handlemachine.h"
-#include "utils.h"
 #include <direct.h>
 #include <stdlib.h>
 #include "debug.h"
