@@ -1,9 +1,12 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "utils/custom_widget.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    pdlg(nullptr)
+
 {
     ui->setupUi(this);
     init();
@@ -19,6 +22,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
+    //准备所需验证器
     QRegExp float0To1Reg("^1|([0]+(\\.[0-9]{1,2})?)$"); //匹配0.00~1的数字
     QRegExp float0To100Reg("^100|(([0]|([1-9][0-9]{0,1}))(\\.[0-9]{1,2})?)$"); //匹配0.00~100的数字
     QRegExp float0To1000Reg("^1000|(([0]|([1-9][0-9]{0,2}))(\\.[0-9]{1,2})?)$"); //识别0.00~1000的数字
@@ -28,52 +32,59 @@ void MainWindow::init()
     QFile profile(PathManager::instance()->getPath("ProfileDir") + "/city_profile.json");
     if (!profile.open(QFile::ReadOnly)) { qFatal("When init, can't read the city profile!"); }
     QTextStream inStream(&profile);
-    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
+    inStream.setCodec("UTF-8");
+    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toUtf8());
     profile.close();
     if (!doc.isObject() || doc.isNull()) { qFatal("The city profile file maybe broken!"); }
     QJsonObject root = doc.object();
     QJsonArray cityArray = root["cityArray"].toArray();
+    QJsonArray cityNameArray = root["China"].toArray();
     for (int i = 0; i < cityArray.size(); i++) {
         QString cityName = cityArray[i].toString();
+        QString cityTransName = QString::fromLocal8Bit(cityNameArray[i].toString().toLocal8Bit().data());
         double heatProNum = root[cityName].toDouble();
+        _cityNameMap.insert(cityTransName, cityName);
         _cityMap.insert(cityName, heatProNum);
     }
+
     QStringList items;
-    for (int i = 0; i < _cityMap.keys().size(); i++) {
-        items << _cityMap.keys()[i];
+    for (auto cityName: _cityNameMap.keys()) {
+        items << cityName;
     }
     QComboBox *cityBox = ui->comboBox_sec1_city;
     cityBox->clear();
     cityBox->addItems(items);
+    _city = _cityNameMap[cityBox->currentText()];
+
     //设置隔热系数
     QLineEdit *heatProNum = ui->edit_sec1_heatProNum;
     heatProNum->setReadOnly(true);
-    QString nowDisplayCity = ui->comboBox_sec1_city->currentText();
-    heatProNum->setText(QString::number(_cityMap[nowDisplayCity]));
-    connect(ui->comboBox_sec1_city, &QComboBox::currentTextChanged, [cityBox, heatProNum, this]() {
-        heatProNum->setText(QString::number(_cityMap[cityBox->currentText()]));
+    heatProNum->setText(QString::number(_cityMap[_city]));
+    connect(cityBox, &QComboBox::currentTextChanged, [=]() {
+        _city = _cityNameMap[cityBox->currentText()];
+        heatProNum->setText(QString::number(_cityMap[_city]));
     });
-     ui->edit_sec1_size->setValidator(new QIntValidator(20, 1000000, this));
+
+    ui->edit_sec1_size->setValidator(new QIntValidator(1, 1000000, this));
     ui->edit_sec1_roomNum->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_singleRoomNum->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_singleRoomNum->setDisabled(true);
-    ui->edit_sec1_doubleRoomNum->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_doubleRoomNum->setDisabled(true);
-    ui->edit_sec1_suiteRoomNum->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_suiteRoomNum->setDisabled(true);
+    ui->edit_sec1_roomNum->setReadOnly(true);
+    ui->edit_sec1_roomNum->setText("0");
     ui->edit_sec1_eastRoomNum->setValidator(new QIntValidator(1, 1000000, this));
     ui->edit_sec1_southRoomNum->setValidator(new QIntValidator(1, 1000000, this));
     ui->edit_sec1_westRoomNum->setValidator(new QIntValidator(1, 1000000, this));
     ui->edit_sec1_northRoomNum->setValidator(new QIntValidator(1, 1000000, this));
+    connect(ui->edit_sec1_eastRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
+    connect(ui->edit_sec1_westRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
+    connect(ui->edit_sec1_southRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
+    connect(ui->edit_sec1_northRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
 
     //section2
     ui->radioButton_sec2_year->setChecked(true);
     ui->edit_sec2_year->setEnabled(true);
     ui->edit_sec2_quarter->setEnabled(false);
-    ui->edit_sec2_month->setEnabled(false);
+    ui->comboBox_sec2_quarter->setEnabled(false);
     ui->edit_sec2_year->setValidator(new QRegExpValidator(float0To100Reg, this));
     ui->edit_sec2_quarter->setValidator(new QRegExpValidator(float0To100Reg, this));
-    ui->edit_sec2_month->setValidator(new QRegExpValidator(float0To100Reg, this));
     ui->edit_sec2_inRoomRate->setValidator(new QIntValidator(0, 24, this));
 
     //section3
@@ -83,7 +94,9 @@ void MainWindow::init()
     //section4
     ui->radioButton_sec4_noCard->setChecked(true);
     ui->edit_sec4_UC_noCardNum->setEnabled(false);
+    ui->lab_sec4_UC_noCardNum->setEnabled(false);
     ui->edit_sec4_UCI_noCardNum->setEnabled(false);
+    ui->lab_sec4_UCI_noCardNum->setEnabled(false);
     ui->edit_sec4_UC_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
     ui->edit_sec4_UCI_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
 
@@ -92,17 +105,12 @@ void MainWindow::init()
     ui->radioButton_sec5_hmlMachine->setChecked(true);
 
     //section6
-    ui->edit_sec6_keepHeatTempSet->setEnabled(false);
-    ui->comboBox_sec6_keepHeatWindSet->setEnabled(false);
-    ui->edit_sec6_lowTemp->setEnabled(false);
-    ui->edit_sec6_highTemp->setEnabled(false);
-    ui->timeEdit_sec6_nightStartTime->setEnabled(false);
-    ui->edit_sec6_keepTime->setEnabled(false);
-    ui->edit_sec6_nightTempOffset->setEnabled(false);
-
+    on_checkBox_sec6_keepHeat_toggled(false);
+    on_checkBox_sec6_airconTempSet_toggled(false);
+    on_checkBox_sec6_nightSETT_toggled(false);
     ui->radioButton_sec6_keepHeatNR->setChecked(true);
-    ui->radioButton_sec6_newWind->setDisabled(true);
-    ui->edit_sec6_averUsingTime->setEnabled(false);
+    on_radioButton_sec6_keepHeatNR_toggled(true);
+    on_radioButton_sec6_newWind_toggled(false);
 
     ui->edit_sec6_keepHeatTempSet->setValidator(new QIntValidator(0, 100, this));
     ui->edit_sec6_highTemp->setValidator(new QIntValidator(0, 100, this));
@@ -120,22 +128,108 @@ void MainWindow::init()
     ui->edit_sec7_fridge->setValidator(new QRegExpValidator(float0To1000Reg, this));
     ui->edit_sec7_otherDevice->setValidator(new QRegExpValidator(float0To1000Reg, this));
 
+    //section8
+    ui->edit_sec8_year->setReadOnly(true);
+    ui->edit_sec8_1To3Mon->setReadOnly(true);
+    ui->edit_sec8_4To6Mon->setReadOnly(true);
+    ui->edit_sec8_7To9Mon->setReadOnly(true);
+    ui->edit_sec8_10To12Mon->setReadOnly(true);
+
 }
+
+void MainWindow::clear()
+{
+    _roomSize = 0;
+    _sumRoomNum = 0;
+    _noRentRoomNum = 0;
+    _rentNoPeopleRoomNumVec.clear();
+    _rentPeopleRoomNumVec.clear();
+    ui->edit_sec8_1To3Mon->clear();
+    ui->edit_sec8_4To6Mon->clear();
+    ui->edit_sec8_7To9Mon->clear();
+    ui->edit_sec8_10To12Mon->clear();
+    ui->edit_sec8_year->clear();
+}
+
 
 /**----------------------------控件操作------------------------------**/
 
 void MainWindow::on_btn_start_clicked()
 {
     clear();
+    if (checkUserInput()) {
+        preImpData();
+        callEplus();
+        if (pdlg == nullptr) {
+            pdlg = new CustomProgressDialog();
+            pdlg->setWindowTitle(QString::fromLocal8Bit("正在进行计算..."));
+            pdlg->setFixedSize(ui->centralwidget->width()/2, ui->centralwidget->height()/5);
+            pdlg->setMinimum(0);
+            pdlg->setMaximum(0);
+            pdlg->setLabelText(QString::fromLocal8Bit("正在构建、配置模型..."));
+            connect(this, &MainWindow::zSignal, [=](){
+                QTimer::singleShot(6*1000, [=]() {
+                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(1/4)..."));
+                });
+            });
+
+            connect(this, &MainWindow::model_base_over, [=](){
+                QTimer::singleShot(1000, [=]() {
+                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(2/4)..."));
+                });
+            });
+
+            connect(this, &MainWindow::model_nr_over, [=](){
+                QTimer::singleShot(1000, [=]() {
+                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(3/4)..."));
+                });
+            });
+
+            connect(this, &MainWindow::model_r_over, [=](){
+                QTimer::singleShot(1000, [=]() {
+                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(4/4)..."));
+                });
+            });
+
+            connect(this, &MainWindow::mSignal, [=](){
+                QTimer::singleShot(2000, [=]() {
+                   pdlg->setLabelText(QString::fromLocal8Bit("正在计算结果..."));
+                });
+            });
+            connect(this, &MainWindow::fetchResult, pdlg, &QProgressDialog::close);
+            pdlg->exec();
+
+        } else {
+            pdlg->setLabelText(QString::fromLocal8Bit("正在构建、配置模型..."));
+            pdlg->setFixedSize(ui->centralwidget->width()/2, ui->centralwidget->height()/5);
+            pdlg->exec();
+        }
+    } else {
+        QMessageBox::warning(this,QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("配置信息填写不完整！"));
+        qDebug() << "Not ready!";
+    }
+}
+
+
+bool MainWindow::checkUserInput()
+{
+    //section1
     bool isSec1Ready = ui->edit_sec1_size->hasAcceptableInput() &&
             ui->edit_sec1_eastRoomNum->hasAcceptableInput() &&
             ui->edit_sec1_southRoomNum->hasAcceptableInput() &&
             ui->edit_sec1_westRoomNum->hasAcceptableInput() &&
             ui->edit_sec1_northRoomNum->hasAcceptableInput();
 
-    //待修改
-    bool isSec2Ready = ui->edit_sec2_inRoomRate->hasAcceptableInput();
+    //section2
+    bool isSec2Ready = true;
+    if (ui->radioButton_sec2_year->isChecked()) {
+        isSec2Ready = isSec2Ready && ui->edit_sec2_year->hasAcceptableInput();
+    } else {
+        isSec2Ready = isSec2Ready && ui->edit_sec2_quarter->hasAcceptableInput();
+    }
+    isSec2Ready = isSec2Ready && ui->edit_sec2_inRoomRate->hasAcceptableInput();
 
+    //section4
     bool isSec4Ready = true;
     if (ui->radioButton_sec4_useCard->isChecked()) {
         isSec4Ready = isSec4Ready && ui->edit_sec4_UC_noCardNum->hasAcceptableInput();
@@ -145,6 +239,7 @@ void MainWindow::on_btn_start_clicked()
         isSec4Ready = true;
     }
 
+    //section6
     bool isSec6Ready = true;
     if (!ui->radioButton_sec6_ETM->isChecked()) {
         if (ui->checkBox_sec6_keepHeat->isChecked()) {
@@ -169,6 +264,7 @@ void MainWindow::on_btn_start_clicked()
         isSec6Ready = isSec6Ready && ui->edit_sec6_averUsingTime->hasAcceptableInput();
     }
 
+    //section7
     bool isSec7Ready = ui->edit_sec7_light->hasAcceptableInput()
             && ui->edit_sec7_lightUsingNum->hasAcceptableInput()
             && ui->edit_sec7_TV->hasAcceptableInput()
@@ -176,36 +272,37 @@ void MainWindow::on_btn_start_clicked()
             && ui->edit_sec7_fridge->hasAcceptableInput()
             && ui->edit_sec7_otherDevice->hasAcceptableInput();
 
-//    if (isSec1Ready && isSec2Ready && isSec4Ready && isSec6Ready && isSec7Ready) {
-//        this->callEplus();
-//    } else {
-//        if (!isSec1Ready)
-//        {
-//            qDebug() << "Section1 not ready!";
-//        }
+    if (isSec1Ready && isSec2Ready && isSec4Ready && isSec6Ready && isSec7Ready) {
+        return true;
+    } else {
+        if (!isSec1Ready)
+        {
+            qDebug() << "Section1 not ready!";
+        }
 
-//        if (!isSec2Ready)
-//        {
-//            qDebug() << "Section2 not ready!";
-//        }
+        if (!isSec2Ready)
+        {
+            qDebug() << "Section2 not ready!";
+        }
 
-//        if (!isSec4Ready)
-//        {
-//            qDebug() << "Section4 not ready!";
-//        }
+        if (!isSec4Ready)
+        {
+            qDebug() << "Section4 not ready!";
+        }
 
-//        if (!isSec6Ready)
-//        {
-//            qDebug() << "Section6 not ready!";
-//        }
+        if (!isSec6Ready)
+        {
+            qDebug() << "Section6 not ready!";
+        }
 
-//        if (!isSec7Ready)
-//        {
-//            qDebug() << "Section7 not ready!";
-//        }
-//    }
-    mStep();
+        if (!isSec7Ready)
+        {
+            qDebug() << "Section7 not ready!";
+        }
+        return false;
+    }
 }
+
 
 void MainWindow::on_radioButton_sec2_year_toggled(bool checked)
 {
@@ -220,17 +317,10 @@ void MainWindow::on_radioButton_sec2_quarter_toggled(bool checked)
 {
     if (checked) {
         ui->edit_sec2_quarter->setEnabled(true);
+        ui->comboBox_sec2_quarter->setEnabled(true);
     } else {
         ui->edit_sec2_quarter->setEnabled(false);
-    }
-}
-
-void MainWindow::on_radioButton_sec2_month_toggled(bool checked)
-{
-    if (checked) {
-        ui->edit_sec2_month->setEnabled(true);
-    } else {
-        ui->edit_sec2_month->setEnabled(false);
+        ui->comboBox_sec2_quarter->setEnabled(false);
     }
 }
 
@@ -238,8 +328,10 @@ void MainWindow::on_radioButton_sec4_useCard_toggled(bool checked)
 {
     if (checked) {
         ui->edit_sec4_UC_noCardNum->setEnabled(true);
+        ui->lab_sec4_UC_noCardNum->setEnabled(true);
     } else {
         ui->edit_sec4_UC_noCardNum->setEnabled(false);
+        ui->lab_sec4_UC_noCardNum->setEnabled(false);
     }
 }
 
@@ -247,99 +339,94 @@ void MainWindow::on_radioButton_sec4_useCardAndId_toggled(bool checked)
 {
     if (checked) {
         ui->edit_sec4_UCI_noCardNum->setEnabled(true);
+        ui->lab_sec4_UCI_noCardNum->setEnabled(true);
     } else {
         ui->edit_sec4_UCI_noCardNum->setEnabled(false);
+        ui->lab_sec4_UCI_noCardNum->setEnabled(false);
     }
 }
 
 void MainWindow::on_checkBox_sec6_keepHeat_toggled(bool checked)
 {
-    if (checked) {
-        ui->edit_sec6_keepHeatTempSet->setEnabled(true);
-        ui->comboBox_sec6_keepHeatWindSet->setEnabled(true);
-    } else {
-        ui->edit_sec6_keepHeatTempSet->setEnabled(false);
-        ui->comboBox_sec6_keepHeatWindSet->setEnabled(false);
-    }
+    ui->lab_sec6_keepHeatTempSet->setEnabled(checked);
+    ui->lab_sec6_keepHeatWindSet->setEnabled(checked);
+    ui->edit_sec6_keepHeatTempSet->setEnabled(checked);
+    ui->comboBox_sec6_keepHeatWindSet->setEnabled(checked);
+    ui->lab_sec6_offset_2->setEnabled(checked);
 }
 
 void MainWindow::on_checkBox_sec6_airconTempSet_toggled(bool checked)
 {
-    if (checked) {
-        ui->edit_sec6_lowTemp->setEnabled(true);
-        ui->edit_sec6_highTemp->setEnabled(true);
-    } else {
-        ui->edit_sec6_lowTemp->setEnabled(false);
-        ui->edit_sec6_highTemp->setEnabled(false);
-    }
+    ui->lab_sec6_lowTemp->setEnabled(checked);
+    ui->lab_sec6_highTemp->setEnabled(checked);
+    ui->edit_sec6_lowTemp->setEnabled(checked);
+    ui->edit_sec6_highTemp->setEnabled(checked);
 }
 
 void MainWindow::on_checkBox_sec6_nightSETT_toggled(bool checked)
 {
-    if (checked) {
-        ui->timeEdit_sec6_nightStartTime->setEnabled(true);
-        ui->edit_sec6_keepTime->setEnabled(true);
-        ui->edit_sec6_nightTempOffset->setEnabled(true);
-    } else {
-        ui->timeEdit_sec6_nightStartTime->setEnabled(false);
-        ui->edit_sec6_keepTime->setEnabled(false);
-        ui->edit_sec6_nightTempOffset->setEnabled(false);
-    }
+    ui->lab_sec6_nightStartTime->setEnabled(checked);
+    ui->lab_sec6_nightEndTime->setEnabled(checked);
+    ui->lab_sec6_nightTempOffset->setEnabled(checked);
+    ui->timeEdit_sec6_nightStartTime->setEnabled(checked);
+    ui->edit_sec6_keepTime->setEnabled(checked);
+    ui->edit_sec6_nightTempOffset->setEnabled(checked);
+    ui->lab_sec6_offset->setEnabled(checked);
 }
 
 void MainWindow::on_radioButton_sec6_ETM_toggled(bool checked)
 {
-
+    ui->checkBox_sec6_keepHeat->setEnabled(!checked);
+    ui->checkBox_sec6_airconTempSet->setEnabled(!checked);
+    ui->checkBox_sec6_nightSETT->setEnabled(!checked);
     if (checked) {
-        ui->checkBox_sec6_keepHeat->setEnabled(false);
-        ui->checkBox_sec6_airconTempSet->setEnabled(false);
-        ui->checkBox_sec6_nightSETT->setEnabled(false);
-
-        ui->edit_sec6_keepHeatTempSet->setEnabled(false);
-        ui->comboBox_sec6_keepHeatWindSet->setEnabled(false);
-        ui->edit_sec6_lowTemp->setEnabled(false);
-        ui->edit_sec6_highTemp->setEnabled(false);
-        ui->timeEdit_sec6_nightStartTime->setEnabled(false);
-        ui->edit_sec6_keepTime->setEnabled(false);
-        ui->edit_sec6_nightTempOffset->setEnabled(false);
+        on_checkBox_sec6_keepHeat_toggled(false);
+        on_checkBox_sec6_airconTempSet_toggled(false);
+        on_checkBox_sec6_nightSETT_toggled(false);
     } else {
-        ui->checkBox_sec6_keepHeat->setEnabled(true);
-        ui->checkBox_sec6_airconTempSet->setEnabled(true);
-        ui->checkBox_sec6_nightSETT->setEnabled(true);
         if (ui->checkBox_sec6_keepHeat->isChecked()) {
-            ui->edit_sec6_keepHeatTempSet->setEnabled(true);
-            ui->comboBox_sec6_keepHeatWindSet->setEnabled(true);
+            on_checkBox_sec6_keepHeat_toggled(true);
         }
         if (ui->checkBox_sec6_airconTempSet->isChecked()) {
-            ui->edit_sec6_lowTemp->setEnabled(true);
-            ui->edit_sec6_highTemp->setEnabled(true);
+            on_checkBox_sec6_airconTempSet_toggled(true);
         }
         if (ui->checkBox_sec6_nightSETT->isChecked()) {
-            ui->timeEdit_sec6_nightStartTime->setEnabled(true);
-            ui->edit_sec6_keepTime->setEnabled(true);
-            ui->edit_sec6_nightTempOffset->setEnabled(true);
+            on_checkBox_sec6_nightSETT_toggled(true);
         }
     }
 }
 
 void MainWindow::on_radioButton_sec6_keepHeatNR_toggled(bool checked)
 {
-    if (checked) {
-        ui->edit_sec6_keepHeatTempSetNR->setEnabled(true);
-        ui->comboBox_sec6_keepHeatWindSetNR->setEnabled(true);
-    } else {
-        ui->edit_sec6_keepHeatTempSetNR->setEnabled(false);
-        ui->comboBox_sec6_keepHeatWindSetNR->setEnabled(false);
-    }
+    ui->lab_sec6_keepHeatTempSetNR->setEnabled(checked);
+    ui->lab_sec6_keepHeatWindSetNR->setEnabled(checked);
+    ui->lab_sec6_offset_3->setEnabled(checked);
+    ui->edit_sec6_keepHeatTempSetNR->setEnabled(checked);
+    ui->comboBox_sec6_keepHeatWindSetNR->setEnabled(checked);
 }
 
 void MainWindow::on_radioButton_sec6_newWind_toggled(bool checked)
 {
-    if (checked) {
-        ui->edit_sec6_averUsingTime->setEnabled(true);
-    } else {
-        ui->edit_sec6_averUsingTime->setEnabled(false);
+    ui->lab_sec6_averUsingTime->setEnabled(checked);
+    ui->edit_sec6_averUsingTime->setEnabled(checked);
+}
+
+void MainWindow::updateRoomNumber()
+{
+    int number = 0;
+    if (!ui->edit_sec1_eastRoomNum->text().isEmpty()) {
+        number += ui->edit_sec1_eastRoomNum->text().toInt();
     }
+    if (!ui->edit_sec1_westRoomNum->text().isEmpty()) {
+        number += ui->edit_sec1_westRoomNum->text().toInt();
+    }
+    if (!ui->edit_sec1_southRoomNum->text().isEmpty()) {
+        number += ui->edit_sec1_southRoomNum->text().toInt();
+    }
+    if (!ui->edit_sec1_northRoomNum->text().isEmpty()) {
+        number += ui->edit_sec1_northRoomNum->text().toInt();
+    }
+    ui->edit_sec1_roomNum->setText(QString::number(number));
 }
 
 
@@ -360,10 +447,8 @@ QStringList MainWindow::calElecEqtWatts(QStringList oldDataList)
     double fdgWatts = ui->edit_sec7_fridge->text().toDouble();
     //其他设备的总平均瓦特数(kW)
     double otherWatts = ui->edit_sec7_otherDevice->text().toDouble();
-    //房间面积
-    int roomSize = ui->edit_sec1_size->text().toInt();
 
-    double averageWatts = (tvWatts + fdgWatts + otherWatts)*1000/roomSize;
+    double averageWatts = (tvWatts + fdgWatts + otherWatts)*1000.0/_roomSize;
     QStringList dataList;
     dataList << QString::number(averageWatts, 'f', 2);
     return dataList;
@@ -381,11 +466,48 @@ QStringList MainWindow::calLightsWatts(QStringList oldDataList)
     //照明系数(占时不使用)
     //double lightNum = ui->edit_sec7_light->text().toDouble();
     //房间面积
-    int roomSize = ui->edit_sec1_size->text().toInt();
-    double averageWatts = lightWatts*1000/roomSize;
+    double averageWatts = lightWatts*1000.0/_roomSize;
 
     QStringList dataList;
     dataList << QString::number(averageWatts, 'f', 2);
+    return dataList;
+}
+
+/**
+ * @brief MainWindow::calTimeSpan
+ * @param oldDataList: [起始月份，起始日期，结束月份，结束日期]
+ * @return
+ */
+QStringList MainWindow::calTimeSpan(QStringList oldDataList)
+{
+    QStringList dataList;
+    if (ui->radioButton_sec2_year->isChecked()) {
+        dataList << QString::number(1) << QString::number(1) << QString::number(12) << QString::number(31);
+    } else {
+        int quarter = ui->comboBox_sec2_quarter->currentText().toInt();
+        switch (quarter) {
+        case 1:
+        {
+            dataList << QString::number(1) << QString::number(1) << QString::number(3) << QString::number(31);
+            break;
+        }
+        case 2:
+        {
+            dataList << QString::number(4) << QString::number(1) << QString::number(6) << QString::number(30);
+            break;
+        }
+        case 3:
+        {
+            dataList << QString::number(7) << QString::number(1) << QString::number(9) << QString::number(30);
+            break;
+        }
+        default:
+        {
+            dataList << QString::number(10) << QString::number(1) << QString::number(12) << QString::number(31);
+            break;
+        }
+        }
+    }
     return dataList;
 }
 
@@ -562,7 +684,6 @@ QStringList MainWindow::calSchComCoolRp(QStringList oldDataList)
 QStringList MainWindow::calSchComHeatRp(QStringList oldDataList)
 {
     QStringList dataList(oldDataList);
-    qDebug() << dataList;
     if (ui->checkBox_sec6_nightSETT->isChecked()) {
         int tempOffset = ui->edit_sec6_nightTempOffset->text().toInt();
         int temp = dataList[1].toInt();
@@ -646,15 +767,46 @@ QStringList MainWindow::calSchComHeatRp(QStringList oldDataList)
     return dataList;
 }
 
-void MainWindow::checkUserInput()
+
+void MainWindow::preImpData()
 {
+    //@block: 计算房间面积
+    if (_roomSizeVec.isEmpty()) {
+        QDir sourceDir(PathManager::instance()->getPath("SourceDir"));
+        QFileInfoList fileInfoList = sourceDir.entryInfoList(QDir::Files);
+        for (int i = 0; i < fileInfoList.size(); i++) {
+            QFileInfo fileInfo = fileInfoList[i];
+            int size = fileInfo.baseName().toInt();
+            _roomSizeVec.push_back(size);
+        }
+        qSort(_roomSizeVec.begin(), _roomSizeVec.end(), [](int &a, int &b){
+            return a < b;
+        });
+    }
+
+    _roomSize = ui->edit_sec1_size->text().toInt();
+    for (int i = 0; i < _roomSizeVec.size(); i++) {
+        if (_roomSizeVec[i] >= _roomSize) {
+            _roomSize = _roomSizeVec[i];
+            break;
+        } else {
+            if (_roomSizeVec.size() - 1 == i) {
+                _roomSize = _roomSizeVec[i];
+            }
+        }
+    } 
 
     //@block: 计算各种状态的房间数量(包括:所有房间总数, 未租房间数量, 已租有人状态房间数组, 已租无人状态房间数组)
-    //TODO:出租率(数字目前是假设的)
-    double rentalRate = 0.3;
+    //出租率
+    double rentalRate = 0;
+    if (ui->radioButton_sec2_year->isChecked()) {
+        rentalRate = ui->edit_sec2_year->text().toDouble()/100;
+    } else {
+        rentalRate = ui->edit_sec2_quarter->text().toDouble()/100;
+    }
+
     //在室率
     double inRoomRate = ui->edit_sec2_inRoomRate->text().toInt()/24.0;
-
     int eastRoomNum = ui->edit_sec1_eastRoomNum->text().toInt();
     int southRoomNum = ui->edit_sec1_southRoomNum->text().toInt();
     int westRoomNum = ui->edit_sec1_westRoomNum->text().toInt();
@@ -674,7 +826,7 @@ void MainWindow::checkUserInput()
     }
 
     //待租房间数
-    _noRentRoomNum = _sumRoomNum*(1 - rentalRate);
+    _noRentRoomNum = (int)ceil(_sumRoomNum*(1 - rentalRate));
 
     //已租房间数
     int rentRoomNum = _sumRoomNum - _noRentRoomNum;
@@ -696,25 +848,27 @@ void MainWindow::checkUserInput()
         double realInRoomRate = inRoomRate*proInRoomRate/proAverInRoomRate;
         if (realInRoomRate > 1) realInRoomRate = 1;
         //每小时已租无人房间数
-        int rentNoPeopleRoomNum = rentRoomNum*(1 - realInRoomRate)*(1 - keepOnRate);
+        int rentNoPeopleRoomNum = ceil(rentRoomNum*(1 - realInRoomRate)*(1 - keepOnRate));
+
         //每小时已租有人房间数
         int rentPeopleRoomNum = rentRoomNum - rentNoPeopleRoomNum;
         _rentNoPeopleRoomNumVec.push_back(rentNoPeopleRoomNum);
         _rentPeopleRoomNumVec.push_back(rentPeopleRoomNum);
     }
 
-    isCheckRoomState = true;
+    qDebug() << tr("roomSize") << _roomSize;
+    qDebug() << tr("sumRoomNum") << _sumRoomNum;
+    qDebug() << tr("noRentRoomNum") << _noRentRoomNum;
+    qDebug() << tr("rentPeopleRoomNumVec") << _rentPeopleRoomNumVec;
+    qDebug() << tr("rentNoPeopleRoomNumVec") << _rentNoPeopleRoomNumVec;
 }
 
 
 void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &proposedForm)
 {
-    //房间面积
-    int roomSize = ui->edit_sec1_size->text().toInt();
-
     int eastRoomNum = ui->edit_sec1_eastRoomNum->text().toInt();
-    int southRoomNum = ui->edit_sec1_southRoomNum->text().toInt();
     int westRoomNum = ui->edit_sec1_westRoomNum->text().toInt();
+    int southRoomNum = ui->edit_sec1_southRoomNum->text().toInt();
     int northRoomNum = ui->edit_sec1_northRoomNum->text().toInt();
 
     //四面房间数组(用于函数调用)
@@ -724,54 +878,74 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
     //每小时总房间数(用于函数调用)
     QVector<int> baseSumRoomNumVec(24, _sumRoomNum);
     //读取base.csv文件
-    CsvReader baseReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/base.csv").arg(roomSize));
-    baseReader.analyze();
+    CsvReader baseReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/base.csv").arg(_roomSize));
+    if (!baseReader.analyze()) { qFatal("BaseReader can't analyze!"); }
 
     //房间热负荷序列
-    QStringList eHeatListBase = baseReader.getColumnByTitle("BLOCK2:EAST FAN COIL:Fan Coil Heating Rate [W](Hourly)");
-    QStringList wHeatListBase = baseReader.getColumnByTitle("BLOCK2:WEST FAN COIL:Fan Coil Heating Rate [W](Hourly)");
-    QStringList sHeatListBase = baseReader.getColumnByTitle("BLOCK2:SOUTH FAN COIL:Fan Coil Heating Rate [W](Hourly)");
-    QStringList nHeatListBase = baseReader.getColumnByTitle("BLOCK2:NORTH FAN COIL:Fan Coil Heating Rate [W](Hourly)");
+    QStringList eHeatListBase = baseReader.getColumnByTitle("BLOCK2:EAST HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
+    QStringList wHeatListBase = baseReader.getColumnByTitle("BLOCK2:WEST HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
+    QStringList sHeatListBase = baseReader.getColumnByTitle("BLOCK2:SOUTH HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
+    QStringList nHeatListBase = baseReader.getColumnByTitle("BLOCK2:NORTH HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
     QStringList dsHeatListBase = baseReader.getColumnByTitle("DOAS SYSTEM HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
     QVector<QStringList> heatGridBase = { eHeatListBase, wHeatListBase, sHeatListBase, nHeatListBase, dsHeatListBase };
 
     //房间冷负荷序列
-    QStringList eCoolListBase = baseReader.getColumnByTitle("BLOCK2:EAST FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
-    QStringList wCoolListBase = baseReader.getColumnByTitle("BLOCK2:WEST FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
-    QStringList sCoolListBase = baseReader.getColumnByTitle("BLOCK2:SOUTH FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
-    QStringList nCoolListBase = baseReader.getColumnByTitle("BLOCK2:NORTH FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
+    QStringList eCoolListBase = baseReader.getColumnByTitle("BLOCK2:EAST COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
+    QStringList wCoolListBase = baseReader.getColumnByTitle("BLOCK2:WEST COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
+    QStringList sCoolListBase = baseReader.getColumnByTitle("BLOCK2:SOUTH COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
+    QStringList nCoolListBase = baseReader.getColumnByTitle("BLOCK2:NORTH COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
     QStringList dsCoolListBase = baseReader.getColumnByTitle("DOAS SYSTEM COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
     QVector<QStringList> coolGridBase = { eCoolListBase, wCoolListBase, sCoolListBase, nCoolListBase, dsCoolListBase };
 
     //房间风机功率序列
-    QStringList eFanListBase = baseReader.getColumnByTitle("BLOCK2:EAST SUPPLY FAN:Fan Electric Power [W](Hourly)");
+    QStringList eFanListBase =  baseReader.getColumnByTitle("BLOCK2:EAST SUPPLY FAN:Fan Electric Power [W](Hourly)");
     QStringList wFanListBase = baseReader.getColumnByTitle("BLOCK2:WEST SUPPLY FAN:Fan Electric Power [W](Hourly)");
     QStringList sFanListBase = baseReader.getColumnByTitle("BLOCK2:SOUTH SUPPLY FAN:Fan Electric Power [W](Hourly)");
     QStringList nFanListBase = baseReader.getColumnByTitle("BLOCK2:NORTH FAN COIL:Fan Coil Fan Electric Power [W](Hourly)");
-    QVector<QStringList> fanGridBase = { eFanListBase, wFanListBase, sFanListBase, nFanListBase };
+    if (ui->radioButton_sec5_hmlMachine->isChecked()) {
+        eFanListBase = fixFanWatts(eFanListBase);
+        wFanListBase = fixFanWatts(wFanListBase);
+        sFanListBase = fixFanWatts(sFanListBase);
+        nFanListBase = fixFanWatts(nFanListBase);
+    }
 
+    QVector<QStringList> fanGridBase = { eFanListBase, wFanListBase, sFanListBase, nFanListBase };
     baseForm._heatLoad = compose(fourSizeRoomNum, baseSumRoomNumVec, heatGridBase);
     baseForm._coolLoad = compose(fourSizeRoomNum, baseSumRoomNumVec, coolGridBase);
     baseForm._fanWatts = compose(fourSizeRoomNum, baseSumRoomNumVec, fanGridBase);
-
 
     //计算proposed models的房间负荷
     //每小时待租房间数组(用于函数调用)
     QVector<int> noRentRoomNumVec(24, _noRentRoomNum);
 
     //读取nr.csv r.csv rp.csv文件
-    CsvReader nrReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/nr.csv").arg(roomSize));
-    nrReader.analyze();
-    CsvReader rReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/r.csv").arg(roomSize));
-    rReader.analyze();
-    CsvReader rpReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/rp.csv").arg(roomSize));
-    rpReader.analyze();
+    CsvReader nrReader;
+    if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
+        nrReader = CsvReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/nr.csv").arg(_roomSize));
+        if (!nrReader.analyze()) { qFatal("NrReader can't analyze!"); }
+    }
+    CsvReader rReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/r.csv").arg(_roomSize));
+    if (!rReader.analyze()) { qFatal("RReader can't analyze!"); }
+    CsvReader rpReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/rp.csv").arg(_roomSize));
+    if (!rpReader.analyze()) { qFatal("RpReader can't analyze!"); }
 
-    QVector<QVector<int> > modelsRoomNumVec = { noRentRoomNumVec, _rentNoPeopleRoomNumVec, _rentPeopleRoomNumVec };
-    QVector<CsvReader> modelsReaderVec = { nrReader, rReader, rpReader };
-    //modelsDataListVec[0] = nrDataListVec
-    //modelsDataListVec[1] = rDataListVec
-    //modelsDataListVec[2] = rpDataListVec
+    QVector<QVector<int> > modelsRoomNumVec;
+    if (ui->radioButton_sec6_keepHeatNR->isChecked()) modelsRoomNumVec.push_back(noRentRoomNumVec);
+    modelsRoomNumVec.push_back(_rentNoPeopleRoomNumVec);
+    modelsRoomNumVec.push_back(_rentPeopleRoomNumVec);
+
+    QVector<CsvReader> modelsReaderVec;
+    if (ui->radioButton_sec6_keepHeatNR->isChecked()) modelsReaderVec.push_back(nrReader);
+    modelsReaderVec.push_back(rReader);
+    modelsReaderVec.push_back(rpReader);
+
+    /* modelsDataListVec[0] = nrDataListVec
+       modelsDataListVec[1] = rDataListVec
+       modelsDataListVec[2] = rpDataListVec
+       或
+       modelsDataListVec[0] = rDataListVec
+       modelsDataListVec[1] = rpDataListVec
+    */
     QVector<QVector<QStringList> > modelsDataListVec;
 
     for (int j = 0; j < modelsRoomNumVec.size(); j++)
@@ -779,18 +953,18 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
         CsvReader csvReader = modelsReaderVec[j];
         QVector<int> perHourRoomNum = modelsRoomNumVec[j];
         //房间热负荷序列
-        QStringList eHeatList = csvReader.getColumnByTitle("BLOCK2:EAST FAN COIL:Fan Coil Heating Rate [W](Hourly)");
-        QStringList wHeatList = csvReader.getColumnByTitle("BLOCK2:WEST FAN COIL:Fan Coil Heating Rate [W](Hourly)");
-        QStringList sHeatList = csvReader.getColumnByTitle("BLOCK2:SOUTH FAN COIL:Fan Coil Heating Rate [W](Hourly)");
-        QStringList nHeatList = csvReader.getColumnByTitle("BLOCK2:NORTH FAN COIL:Fan Coil Heating Rate [W](Hourly)");
+        QStringList eHeatList = csvReader.getColumnByTitle("BLOCK2:EAST HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
+        QStringList wHeatList = csvReader.getColumnByTitle("BLOCK2:WEST HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
+        QStringList sHeatList = csvReader.getColumnByTitle("BLOCK2:SOUTH HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
+        QStringList nHeatList = csvReader.getColumnByTitle("BLOCK2:NORTH HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
         QStringList dsHeatList = csvReader.getColumnByTitle("DOAS SYSTEM HEATING COIL:Heating Coil Heating Rate [W](Hourly)");
         QVector<QStringList> heatGrid = {eHeatList, wHeatList, sHeatList, nHeatList, dsHeatList};
 
         //房间冷负荷序列
-        QStringList eCoolList = csvReader.getColumnByTitle("BLOCK2:EAST FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
-        QStringList wCoolList = csvReader.getColumnByTitle("BLOCK2:WEST FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
-        QStringList sCoolList = csvReader.getColumnByTitle("BLOCK2:SOUTH FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
-        QStringList nCoolList = csvReader.getColumnByTitle("BLOCK2:NORTH FAN COIL:Fan Coil Total Cooling Rate [W](Hourly)");
+        QStringList eCoolList = csvReader.getColumnByTitle("BLOCK2:EAST COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
+        QStringList wCoolList = csvReader.getColumnByTitle("BLOCK2:WEST COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
+        QStringList sCoolList = csvReader.getColumnByTitle("BLOCK2:SOUTH COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
+        QStringList nCoolList = csvReader.getColumnByTitle("BLOCK2:NORTH COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
         QStringList dsCoolList = csvReader.getColumnByTitle("DOAS SYSTEM COOLING COIL:Cooling Coil Total Cooling Rate [W](Hourly)");
         QVector<QStringList> coolGrid = { eCoolList, wCoolList, sCoolList, nCoolList, dsCoolList };
 
@@ -799,84 +973,190 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
         QStringList wFanList = csvReader.getColumnByTitle("BLOCK2:WEST SUPPLY FAN:Fan Electric Power [W](Hourly)");
         QStringList sFanList = csvReader.getColumnByTitle("BLOCK2:SOUTH SUPPLY FAN:Fan Electric Power [W](Hourly)");
         QStringList nFanList = csvReader.getColumnByTitle("BLOCK2:NORTH FAN COIL:Fan Coil Fan Electric Power [W](Hourly)");
+        if (ui->radioButton_sec5_hmlMachine->isChecked()) {
+            eFanList = fixFanWatts(eFanList);
+            wFanList = fixFanWatts(wFanList);
+            sFanList = fixFanWatts(sFanList);
+            nFanList = fixFanWatts(nFanList);
+        }
         QVector<QStringList> fanGrid = { eFanList, wFanList, sFanList, nFanList };
 
         QStringList heatList = compose(fourSizeRoomNum, perHourRoomNum, heatGrid);
         QStringList coolList = compose(fourSizeRoomNum, perHourRoomNum, coolGrid);
         QStringList fanList = compose(fourSizeRoomNum, perHourRoomNum, fanGrid);
+        //0:heatList, 1:coolList, 2:fanList
         QVector<QStringList> dataListVec = { heatList, coolList, fanList };
         modelsDataListVec.push_back(dataListVec);
     }
 
     //proposed models所有类型房间的负荷、功率叠加
-    //[proposedHeatLoad, proposedCoolLoad, proposedFanWatts];
-    QVector<QStringList> proposedResultListVec;
-
-    QVector<QStringList> nrDataListVec, rDataListVec, rpDataListVec;
-    nrDataListVec = modelsDataListVec[0];
-    rDataListVec = modelsDataListVec[1];
-    rpDataListVec = modelsDataListVec[2];
-    for (int k = 0; k < nrDataListVec.size(); k++)
+    QStringList sumHeatLoad, sumCoolLoad, sumFanWatts;
+    for (int k = 0; k < modelsDataListVec[0][0].size(); k++)
     {
-        QStringList dataListNr = nrDataListVec[k];
-        QStringList dataListR = rDataListVec[k];
-        QStringList dataListRp = rpDataListVec[k];
-        QStringList sumResultList;
-        for (int hour = 0; hour < dataListNr.size(); hour++)
+        sumHeatLoad << "0";
+        sumCoolLoad << "0";
+        sumFanWatts << "0";
+    }
+
+    for (int i = 0; i < modelsDataListVec.size(); i++)
+    {
+        for (int hour = 0; hour < modelsDataListVec[i][0].size(); hour++)
         {
-            double resultData = dataListNr[hour].toDouble() + dataListR[hour].toDouble()
-                    + dataListRp[hour].toDouble();
-            sumResultList << QString::number(resultData);
-        }
-        proposedResultListVec.push_back(sumResultList);
-    }
-    proposedForm._heatLoad = proposedResultListVec[0];
-    proposedForm._coolLoad = proposedResultListVec[1];
-    proposedForm._fanWatts = proposedResultListVec[2];
-
-
-    //读取每间房的洗澡负荷
-    QFile showerLoadProfile(PathManager::instance()->getPath("ProfileDir") + "/load/showerLoad_profile.json");
-    if (!showerLoadProfile.open(QFile::ReadOnly)) { qFatal("Can't read the shower load profile!"); }
-    QTextStream inStream(&showerLoadProfile);
-    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
-    showerLoadProfile.close();
-    if (!doc.isObject() || doc.isNull()) { qFatal("The shower load profile file maybe broken!"); }
-    QJsonObject root = doc.object();
-    QStringList showerLoadList;
-    for (int i = 0; i < root.size(); i++) {
-        double data = root[QString::number(i+1)].toDouble();
-        showerLoadList.push_back(QString::number(data));
-    }
-
-    //base model的冷热负荷修正
-    for (int i = 0; i < baseForm._heatLoad.size(); i++) {
-        int currentHour = i % 24;
-        double realShowerLoad = showerLoadList[currentHour].toDouble()*_sumRoomNum;
-        double heatLoad = baseForm._heatLoad[i].toDouble();
-        double coolLoad = baseForm._coolLoad[i].toDouble();
-        if (heatLoad > coolLoad) {
-            baseForm._heatLoad[i] = QString::number(heatLoad - realShowerLoad);
-        } else {
-            baseForm._coolLoad[i] = QString::number(coolLoad + realShowerLoad);
+            //叠加 model i 的热负荷序列
+            sumHeatLoad[hour] = QString::number(sumHeatLoad[hour].toDouble() + modelsDataListVec[i][0][hour].toDouble());
+            //叠加 model i 的冷负荷序列
+            sumCoolLoad[hour] = QString::number(sumCoolLoad[hour].toDouble() + modelsDataListVec[i][1][hour].toDouble());
+            //叠加 model i 的风机功率序列
+            sumFanWatts[hour] = QString::number(sumFanWatts[hour].toDouble() + modelsDataListVec[i][2][hour].toDouble());
         }
     }
 
-    //proposed model的冷热负荷修正
-    for (int i = 0; i < proposedForm._heatLoad.size(); i++)
-    {
-        int currentHour = i % 24;
-        double realShowerLoad = showerLoadList[currentHour].toDouble()*_rentPeopleRoomNumVec[currentHour];
-        double heatLoad = proposedForm._heatLoad[i].toDouble();
-        double coolLoad = proposedForm._coolLoad[i].toDouble();
-        if (heatLoad > coolLoad) {
-            proposedForm._heatLoad[i] = QString::number(heatLoad - realShowerLoad);
-        } else {
-            proposedForm._coolLoad[i] = QString::number(coolLoad + realShowerLoad);
+    if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
+        proposedForm._heatLoad = sumHeatLoad;
+        proposedForm._coolLoad = sumCoolLoad;
+        proposedForm._fanWatts = sumFanWatts;
+    } else {
+        proposedForm._heatLoad = sumHeatLoad;
+        proposedForm._coolLoad = sumCoolLoad;
+        //换气次数
+        int changeTimes = 1;
+        //流量
+        double airFlow = _roomSize*changeTimes*3/3600.0;
+        //压头(Pa)
+        double pumpHead = 75.0;
+        //效率
+        double efficiency = 0.7;
+        //24小时，每小时的风机功率
+        double nrFanWatts = airFlow*pumpHead/efficiency;
+        //时长
+        int usingTime = ui->edit_sec6_averUsingTime->text().toInt();
+
+        QStringList nrFanWattsList;
+        for (int i = 0; i < 24; i++) {
+            if (i < usingTime) {
+                nrFanWattsList.push_back(QString::number(nrFanWatts));
+            } else {
+                nrFanWattsList.push_back("0");
+            }
+        }
+
+        for (int i = 0; i< sumFanWatts.size(); i++) {
+            sumFanWatts[i] = QString::number(sumFanWatts[i].toDouble() + nrFanWattsList[i%24].toDouble());
+        }
+        proposedForm._fanWatts = sumFanWatts;
+    }
+
+
+//    //读取每间房的洗澡负荷
+//    QFile showerLoadProfile(PathManager::instance()->getPath("ProfileDir") + "/load/showerLoad_profile.json");
+//    if (!showerLoadProfile.open(QFile::ReadOnly)) { qFatal("Can't read the shower load profile!"); }
+//    QTextStream inStream(&showerLoadProfile);
+//    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
+//    showerLoadProfile.close();
+//    if (!doc.isObject() || doc.isNull()) { qFatal("The shower load profile file maybe broken!"); }
+//    QJsonObject root = doc.object();
+//    QStringList showerLoadList;
+//    for (int i = 0; i < root.size(); i++) {
+//        double data = root[QString::number(i+1)].toDouble();
+//        showerLoadList.push_back(QString::number(data));
+//    }
+
+//    //base model的冷热负荷修正
+//    for (int i = 0; i < baseForm._heatLoad.size(); i++) {
+//        int currentHour = i % 24;
+//        double realShowerLoad = showerLoadList[currentHour].toDouble()*_sumRoomNum;
+//        double heatLoad = baseForm._heatLoad[i].toDouble();
+//        double coolLoad = baseForm._coolLoad[i].toDouble();
+//        if (heatLoad > coolLoad) {
+//            baseForm._heatLoad[i] = QString::number(heatLoad - realShowerLoad);
+//        } else {
+//            baseForm._coolLoad[i] = QString::number(coolLoad + realShowerLoad);
+//        }
+//    }
+
+//    //proposed model的冷热负荷修正
+//    for (int i = 0; i < proposedForm._heatLoad.size(); i++)
+//    {
+//        int currentHour = i % 24;
+//        double realShowerLoad = showerLoadList[currentHour].toDouble()*_rentPeopleRoomNumVec[currentHour];
+//        double heatLoad = proposedForm._heatLoad[i].toDouble();
+//        double coolLoad = proposedForm._coolLoad[i].toDouble();
+//        if (heatLoad > coolLoad) {
+//            proposedForm._heatLoad[i] = QString::number(heatLoad - realShowerLoad);
+//        } else {
+//            proposedForm._coolLoad[i] = QString::number(coolLoad + realShowerLoad);
+//        }
+//    }
+
+    //两管或四管制的负荷修正
+    if (ui->radioButton_sec5_2pip->isChecked()) {
+        qDebug() << "Pip load fix can use....";
+        for (int i = 0; i < baseForm.getFormDataSize(); i++) {
+            if (baseForm._heatLoad[i].toDouble() > baseForm._coolLoad[i].toDouble())
+            {
+                double load = baseForm._heatLoad[i].toDouble() - baseForm._coolLoad[i].toDouble();
+                baseForm._heatLoad[i] = QString::number(load);
+                baseForm._coolLoad[i] = QString::number(0);
+            } else {
+                double load = baseForm._coolLoad[i].toDouble() - baseForm._heatLoad[i].toDouble();
+                baseForm._coolLoad[i] = QString::number(load);
+                baseForm._heatLoad[i] = QString::number(0);
+            }
+        }
+
+        for (int i = 0; i < proposedForm.getFormDataSize(); i++) {
+            if (proposedForm._heatLoad[i].toDouble() > proposedForm._coolLoad[i].toDouble())
+            {
+                double load = proposedForm._heatLoad[i].toDouble() - proposedForm._coolLoad[i].toDouble();
+                proposedForm._heatLoad[i] = QString::number(load);
+                proposedForm._coolLoad[i] = QString::number(0);
+            } else {
+                double load = proposedForm._coolLoad[i].toDouble() - proposedForm._heatLoad[i].toDouble();
+                proposedForm._coolLoad[i] = QString::number(load);
+                proposedForm._heatLoad[i] = QString::number(0);
+            }
         }
     }
 
     qInfo() << "Calculate room heating load, cooling load and fans watts finish!";
+}
+
+/**
+ * @brief MainWindow::fixFanWatts >> 根据档位修正风机功率
+ * @param fanWattsList
+ * @return
+ */
+QStringList MainWindow::fixFanWatts(const QStringList fanWattsList)
+{
+    QStringList realFanWattsList;
+    double maxWatts = 0;
+    for (int i = 0; i < fanWattsList.size(); i++)
+    {
+        if (fanWattsList[i].toDouble() > maxWatts)
+        {
+            maxWatts = fanWattsList[i].toDouble();
+        }
+    }
+
+    QList<double> realDataList = {maxWatts*0.1, maxWatts*0.45, maxWatts};
+    for (int i = 0; i < fanWattsList.size(); i++)
+    {
+        double data = fanWattsList[i].toDouble();
+
+        for (int k = 0; k < realDataList.size(); k++)
+        {
+            if (data < realDataList[k]) {
+                realFanWattsList.push_back(QString::number(realDataList[k]));
+                break;
+            } else {
+                if (k == realDataList.size() - 1) {
+                    realFanWattsList.push_back(QString::number(realDataList[k]));
+                }
+            }
+        }
+    }
+
+    return realFanWattsList;
 }
 
 /**
@@ -961,11 +1241,11 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
 
      QStringList resultList;
      for (int hour = 0; hour < dataGrid[0].size(); hour++) {
-         double heatSum = 0;
+         double result = 0;
          for (int i = 0; i < dataGrid.size(); i++) {
-             heatSum += dataGrid[i][hour].toDouble();
+             result += dataGrid[i][hour].toDouble();
          }
-         resultList << QString::number(heatSum);
+         resultList << QString::number(result);
      }
 
      return resultList;
@@ -974,6 +1254,10 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
 
  void MainWindow::calDeviceAndLightEnergy(EnergyForm &baseForm, EnergyForm &proposedForm)
  {
+     if (!baseForm.isReadyToCalEnergy() || !proposedForm.isReadyToCalEnergy()) {
+         qFatal("Form data seems not ready, some mistake happen!");
+     }
+
      //24小时的设备使用系数
      QFile deviceRatioProfile(PathManager::instance()->getPath("ProfileDir") + "/ratio/deviceRatio_profile.json");
      if (!deviceRatioProfile.open(QFile::ReadOnly)) { qFatal("Can't read the device ratio profile!"); }
@@ -999,11 +1283,11 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
      QVector<double> lightRatioList;
      for (int i = 0; i < rootLrp.size(); i++)
      {
-         lightRatioList.push_back(rootDrp[QString::number(i+1)].toDouble());
+         lightRatioList.push_back(rootLrp[QString::number(i+1)].toDouble());
      }
 
      //base model的设备能耗(J)
-     for (int i = 0; i < 8760; i++)
+     for (int i = 0; i < baseForm.getFormDataSize(); i++)
      {
          double watts = 1000*(ui->edit_sec7_TV->text().toDouble() + ui->edit_sec7_fridge->text().toDouble()
                               + ui->edit_sec7_otherDevice->text().toDouble());
@@ -1012,7 +1296,9 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
      }
 
      //base model的照明能耗(J)
-     for (int i = 0; i < 8760; i++)
+     qDebug() << "lightRatioList: " << lightRatioList;
+
+     for (int i = 0; i < baseForm.getFormDataSize(); i++)
      {
          double watts = 1000*(ui->edit_sec7_light->text().toDouble());
          double value = 3600*watts*lightRatioList[i%24]*_sumRoomNum;
@@ -1020,7 +1306,7 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
      }
 
      //proposed model的设备能耗(J)
-     for (int i = 0; i < 8760; i++)
+     for (int i = 0; i < baseForm.getFormDataSize(); i++)
      {
          double watts = 1000*(ui->edit_sec7_TV->text().toDouble() + ui->edit_sec7_fridge->text().toDouble()
                               + ui->edit_sec7_otherDevice->text().toDouble());
@@ -1029,7 +1315,7 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
      }
 
      //proposed model的照明能耗(J)
-     for (int i = 0; i < 8760; i++)
+     for (int i = 0; i < baseForm.getFormDataSize(); i++)
      {
          double watts = 1000*(ui->edit_sec7_light->text().toDouble());
          double value = 3600*watts*lightRatioList[i%24]*_rentPeopleRoomNumVec[i%24];
@@ -1038,23 +1324,34 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
  }
 
 
- void MainWindow:: calRoomRestEnergy(EnergyForm &form)
+ void MainWindow:: calRoomRestEnergy(EnergyForm &form, bool isInheritCoreData)
  {
-     double maxHeatLoad = 0;
-     for (int i = 0; i < form._heatLoad.size(); i++) {
-         double heatData = form._heatLoad[i].toDouble();
-         if (heatData > maxHeatLoad) {
-             maxHeatLoad = heatData;
+     if (!form.isReadyToCalEnergy()) {
+         qFatal("Form data seems not ready, some mistake happen!");
+     }
+
+     static double maxHeatLoad = 0;
+     static double maxCoolLoad = 0;
+     if (isInheritCoreData == false)
+     {
+         for (int i = 0; i < form._heatLoad.size(); i++) {
+             double heatData = form._heatLoad[i].toDouble();
+             if (heatData > maxHeatLoad) {
+                 maxHeatLoad = heatData;
+             }
+         }
+         for (int i = 0; i < form._coolLoad.size(); i++) {
+             double coolData = form._coolLoad[i].toDouble();
+             if (coolData > maxCoolLoad) {
+                 maxCoolLoad = coolData;
+             }
          }
      }
 
-     double maxCoolLoad = 0;
-     for (int i = 0; i < form._coolLoad.size(); i++) {
-         double coolData = form._coolLoad[i].toDouble();
-         if (coolData > maxCoolLoad) {
-             maxCoolLoad = coolData;
-         }
-     }
+     //!<debug>
+     qDebug() << "MaxHeat: " << maxHeatLoad;
+     qDebug() << "MaxCool: " << maxCoolLoad;
+     //!</debug>
 
      //螺杆机台数
      int screwMachineNum;
@@ -1105,6 +1402,7 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
 
      //锅炉容量(W)
      double boilerCapacity = maxHeatLoad*1.05;
+     qDebug() << "boilerCapacity: " << boilerCapacity;
 
      //(螺杆机)冷冻水泵额定流量(m³/s)
      double freWaterPumpFlow = maxCoolLoad/(5*1000*4200*screwMachineNum);
@@ -1200,14 +1498,26 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
          boilerPLRList.push_back(QString::number(plr));
      }
 
+     QStringList realEff;
      //8760小时,每个时刻的锅炉能耗(J)
      for (int i = 0; i < boilerPLRList.size(); i++)
      {
          double plr = boilerPLRList[i].toDouble();
          double realEfficiency = 0.8*(0.97 + 0.0633*plr - 0.0333*plr*plr);
          double energy = form._heatLoad[i].toDouble()/realEfficiency*3600;
+         realEff.push_back(QString::number(realEfficiency));
          form._boilerFuelUse.push_back(QString::number(energy));
      }
+
+     //!<debug>
+     if (isInheritCoreData == false) {
+         CsvReader boilerCsv("boiler.csv");
+         boilerCsv.pushColumnData("plr", boilerPLRList);
+         boilerCsv.pushColumnData("realEff", realEff);
+         boilerCsv.pushColumnData("boilerFulUse", form._boilerFuelUse);
+         boilerCsv.save();
+     }
+     //!</debug>
 
      //8760小时,每个时刻每台冷却塔的总散热量(W)
      QStringList perCooTowerLoseHeatList;
@@ -1311,9 +1621,8 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
 void MainWindow::lStep()
 {
     //读取源idf文件
-    int roomSize = ui->edit_sec1_size->text().toInt();
-    QString sourceFilePath = QString(PathManager::instance()->getPath("SourceDir")+"/%1.idf").arg(roomSize);
-    QString sourceNoPeFilePath = QString(PathManager::instance()->getPath("SourceNoPeDir")+"/%1.idf").arg(roomSize);
+    QString sourceFilePath = QString(PathManager::instance()->getPath("SourceDir")+"/%1.idf").arg(_roomSize);
+    QString sourceNoPeFilePath = QString(PathManager::instance()->getPath("SourceNoPeDir")+"/%1.idf").arg(_roomSize);
     HandleMachine *p_src = new HandleMachine(sourceFilePath);
     HandleMachine *p_srcNp = new HandleMachine(sourceNoPeFilePath);
 
@@ -1323,17 +1632,23 @@ void MainWindow::lStep()
     //对源idf文件进行配置、操作及models分离
     //(注意：lambda表达式的捕捉参数,必须是通过值来捕捉,否则主线程在离开作用域后, 通过引用捕捉的话会导致程序崩溃)
     connect(p_thread_src, &QThread::started , [=](){
-        QString cityName = ui->comboBox_sec1_city->currentText();
-        p_src->initCityData(cityName);
+        p_src->initCityData(_city);
         p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opElectricEquipment", this, &MainWindow::calElecEqtWatts);
         p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opLights", this, &MainWindow::calLightsWatts);
-        p_srcNp->initCityData(cityName);
+        p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opTimeSpan", this, &MainWindow::calTimeSpan);
+        p_srcNp->initCityData(_city);
         p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opElectricEquipment", this, &MainWindow::calElecEqtWattsNope);
         p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opLights", this, &MainWindow::calLightsWattsNope);
+        p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opTimeSpan", this, &MainWindow::calTimeSpan);
 
         QStringList fileNameList, nopeFileNameList;
         fileNameList << "base" << "rp";
-        nopeFileNameList << "nr" << "r";
+        //若使用新风模式,则不会去生成未租房间的idf
+        if (ui->radioButton_sec6_newWind->isChecked()) {
+            nopeFileNameList << "r";
+        } else {
+            nopeFileNameList << "nr" << "r";
+        }
         p_src->separate(fileNameList);
         p_srcNp->separate(nopeFileNameList);
     });
@@ -1347,47 +1662,59 @@ void MainWindow::lStep()
 
 void MainWindow::zStep()
 {
-    int roomSize = ui->edit_sec1_size->text().toInt();
-    QString cityName = ui->comboBox_sec1_city->currentText();
-
     //优先运行base model
-    QString baseFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/base.idf").arg(roomSize);
+    QString baseFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/base.idf").arg(_roomSize);
     HandleMachine *p_base = new HandleMachine(baseFilePath);
     QThread *p_thread_base = new QThread();
     p_base->moveToThread(p_thread_base);
 
-    connect(p_thread_base, &QThread::started, [p_base, cityName](){
-        p_base->startMachine(cityName);
+    connect(p_thread_base, &QThread::started, [=](){
+        p_base->startMachine(_city);
     });
     connect(p_base, &HandleMachine::finishExec, p_thread_base, &QThread::quit);
+    connect(p_base, &HandleMachine::finishExec, this, &MainWindow::model_base_over);
     connect(p_thread_base, &QThread::finished, p_base, &QObject::deleteLater);
 
     p_thread_base->start();
 
     //proposed model进行配置
-    QString nrFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/nr.idf").arg(roomSize);
-    QString rFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/r.idf").arg(roomSize);
-    QString rpFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/rp.idf").arg(roomSize);
+    QString nrFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/nr.idf").arg(_roomSize);
+    QString rFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/r.idf").arg(_roomSize);
+    QString rpFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/rp.idf").arg(_roomSize);
 
-    HandleMachine *p_nr = new HandleMachine(nrFilePath);
+    HandleMachine *p_nr = NULL;
+    //若开启新风模式，则不使用Eplus调用未租房间的idf
+    if (ui->radioButton_sec6_newWind->isChecked()) {
+        p_nr = NULL;
+    } else {
+        p_nr = new HandleMachine(nrFilePath);
+    }
     HandleMachine *p_r = new HandleMachine(rFilePath);
     HandleMachine *p_rp = new HandleMachine(rpFilePath);
 
     QThread *p_thread_pro = new QThread();
-    p_nr->moveToThread(p_thread_pro);
+    if (p_nr != NULL) p_nr->moveToThread(p_thread_pro);
     p_r->moveToThread(p_thread_pro);
     p_rp->moveToThread(p_thread_pro);
 
     connect(p_thread_pro, &QThread::started, [=](){
-        p_nr->configure(PathManager::instance()->getPath("NrConfigFile"));
-        p_r->configure(PathManager::instance()->getPath("RConfigFile"));
-        p_rp->configure(PathManager::instance()->getPath("RpConfigFile"));
+        //客人离房关闭窗帘
+        if (ui->radioButton_sec3_LR_close->isChecked()) {
+            p_r->configure(PathManager::instance()->getPath("RConfigFile"));
+        }
 
-        if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
-            p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComCool", this,
-                                      &MainWindow::calSchComCoolNr);
-            p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComHeat", this,
-                                      &MainWindow::calSchComHeatNr);
+        if (p_nr != NULL) {
+            //客人退房关闭窗帘
+            if (ui->radioButton_sec3_CO_close->isChecked()) {
+                p_nr->configure(PathManager::instance()->getPath("NrConfigFile"));
+            }
+
+            if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
+                p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComCool", this,
+                                          &MainWindow::calSchComCoolNr);
+                p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComHeat", this,
+                                          &MainWindow::calSchComHeatNr);
+            }
         }
 
         if (ui->checkBox_sec6_keepHeat->isChecked() && !ui->radioButton_sec6_ETM->isChecked()) {
@@ -1404,28 +1731,102 @@ void MainWindow::zStep()
                                      &MainWindow::calSchComHeatRp);
         }
 
-        p_nr->startMachine(cityName);
-        p_r->startMachine(cityName);
-        p_rp->startMachine(cityName);
+        if (p_nr != NULL) p_nr->startMachine(_city);
+        p_r->startMachine(_city);
+        p_rp->startMachine(_city);
     });
     connect(p_rp, &HandleMachine::finishExec, [](){
         qInfo() << "Output finish!";
     });
     connect(p_rp, &HandleMachine::finishExec, p_thread_pro, &QThread::quit);
-    connect(p_thread_pro, &QThread::finished, p_nr, &QObject::deleteLater);
+    if (p_nr != NULL)
+    {
+        connect(p_nr, &HandleMachine::finishExec, this, &MainWindow::model_nr_over);
+        connect(p_thread_pro, &QThread::finished, p_nr, &QObject::deleteLater);
+    } else {
+        emit model_base_over();
+    }
+
+    connect(p_r, &HandleMachine::finishExec, this, &MainWindow::model_r_over);
     connect(p_thread_pro, &QThread::finished, p_r, &QObject::deleteLater);
+
+    connect(p_rp, &HandleMachine::finishExec, this, &MainWindow::model_rp_over);
     connect(p_thread_pro, &QThread::finished, p_rp, &QObject::deleteLater);
+
     connect(p_rp, &QObject::destroyed, this, &MainWindow::mSignal);
     p_thread_pro->start();
 }
 
 void MainWindow::mStep()
 {
-    checkUserInput();
-    EnergyForm baseForm, proposedForm;
-    calRoomLoadAndFanWatts(baseForm, proposedForm);
-    calDeviceAndLightEnergy(baseForm, proposedForm);
-    calRoomRestEnergy(baseForm);
-    calRoomRestEnergy(proposedForm);
-}
+    QThread *p_thread_res = new QThread();
+    connect(p_thread_res, &QThread::started, [=](){
+        EnergyForm baseForm, proposedForm;
+        this->calRoomLoadAndFanWatts(baseForm, proposedForm);
+        this->calDeviceAndLightEnergy(baseForm, proposedForm);
+        this->calRoomRestEnergy(baseForm);
+        this->calRoomRestEnergy(proposedForm, true);
+        double baseTotal = 0, proposedTotal = 0;
+        QVector<double> baseVec, proposedVec;
+        for (int i = 0; i < baseForm._lightEnergy.size(); i++) {
+            double value = baseForm._lightEnergy[i].toDouble() +
+                    baseForm._deviceEnergy[i].toDouble() +
+                    baseForm._cooMachineEnergy[i].toDouble() +
+                    baseForm._boilerFuelUse[i].toDouble() +
+                    baseForm._cooMachineEnergy[i].toDouble() +
+                    baseForm._freWaterPumpEnergy[i].toDouble() +
+                    baseForm._cooWaterPumpEnergy[i].toDouble() +
+                    baseForm._hotWaterPumpEnergy[i].toDouble() +
+                    baseForm._fanEnergy[i].toDouble();
+            baseVec.push_back(value);
+        }
 
+        for (int i = 0; i < proposedForm._lightEnergy.size(); i++) {
+            double value = proposedForm._lightEnergy[i].toDouble() +
+                    proposedForm._deviceEnergy[i].toDouble() +
+                    proposedForm._cooMachineEnergy[i].toDouble() +
+                    proposedForm._boilerFuelUse[i].toDouble() +
+                    proposedForm._cooMachineEnergy[i].toDouble() +
+                    proposedForm._freWaterPumpEnergy[i].toDouble() +
+                    proposedForm._cooWaterPumpEnergy[i].toDouble() +
+                    proposedForm._hotWaterPumpEnergy[i].toDouble() +
+                    proposedForm._fanEnergy[i].toDouble();
+            proposedVec.push_back(value);
+        }
+
+        for (int i = 0; i < baseVec.size(); i++) {
+            baseTotal += baseVec[i];
+            proposedTotal += proposedVec[i];
+        }
+
+        //!<debug>
+        baseForm.outToFile("./base.txt", _roomSize, _sumRoomNum);
+        proposedForm.outToFile("./proposed.txt", _roomSize, _sumRoomNum);
+        CsvReader baseCsv("baseData.csv");
+        baseCsv.pushColumnData("HeatLoad", baseForm._heatLoad);
+        baseCsv.pushColumnData("CoolLoad", baseForm._coolLoad);
+        baseCsv.save();
+        //!</debug>
+
+        double percent = (baseTotal - proposedTotal)/baseTotal;
+        emit fetchResult(percent);
+    });
+
+    connect(this, &MainWindow::fetchResult, p_thread_res, &QThread::quit);
+    connect(this, &MainWindow::fetchResult, [=](double percent){
+        if (ui->radioButton_sec2_year->isChecked()) {
+            ui->edit_sec8_year->setText(QString::number(percent*100, 'f', 2));
+        } else {
+            if (ui->comboBox_sec2_quarter->currentText() == "1") {
+                ui->edit_sec8_1To3Mon->setText(QString::number(percent*100, 'f', 2));
+            } else if (ui->comboBox_sec2_quarter->currentText() == "2") {
+                ui->edit_sec8_4To6Mon->setText(QString::number(percent*100, 'f', 2));
+            } else if (ui->comboBox_sec2_quarter->currentText() == "3") {
+                ui->edit_sec8_7To9Mon->setText(QString::number(percent*100, 'f', 2));
+            } else {
+                ui->edit_sec8_10To12Mon->setText(QString::number(percent*100, 'f', 2));
+            }
+        }
+    });
+    p_thread_res->start();
+}

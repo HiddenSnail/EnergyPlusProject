@@ -51,10 +51,54 @@
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(167, 195, 209);
-font: 15pt &quot;Consolas&quot;;
-color: #a7c3d1;</string>
+       <string notr="true"/>
       </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="soft_ware_name">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string>酒店客房节能率计算软件</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="logo">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="res.qrc">:/icons/logo.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
@@ -66,7 +110,7 @@ color: #a7c3d1;</string>
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(23, 35, 59);</string>
+       <string notr="true"/>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="spacing">
@@ -122,18 +166,12 @@ color: #a7c3d1;</string>
             <property name="minimumSize">
              <size>
               <width>390</width>
-              <height>550</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>640</width>
-              <height>16777215</height>
+              <height>440</height>
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(255, 255, 255);
-border-radius: 10px;</string>
+             <string notr="true">border-radius: 10px;
+background-color: rgb(255, 255, 255);</string>
             </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
@@ -141,45 +179,77 @@ border-radius: 10px;</string>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QGridLayout" name="gridLayout">
-             <item row="0" column="0" colspan="4">
-              <widget class="QLabel" name="lab_sec1_title">
+            <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0">
+             <property name="leftMargin">
+              <number>18</number>
+             </property>
+             <item row="4" column="4">
+              <widget class="QLineEdit" name="edit_sec1_heatProNum">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>2</horstretch>
-                 <verstretch>1</verstretch>
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>200</width>
+                 <width>105</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>400</width>
+                 <width>100</width>
                  <height>30</height>
                 </size>
                </property>
-               <property name="font">
-                <font>
-                 <family>Consolas</family>
-                 <pointsize>9</pointsize>
-                 <weight>9</weight>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;酒店客房属性&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string notr="true">border-style:none;
+border-radius:0;
+background-color: rgb(225, 242, 253);</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="0" colspan="6">
+             <item row="9" column="4">
+              <widget class="QLineEdit" name="edit_sec1_northRoomNum">
+               <property name="minimumSize">
+                <size>
+                 <width>105</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="mouseTracking">
+                <bool>false</bool>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="lab_sec1_heatProNum">
+               <property name="text">
+                <string>隔热系数:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="5">
               <widget class="Line" name="line_sec1">
                <property name="maximumSize">
                 <size>
@@ -192,6 +262,194 @@ border-radius: 10px;</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="0">
+              <widget class="QLabel" name="lab_sec1_roomNum">
+               <property name="text">
+                <string>房间总量:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="4">
+              <widget class="QLabel" name="lab_sec1_title">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>2</horstretch>
+                 <verstretch>1</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>32</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>400</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Consolas</family>
+                 <pointsize>9</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;酒店客房属性&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="4">
+              <widget class="QLineEdit" name="edit_sec1_roomNum">
+               <property name="minimumSize">
+                <size>
+                 <width>105</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border-style:none;
+border-radius:0;
+background-color: rgb(225, 242, 253);</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0" colspan="3">
+              <widget class="QLabel" name="lab_sec1_southRoomNum">
+               <property name="text">
+                <string>南边房间数量:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="4">
+              <widget class="QLineEdit" name="edit_sec1_eastRoomNum">
+               <property name="minimumSize">
+                <size>
+                 <width>105</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="4">
+              <widget class="QLineEdit" name="edit_sec1_size">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>105</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0" colspan="4">
+              <widget class="QLabel" name="lab_sec1_size">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>300</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>房间面积(平米):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0" colspan="3">
+              <widget class="QLabel" name="lab_sec1_westRoomNum">
+               <property name="text">
+                <string>西边房间数量:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="4">
+              <widget class="QLineEdit" name="edit_sec1_southRoomNum">
+               <property name="minimumSize">
+                <size>
+                 <width>105</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+               <property name="text">
+                <string/>
                </property>
               </widget>
              </item>
@@ -220,21 +478,60 @@ border-radius: 10px;</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="2" colspan="2">
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+             <item row="8" column="4">
+              <widget class="QLineEdit" name="edit_sec1_westRoomNum">
+               <property name="minimumSize">
                 <size>
-                 <width>46</width>
-                 <height>19</height>
+                 <width>105</width>
+                 <height>30</height>
                 </size>
                </property>
-              </spacer>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
              </item>
-             <item row="2" column="4" colspan="2">
+             <item row="9" column="0" colspan="3">
+              <widget class="QLabel" name="lab_sec1_northRoomNum">
+               <property name="text">
+                <string>北边房间数量:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0" colspan="3">
+              <widget class="QLabel" name="lab_sec1_eastRoomNum">
+               <property name="text">
+                <string>东边房间数量:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="4" alignment="Qt::AlignRight">
               <widget class="QComboBox" name="comboBox_sec1_city">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>38</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>160</width>
+                 <height>30</height>
+                </size>
+               </property>
                <property name="styleSheet">
                 <string notr="true">border: 2px solid rgb(202, 202, 202);
 border-radius: 0;
@@ -262,490 +559,6 @@ border-radius: 0;
                </item>
               </widget>
              </item>
-             <item row="3" column="4">
-              <spacer name="horizontalSpacer_21">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="3" column="5">
-              <widget class="QLineEdit" name="edit_sec1_size">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="lab_sec1_heatProNum">
-               <property name="text">
-                <string>隔热系数:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1" colspan="4">
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>134</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="4" column="5">
-              <widget class="QLineEdit" name="edit_sec1_heatProNum">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="lab_sec1_roomNum">
-               <property name="text">
-                <string>房间数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1" colspan="4">
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>134</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="5" column="5">
-              <widget class="QLineEdit" name="edit_sec1_roomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec1_singleRoomNum">
-               <property name="text">
-                <string>单人间数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="2" colspan="3">
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>103</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="6" column="5">
-              <widget class="QLineEdit" name="edit_sec1_singleRoomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0" colspan="2">
-              <widget class="QLabel" name="lab_sec1_doubleRoomNum">
-               <property name="text">
-                <string>双人间数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="2" colspan="3">
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>103</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="7" column="5">
-              <widget class="QLineEdit" name="edit_sec1_doubleRoomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0">
-              <widget class="QLabel" name="lab_sec1_suiteRoomNum">
-               <property name="text">
-                <string>套房数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1" colspan="4">
-              <spacer name="horizontalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>134</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="8" column="5">
-              <widget class="QLineEdit" name="edit_sec1_suiteRoomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0" colspan="3">
-              <widget class="QLabel" name="lab_sec1_eastRoomNum">
-               <property name="text">
-                <string>东边房间数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="3" colspan="2">
-              <spacer name="horizontalSpacer_7">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>73</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="9" column="5">
-              <widget class="QLineEdit" name="edit_sec1_eastRoomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0" colspan="3">
-              <widget class="QLabel" name="lab_sec1_southRoomNum">
-               <property name="text">
-                <string>南边房间数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="3" colspan="2">
-              <spacer name="horizontalSpacer_8">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>73</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="10" column="5">
-              <widget class="QLineEdit" name="edit_sec1_southRoomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="0" colspan="3">
-              <widget class="QLabel" name="lab_sec1_westRoomNum">
-               <property name="text">
-                <string>西边房间数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="3" colspan="2">
-              <spacer name="horizontalSpacer_9">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>73</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="11" column="5">
-              <widget class="QLineEdit" name="edit_sec1_westRoomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="0" colspan="3">
-              <widget class="QLabel" name="lab_sec1_northRoomNum">
-               <property name="text">
-                <string>北边房间数量:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="3" colspan="2">
-              <spacer name="horizontalSpacer_10">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>73</width>
-                 <height>23</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="12" column="5">
-              <widget class="QLineEdit" name="edit_sec1_northRoomNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="mouseTracking">
-                <bool>false</bool>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0" colspan="4">
-              <widget class="QLabel" name="lab_sec1_size">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>120</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>300</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>房间面积(平米):</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </widget>
           </item>
@@ -754,7 +567,7 @@ border-radius: 0;</string>
             <property name="minimumSize">
              <size>
               <width>390</width>
-              <height>270</height>
+              <height>320</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -774,12 +587,12 @@ border-radius: 10px;</string>
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="0" colspan="2">
+             <item row="0" column="0" colspan="3">
               <widget class="QLabel" name="lab_sec2_title">
                <property name="minimumSize">
                 <size>
                  <width>150</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -789,14 +602,14 @@ border-radius: 10px;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;客房状态&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;客房状态&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="0" colspan="5">
+             <item row="1" column="0" colspan="7">
               <widget class="Line" name="line_sec2_1">
                <property name="styleSheet">
                 <string notr="true">background-color: #969696;</string>
@@ -806,7 +619,7 @@ border-radius: 10px;</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="2" column="0" colspan="2">
               <widget class="QLabel" name="lab_sec2_rentRate">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -823,7 +636,7 @@ border-radius: 10px;</string>
                <property name="maximumSize">
                 <size>
                  <width>100</width>
-                 <height>16777215</height>
+                 <height>30</height>
                 </size>
                </property>
                <property name="text">
@@ -831,7 +644,48 @@ border-radius: 10px;</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="2" colspan="2">
+             <item row="3" column="0">
+              <widget class="QRadioButton" name="radioButton_sec2_year">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec2_rentRateType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="3" column="1" colspan="2">
+              <widget class="QLabel" name="lab_sec2_year">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>年</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="4" colspan="2">
               <widget class="QLineEdit" name="edit_sec2_year">
                <property name="minimumSize">
                 <size>
@@ -849,17 +703,23 @@ border-radius: 10px;</string>
                 <enum>Qt::RightToLeft</enum>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(255, 184, 161);
-border-radius: 0;</string>
+                <string notr="true">border-radius: 0;
+border: 2px solid rgb(202, 202, 202);</string>
                </property>
                <property name="text">
                 <string/>
                </property>
               </widget>
              </item>
-             <item row="2" column="4">
+             <item row="3" column="6">
               <widget class="QLabel" name="lab_sec2_percent1">
                <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
                 <size>
                  <width>30</width>
                  <height>30</height>
@@ -870,20 +730,88 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
-              <spacer name="horizontalSpacer_11">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+             <item row="4" column="0">
+              <widget class="QRadioButton" name="radioButton_sec2_quarter">
+               <property name="minimumSize">
                 <size>
-                 <width>128</width>
-                 <height>20</height>
+                 <width>30</width>
+                 <height>30</height>
                 </size>
                </property>
-              </spacer>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">btng_sec2_rentRateType</string>
+               </attribute>
+              </widget>
              </item>
-             <item row="3" column="2" colspan="2">
+             <item row="4" column="1">
+              <widget class="QLabel" name="lab_sec2_quarter">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>季度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QComboBox" name="comboBox_sec2_quarter">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 5px;</string>
+               </property>
+               <item>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>3</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>4</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="4" column="4" colspan="2">
               <widget class="QLineEdit" name="edit_sec2_quarter">
                <property name="minimumSize">
                 <size>
@@ -901,105 +829,34 @@ border-radius: 0;</string>
                 <enum>Qt::RightToLeft</enum>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(147, 227, 237);
-border-radius: 0;</string>
+                <string notr="true">border-radius: 0;
+border: 2px solid rgb(202, 202, 202);</string>
                </property>
                <property name="text">
                 <string/>
                </property>
               </widget>
              </item>
-             <item row="3" column="4">
+             <item row="4" column="6">
               <widget class="QLabel" name="lab_sec2_percent2">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;%&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <spacer name="horizontalSpacer_12">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>152</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="4" column="2" colspan="2">
-              <widget class="QLineEdit" name="edit_sec2_month">
                <property name="minimumSize">
                 <size>
-                 <width>100</width>
+                 <width>30</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>100</width>
+                 <width>30</width>
                  <height>30</height>
                 </size>
                </property>
-               <property name="baseSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color: rgb(206, 230, 178);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="4">
-              <widget class="QLabel" name="lab_sec2_percent3">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;%&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="0" colspan="5">
-              <widget class="QLabel" name="lab_sec2_describe">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>370</width>
-                 <height>40</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>40</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">break-word: break-word;</string>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;(注：年、季度、日只能选择一项作为设定)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="5">
+             <item row="5" column="0" colspan="7">
               <widget class="Line" name="line_sec2_2">
                <property name="minimumSize">
                 <size>
@@ -1021,17 +878,17 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0" colspan="2">
+             <item row="6" column="0" colspan="3">
               <widget class="QLabel" name="lab_sec2_inRoomRate">
                <property name="minimumSize">
                 <size>
-                 <width>200</width>
+                 <width>180</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>200</width>
+                 <width>180</width>
                  <height>30</height>
                 </size>
                </property>
@@ -1040,7 +897,20 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="2">
+             <item row="6" column="3">
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>5</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="6" column="4">
               <widget class="QLineEdit" name="edit_sec2_inRoomRate">
                <property name="minimumSize">
                 <size>
@@ -1060,59 +930,11 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="3" colspan="2">
+             <item row="6" column="5" colspan="2">
               <widget class="QLabel" name="lab_sec2_hour">
                <property name="text">
                 <string>小时</string>
                </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QRadioButton" name="radioButton_sec2_year">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>年</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec2_rentRateType</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QRadioButton" name="radioButton_sec2_quarter">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>季度</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec2_rentRateType</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QRadioButton" name="radioButton_sec2_month">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>月</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btng_sec2_rentRateType</string>
-               </attribute>
               </widget>
              </item>
             </layout>
@@ -1199,7 +1021,7 @@ border-radius: 10px;</string>
                <property name="minimumSize">
                 <size>
                  <width>200</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -1209,10 +1031,10 @@ border-radius: 10px;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;电动窗帘&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;电动窗帘&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -1306,7 +1128,7 @@ border-radius: 10px;</string>
             <property name="minimumSize">
              <size>
               <width>390</width>
-              <height>360</height>
+              <height>375</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -1340,7 +1162,7 @@ border-radius: 10px;</string>
                <property name="minimumSize">
                 <size>
                  <width>200</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -1350,35 +1172,25 @@ border-radius: 10px;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;插卡取电&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;插卡取电&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="0" colspan="3">
-              <widget class="Line" name="line_sec4_1">
-               <property name="styleSheet">
-                <string notr="true">background-color: #969696;</string>
+             <item row="2" column="0" colspan="3">
+              <widget class="QRadioButton" name="radioButton_sec4_useCard">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
                </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+               <property name="text">
+                <string>普通插卡取电</string>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">bntg_sec4_elecType</string>
+               </attribute>
               </widget>
-             </item>
-             <item row="3" column="0">
-              <spacer name="horizontalSpacer_14">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>90</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
              <item row="3" column="1">
               <widget class="QLabel" name="lab_sec4_UC_noCardNum">
@@ -1386,42 +1198,6 @@ border-radius: 10px;</string>
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;不拔卡系数:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QLineEdit" name="edit_sec4_UC_noCardNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <spacer name="horizontalSpacer_15">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>90</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
              <item row="5" column="1">
               <widget class="QLabel" name="lab_sec4_UCI_noCardNum">
@@ -1452,6 +1228,91 @@ border-radius: 0;</string>
 border-radius: 0;</string>
                </property>
               </widget>
+             </item>
+             <item row="6" column="0" colspan="3">
+              <widget class="QRadioButton" name="radioButton_sec4_noCard">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="text">
+                <string>无插卡取电</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">bntg_sec4_elecType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QLineEdit" name="edit_sec4_UC_noCardNum">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="3">
+              <widget class="QRadioButton" name="radioButton_sec4_useCardAndId">
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="text">
+                <string>普通带身份插卡取电</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">bntg_sec4_elecType</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <spacer name="horizontalSpacer_14">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>90</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="0" colspan="3">
+              <widget class="Line" name="line_sec4_1">
+               <property name="styleSheet">
+                <string notr="true">background-color: #969696;</string>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <spacer name="horizontalSpacer_15">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>90</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item row="7" column="0">
               <spacer name="horizontalSpacer_16">
@@ -1485,45 +1346,6 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0" colspan="3">
-              <widget class="QRadioButton" name="radioButton_sec4_useCard">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>普通插卡取电</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">bntg_sec4_elecType</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="4" column="0" colspan="3">
-              <widget class="QRadioButton" name="radioButton_sec4_useCardAndId">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>普通带身份插卡取电</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">bntg_sec4_elecType</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="3">
-              <widget class="QRadioButton" name="radioButton_sec4_noCard">
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>无插卡取电</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">bntg_sec4_elecType</string>
-               </attribute>
-              </widget>
-             </item>
             </layout>
             <zorder>lab_sec4_title</zorder>
             <zorder>line_sec4_1</zorder>
@@ -1551,7 +1373,7 @@ border-radius: 0;</string>
             <property name="minimumSize">
              <size>
               <width>390</width>
-              <height>200</height>
+              <height>310</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -1582,7 +1404,7 @@ border-radius: 10px;</string>
                <property name="minimumSize">
                 <size>
                  <width>200</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -1592,10 +1414,10 @@ border-radius: 10px;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;空调属性&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;空调属性&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -1806,7 +1628,7 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>℃</string>
@@ -1871,7 +1693,7 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;最高设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1934,7 +1756,7 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>℃</string>
@@ -1946,7 +1768,7 @@ border-radius: 0;</string>
                <property name="minimumSize">
                 <size>
                  <width>100</width>
-                 <height>30</height>
+                 <height>35</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -1980,7 +1802,7 @@ border-radius:0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>℃</string>
@@ -2026,7 +1848,7 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>℃</string>
@@ -2057,7 +1879,7 @@ border-radius: 0;</string>
                <property name="minimumSize">
                 <size>
                  <width>200</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -2067,10 +1889,10 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;空调状态&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;空调状态&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -2115,7 +1937,7 @@ border-radius: 0;</string>
              <item row="17" column="4">
               <widget class="QLabel" name="lab_sec6_degree5">
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>℃</string>
@@ -2127,7 +1949,7 @@ border-radius: 0;</string>
                <property name="minimumSize">
                 <size>
                  <width>100</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -2184,7 +2006,7 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;最低设定:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2208,11 +2030,8 @@ border-radius: 0;</string>
                <property name="layoutDirection">
                 <enum>Qt::LeftToRight</enum>
                </property>
-               <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
-               </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>设定温度:</string>
                </property>
               </widget>
              </item>
@@ -2231,10 +2050,10 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;开始时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>开始时间:</string>
                </property>
               </widget>
              </item>
@@ -2285,7 +2104,7 @@ border-radius: 0;</string>
                <property name="minimumSize">
                 <size>
                  <width>100</width>
-                 <height>30</height>
+                 <height>35</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -2338,10 +2157,10 @@ border-radius:0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;持续时间:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>持续时间:</string>
                </property>
               </widget>
              </item>
@@ -2436,10 +2255,10 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>设定温度:</string>
                </property>
               </widget>
              </item>
@@ -2458,10 +2277,10 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设定温度:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>设定温度:</string>
                </property>
               </widget>
              </item>
@@ -2637,7 +2456,7 @@ border-radius: 0;</string>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,1">
+         <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,0">
           <property name="spacing">
            <number>5</number>
           </property>
@@ -2678,12 +2497,33 @@ border-radius: 10px;</string>
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_6">
+             <item row="2" column="0">
+              <widget class="QLabel" name="lab_sec7_light">
+               <property name="text">
+                <string>照明：</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="lab_sec7_TVUsingNum">
+               <property name="text">
+                <string>使用系数：</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="lab_sec7_fridge">
+               <property name="text">
+                <string>冰箱:</string>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="0" colspan="2">
               <widget class="QLabel" name="lab_sec7_title">
                <property name="minimumSize">
                 <size>
                  <width>250</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -2693,10 +2533,43 @@ border-radius: 10px;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;其它设备&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;其它设备&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="lab_sec7_lightUsingNum">
+               <property name="text">
+                <string>使用系数：</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="lab_sec7_otherDevice">
+               <property name="text">
+                <string>其它设备平均能耗:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="2">
+              <widget class="QLabel" name="lab_sec7_kW4">
+               <property name="minimumSize">
+                <size>
+                 <width>36</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>35</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;kW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -2707,13 +2580,6 @@ border-radius: 10px;</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="lab_sec7_light">
-               <property name="text">
-                <string>照明：</string>
                </property>
               </widget>
              </item>
@@ -2740,11 +2606,56 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
+             <item row="6" column="1">
+              <widget class="QLineEdit" name="edit_sec7_fridge">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QLabel" name="lab_sec7_kW2">
+               <property name="minimumSize">
+                <size>
+                 <width>36</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>35</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;kW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
              <item row="2" column="2">
               <widget class="QLabel" name="lab_sec7_kW1">
                <property name="minimumSize">
                 <size>
-                 <width>30</width>
+                 <width>36</width>
                  <height>30</height>
                 </size>
                </property>
@@ -2759,10 +2670,71 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="lab_sec7_lightUsingNum">
+             <item row="4" column="1">
+              <widget class="QLineEdit" name="edit_sec7_TV">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
+               </property>
                <property name="text">
-                <string>使用系数：</string>
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="2">
+              <widget class="QLabel" name="lab_sec7_kW3">
+               <property name="minimumSize">
+                <size>
+                 <width>36</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>35</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;kW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QLineEdit" name="edit_sec7_otherDevice">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 2px solid rgb(202, 202, 202);
+border-radius: 0;</string>
                </property>
               </widget>
              </item>
@@ -2796,58 +2768,6 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="edit_sec7_TV">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <widget class="QLabel" name="lab_sec7_kW2">
-               <property name="minimumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;kW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="lab_sec7_TVUsingNum">
-               <property name="text">
-                <string>使用系数：</string>
-               </property>
-              </widget>
-             </item>
              <item row="5" column="1">
               <widget class="QLineEdit" name="edit_sec7_TVUsingNum">
                <property name="minimumSize">
@@ -2871,58 +2791,6 @@ border-radius: 0;</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="lab_sec7_fridge">
-               <property name="text">
-                <string>冰箱:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QLineEdit" name="edit_sec7_fridge">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="2">
-              <widget class="QLabel" name="lab_sec7_kW3">
-               <property name="minimumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;kW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
              <item row="7" column="0" colspan="3">
               <widget class="Line" name="line_sec7_4">
                <property name="styleSheet">
@@ -2930,55 +2798,6 @@ border-radius: 0;</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0">
-              <widget class="QLabel" name="lab_sec7_otherDevice">
-               <property name="text">
-                <string>其它设备平均能耗:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
-              <widget class="QLineEdit" name="edit_sec7_otherDevice">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="2">
-              <widget class="QLabel" name="lab_sec7_kW4">
-               <property name="minimumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;kW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -3007,7 +2826,7 @@ border-radius: 10px;</string>
              <item row="7" column="4">
               <widget class="QLineEdit" name="edit_sec8_10To12Mon">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="minimumSize">
                 <size>
@@ -3033,7 +2852,7 @@ border-radius: 0;</string>
              <item row="2" column="4">
               <widget class="QLineEdit" name="edit_sec8_year">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="minimumSize">
                 <size>
@@ -3090,7 +2909,7 @@ border-radius: 0;</string>
                <property name="minimumSize">
                 <size>
                  <width>250</width>
-                 <height>30</height>
+                 <height>32</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -3100,10 +2919,10 @@ border-radius: 0;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 75 9pt &quot;Consolas&quot;;</string>
+                <string notr="true"/>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;输出 (节能率)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;输出 (节能率)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -3201,7 +3020,7 @@ border-radius: 0;</string>
              <item row="3" column="4">
               <widget class="QLineEdit" name="edit_sec8_1To3Mon">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="minimumSize">
                 <size>
@@ -3240,7 +3059,7 @@ border-radius: 0;</string>
              <item row="5" column="4">
               <widget class="QLineEdit" name="edit_sec8_7To9Mon">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="minimumSize">
                 <size>
@@ -3285,7 +3104,7 @@ border-radius: 0;</string>
              <item row="4" column="4">
               <widget class="QLineEdit" name="edit_sec8_4To6Mon">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="minimumSize">
                 <size>
@@ -3370,7 +3189,7 @@ border-radius: 0;</string>
               <widget class="QLabel" name="lab_sec8_10To12Mon">
                <property name="minimumSize">
                 <size>
-                 <width>110</width>
+                 <width>120</width>
                  <height>30</height>
                 </size>
                </property>
@@ -3403,8 +3222,7 @@ border-radius: 0;</string>
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(255, 255, 255);
-border-radius: 10px;</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>开始测量</string>
@@ -3443,15 +3261,73 @@ border-radius: 10px;</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <tabstops>
+  <tabstop>edit_sec1_heatProNum</tabstop>
+  <tabstop>edit_sec1_size</tabstop>
+  <tabstop>edit_sec1_eastRoomNum</tabstop>
+  <tabstop>edit_sec1_southRoomNum</tabstop>
+  <tabstop>edit_sec1_westRoomNum</tabstop>
+  <tabstop>edit_sec1_northRoomNum</tabstop>
+  <tabstop>edit_sec1_roomNum</tabstop>
+  <tabstop>radioButton_sec2_year</tabstop>
+  <tabstop>edit_sec2_year</tabstop>
+  <tabstop>radioButton_sec2_quarter</tabstop>
+  <tabstop>comboBox_sec2_quarter</tabstop>
+  <tabstop>edit_sec2_quarter</tabstop>
+  <tabstop>edit_sec2_inRoomRate</tabstop>
+  <tabstop>radioButton_sec3_LR_keep</tabstop>
+  <tabstop>radioButton_sec3_LR_close</tabstop>
+  <tabstop>radioButton_sec3_CO_keep</tabstop>
+  <tabstop>radioButton_sec3_CO_close</tabstop>
+  <tabstop>radioButton_sec4_useCard</tabstop>
+  <tabstop>edit_sec4_UC_noCardNum</tabstop>
+  <tabstop>radioButton_sec4_useCardAndId</tabstop>
+  <tabstop>edit_sec4_UCI_noCardNum</tabstop>
+  <tabstop>radioButton_sec4_noCard</tabstop>
+  <tabstop>radioButton_sec5_4pip</tabstop>
+  <tabstop>radioButton_sec5_2pip</tabstop>
+  <tabstop>radioButton_sec5_hmlMachine</tabstop>
+  <tabstop>radioButton_sec5_0to10Machine</tabstop>
+  <tabstop>checkBox_sec6_keepHeat</tabstop>
+  <tabstop>edit_sec6_keepHeatTempSet</tabstop>
+  <tabstop>comboBox_sec6_keepHeatWindSet</tabstop>
+  <tabstop>checkBox_sec6_airconTempSet</tabstop>
+  <tabstop>edit_sec6_lowTemp</tabstop>
+  <tabstop>edit_sec6_highTemp</tabstop>
+  <tabstop>checkBox_sec6_nightSETT</tabstop>
+  <tabstop>timeEdit_sec6_nightStartTime</tabstop>
+  <tabstop>edit_sec6_keepTime</tabstop>
+  <tabstop>edit_sec6_nightTempOffset</tabstop>
+  <tabstop>radioButton_sec6_ETM</tabstop>
+  <tabstop>radioButton_sec6_keepHeatNR</tabstop>
+  <tabstop>edit_sec6_keepHeatTempSetNR</tabstop>
+  <tabstop>comboBox_sec6_keepHeatWindSetNR</tabstop>
+  <tabstop>radioButton_sec6_newWind</tabstop>
+  <tabstop>edit_sec6_averUsingTime</tabstop>
+  <tabstop>edit_sec7_light</tabstop>
+  <tabstop>edit_sec7_lightUsingNum</tabstop>
+  <tabstop>edit_sec7_TV</tabstop>
+  <tabstop>edit_sec7_TVUsingNum</tabstop>
+  <tabstop>edit_sec7_fridge</tabstop>
+  <tabstop>edit_sec7_otherDevice</tabstop>
+  <tabstop>edit_sec8_year</tabstop>
+  <tabstop>edit_sec8_1To3Mon</tabstop>
+  <tabstop>edit_sec8_4To6Mon</tabstop>
+  <tabstop>edit_sec8_7To9Mon</tabstop>
+  <tabstop>edit_sec8_10To12Mon</tabstop>
+  <tabstop>btn_start</tabstop>
+ </tabstops>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="btng_sec3_checkOut"/>
   <buttongroup name="bntg_sec4_elecType"/>
   <buttongroup name="btng_sec3_leaveRoom"/>
   <buttongroup name="btng_sec2_rentRateType"/>
   <buttongroup name="btng_sec6_noRentedState"/>
-  <buttongroup name="btng_sec5_pipType"/>
   <buttongroup name="btng_sec5_machineType"/>
+  <buttongroup name="btng_sec5_pipType"/>
+  <buttongroup name="btng_sec3_checkOut"/>
  </buttongroups>
 </ui>

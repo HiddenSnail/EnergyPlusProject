@@ -1,0 +1,54 @@
+* {
+	font-family: 'Microsoft YaHei';
+}
+
+#title {
+	text-align: center;
+	color: rgb(255, 255, 255);
+	font-weight: 400;
+	font-size: 40px;
+}
+
+.Line {
+	height: 20px;
+}
+
+.QPushButton
+{
+	color: rgb(59, 76, 97);
+	background-color: rgba(227, 226, 225, 0.5);
+	border-radius: 5px;
+	text-align: center;
+	font-size: 25px;
+}
+
+
+.QPushButton:hover
+{
+	background-color: rgb(227, 226, 225);
+}
+
+.QPushButton:pressed
+{
+  background-color: rgba(104, 175, 210, 0.8);
+	color: rgb(255, 255, 255);
+}
+
+QLabel#lab_user_name, #lab_password
+{
+	color: rgb(255, 255, 255);
+	font-size: 28px;
+	text-align: justify;
+}
+
+.QLineEdit
+{
+	border-style: none;
+	background-color: rgba(255, 255, 255, 0);
+	font-size: 30px;
+}
+
+.QCheckBox {
+	color: rgb(255, 255, 255);
+	font-size: 20px;
+}

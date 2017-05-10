@@ -15,20 +15,32 @@ HEADERS += \
     global.h \
     pathmanager.h \
     csvreader.h \
-    energyform.h
+    energyform.h \
+    loginwindow.h \
+    mac_address.hpp \
+    convert_pip.hpp \
+    userid_creator.hpp \
+    stdafx.h \
+    passowrd_checker.hpp \
+    utils/custom_widget.hpp \
+    utils/thread_pool.hpp
 
 SOURCES += \
     main.cpp \
     handlemachine.cpp \
     mainwindow.cpp \
     pathmanager.cpp \
-    csvreader.cpp
+    csvreader.cpp \
+    loginwindow.cpp
 
 DISTFILES += \
     README.md \
-    cityfiles/Harbin.json
+    cityfiles/Harbin.json \
+    documents/plan.md
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    login.ui
 
-RESOURCES +=
+RESOURCES += \
+    res.qrc

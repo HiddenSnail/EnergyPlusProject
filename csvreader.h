@@ -16,22 +16,87 @@ public:
         _csvFile.setFileName(csvReader._csvFile.fileName());
     }
 
-    explicit CsvReader(QString csvFilePath)
+    CsvReader& operator = (const CsvReader& csvReader)
     {
-        QFileInfo fileInfo(csvFilePath);
-        if (fileInfo.suffix() == QString("csv")) {
-            _csvFile.setFileName(csvFilePath);
-            if (_csvFile.exists()) {
-                qDebug() << "Csv instance success!";
-            } else {
-                _csvFile.setFileName("");
-                qDebug() << "Csv instance fail!";
+        if (this == &csvReader) return *this;
+        else {
+            for (int i = 0; i < csvReader._dataGrid.size(); i++) {
+                _dataGrid.push_back(csvReader._dataGrid[i]);
             }
+            _csvFile.setFileName(csvReader._csvFile.fileName());
+            return *this;
+        }
+    }
+
+    explicit CsvReader(QString filePath)
+    {
+        QFileInfo fileInfo(filePath);
+        if (fileInfo.suffix() == QString("csv")) {
+            _csvFile.setFileName(filePath);
         } else {
+            _csvFile.setFileName("");
             qDebug() << "File format error !";
         }
     }
 
+    bool save()
+    {
+        if(_csvFile.open(QFile::WriteOnly))
+        {
+            QTextStream out(&_csvFile);
+            for (int row = 0; row < _dataGrid.size(); row++) {
+                for (int column = 0; column < _dataGrid[row].size(); column++) {
+                    if (column == _dataGrid[row].size() - 1) {
+                        out << _dataGrid[row][column];
+                    } else {
+                        out << _dataGrid[row][column] << ",";
+                    }
+                }
+                out << endl;
+            }
+            _csvFile.close();
+            return true;
+        } else {
+            qDebug() << QString("Can't save file(%1), it may be used by other program!").arg(_csvFile.fileName());
+            return false;
+        }
+    }
+
+    //向_dataGrid插入一列数据
+    void pushColumnData(QString title, QStringList columnData)
+    {
+        if (_dataGrid.isEmpty()) {
+            QStringList titleRow;
+            titleRow << title;
+            _dataGrid.push_back(titleRow);
+            for (int row = 0; row < columnData.size(); row++)
+            {
+                QStringList dataRow;
+                dataRow << columnData[row];
+                _dataGrid.push_back(dataRow);
+            }
+        } else {
+            _dataGrid[0] << title;
+            for (int row = 0; row < columnData.size(); row++)
+            {
+                _dataGrid[row + 1] << columnData[row];
+            }
+        }
+    }
+
+    void setFilePath(QString filePath)
+    {
+        QFileInfo fileInfo(filePath);
+        if (fileInfo.suffix() == QString("csv")) {
+            _csvFile.setFileName(filePath);
+        } else {
+            _csvFile.setFileName("");
+            qDebug() << "File format error !";
+        }
+    }
+
+
+    //解析csv文件到_dataGrid
     bool analyze()
     {
         if (_csvFile.open(QFile::ReadOnly)) {
@@ -47,6 +112,7 @@ public:
         return false;
     }
 
+    //获取csv文件的目标列
     QStringList getColumnByTitle(QString columnTitle)
     {
         QStringList column;
