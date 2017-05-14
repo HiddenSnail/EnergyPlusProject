@@ -31,9 +31,17 @@ signals:
     void model_r_over(); //r模型处理完毕
     void model_rp_over(); //rp模型处理完毕
     void fetchResult(double result); //获取结果信号
+
+    void cancelCal(); //取消计算信号
 private:
     //初始化函数
     void init();
+    //初始化控件状态函数
+    void initWidgetState();
+    //初始化控件的验证器
+    void initWidgetValidator();
+    //初始化CoreData
+    void initCoreData();
 
     //清除之前的数据
     void clear();
@@ -60,7 +68,7 @@ private:
     }
 
     /* sourceFile && sourceNopeFile */
-    //计算时间跨度
+    //计算夜间模式的时间跨度
     QStringList calTimeSpan(QStringList oldDataList);
 
     /* proposedFile */
@@ -132,18 +140,26 @@ private slots:
     void updateRoomNumber();
 public:
     explicit MainWindow(QWidget *parent = 0);
+    enum Language {Chinese, English};
     ~MainWindow();
+    void setLanguage(Language lang);
 
 private:
     Ui::MainWindow *ui;
     QProgressDialog *pdlg;
+    Language language;
 
+    //CoreData
 private:
     QMap<QString, double> _cityMap; //城市与隔热系数的对应关系
-    QMap<QString, QString> _cityNameMap; //在不同语言下的城市对应关系
+    QMap<QString, QString> _cityNameMap; //在不同语言下的城市对应关系(other-English)
     QString _city; //城市名称(英文)
-    QVector<int> _roomSizeVec;
+    QVector<int> _roomSizeVec; //可选房间面积数组
+    QMap<int, double> _coolLoadReducePercentMap; //空调制冷下限温度与冷负荷百分比缩减关系
+    QMap<int, double> _heatLoadReducePercentMap; //空调供热上限温度与热负荷百分比缩减关系
 
+    //ImportantData
+private:
     int _roomSize; //房间面积
     int _sumRoomNum; //总房间数
     int _noRentRoomNum; //待租房间数

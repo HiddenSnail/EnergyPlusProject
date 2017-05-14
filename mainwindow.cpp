@@ -1,6 +1,7 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "utils/custom_widget.hpp"
+#include "utils/custom_validator.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,11 +9,11 @@ MainWindow::MainWindow(QWidget *parent) :
     pdlg(nullptr)
 
 {
-    ui->setupUi(this);
-    init();
     connect(this, &MainWindow::lSignal, this, &MainWindow::lStep);
     connect(this, &MainWindow::zSignal, this, &MainWindow::zStep);
     connect(this, &MainWindow::mSignal, this, &MainWindow::mStep);
+    ui->setupUi(this);
+    init();
 }
 
 MainWindow::~MainWindow()
@@ -22,31 +23,158 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
-    //准备所需验证器
-    QRegExp float0To1Reg("^1|([0]+(\\.[0-9]{1,2})?)$"); //匹配0.00~1的数字
-    QRegExp float0To100Reg("^100|(([0]|([1-9][0-9]{0,1}))(\\.[0-9]{1,2})?)$"); //匹配0.00~100的数字
-    QRegExp float0To1000Reg("^1000|(([0]|([1-9][0-9]{0,2}))(\\.[0-9]{1,2})?)$"); //识别0.00~1000的数字
+    initCoreData();
+    initWidgetState();
+    initWidgetValidator();
+}
 
-    //section1
-    //读取城市profile，获取城市信息和隔热系数
-    QFile profile(PathManager::instance()->getPath("ProfileDir") + "/city_profile.json");
-    if (!profile.open(QFile::ReadOnly)) { qFatal("When init, can't read the city profile!"); }
-    QTextStream inStream(&profile);
-    inStream.setCodec("UTF-8");
-    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toUtf8());
-    profile.close();
-    if (!doc.isObject() || doc.isNull()) { qFatal("The city profile file maybe broken!"); }
-    QJsonObject root = doc.object();
-    QJsonArray cityArray = root["cityArray"].toArray();
-    QJsonArray cityNameArray = root["China"].toArray();
+/**
+ * @brief MainWindow::initCoreData >> 初始化CoreData
+ */
+void MainWindow::initCoreData()
+{
+    //获取城市信息和隔热系数
+    QFile cityProfile(PathManager::instance()->getPath("ProfileDir") + "/city_profile.json");
+    if (!cityProfile.open(QFile::ReadOnly)) { qFatal("Can't read the city profile!"); }
+    QTextStream cpStream(&cityProfile);
+    cpStream.setCodec("UTF-8");
+    QJsonDocument cpDoc = QJsonDocument::fromJson(cpStream.readAll().toUtf8());
+    cityProfile.close();
+
+    if (!cpDoc.isObject() || cpDoc.isEmpty()) { qFatal("The city profile file maybe broken!"); }
+    QJsonObject cpRoot = cpDoc.object();
+    QJsonArray cityArray = cpRoot["cityArray"].toArray();
+    QJsonArray cityNameArray = cpRoot["China"].toArray();
     for (int i = 0; i < cityArray.size(); i++) {
         QString cityName = cityArray[i].toString();
         QString cityTransName = QString::fromLocal8Bit(cityNameArray[i].toString().toLocal8Bit().data());
-        double heatProNum = root[cityName].toDouble();
+        double heatProNum = cpRoot[cityName].toDouble();
         _cityNameMap.insert(cityTransName, cityName);
         _cityMap.insert(cityName, heatProNum);
     }
 
+
+
+    //获取房间可选面积数组
+    QDir sourceDir(PathManager::instance()->getPath("SourceDir"));
+    QFileInfoList fileInfoList = sourceDir.entryInfoList(QDir::Files);
+    for (int i = 0; i < fileInfoList.size(); i++)
+    {
+        QFileInfo fileInfo = fileInfoList[i];
+        int size = fileInfo.baseName().toInt();
+        _roomSizeVec.push_back(size);
+    }
+    qSort(_roomSizeVec.begin(), _roomSizeVec.end(), [](int &a, int &b){
+        return a < b;
+    });
+
+
+
+    //获取冷热负荷缩减百分比关系
+    QFile loadReduceProfile(PathManager::instance()->getPath("ProfileDir") + "/load/loadReducePercent_profile.json");
+    if (!loadReduceProfile.open(QFile::ReadOnly)) { qFatal("Can't read the loadReducePercent profile profile!"); }
+    //lrp == loadReduceProfile的缩写
+    QTextStream lrpStream(&loadReduceProfile);
+    lrpStream.setCodec("UTF-8");
+    QJsonDocument lrpDoc = QJsonDocument::fromJson(lrpStream.readAll().toUtf8());
+    loadReduceProfile.close();
+
+    if (!lrpDoc.isObject() || lrpDoc.isEmpty()) { qFatal("The loadReducePercent profile file maybe broken!"); }
+    QJsonObject lrpRoot = lrpDoc.object();
+    int coolTempTop = lrpRoot["coolTempTop"].toInt();
+    int coolTempBottom = lrpRoot["coolTempBottom"].toInt();
+    QJsonArray coolLoadReducePercentArray = lrpRoot["coolReducePercent"].toArray();
+    for (int temp = coolTempBottom; temp <= coolTempTop; temp++)
+    {
+        double percent = coolLoadReducePercentArray[temp - coolTempBottom].toDouble();
+        _coolLoadReducePercentMap.insert(temp, percent);
+    }
+    int heatTempTop = lrpRoot["heatTempTop"].toInt();
+    int heatTempBottom = lrpRoot["heatTempBottom"].toInt();
+    QJsonArray heatLoadReducePercentArray = lrpRoot["heatReducePercent"].toArray();
+    for (int temp = heatTempBottom; temp <= heatTempTop; temp++)
+    {
+        double percent = heatLoadReducePercentArray[temp - heatTempBottom].toDouble();
+        _heatLoadReducePercentMap.insert(temp, percent);
+    }
+
+
+}
+
+/**
+ * @brief MainWindow::initWidgetValidator >> 初始化控件的验证器
+ */
+void MainWindow::initWidgetValidator()
+{
+    //准备所需验证器正则表达式
+    QRegExp float0To1Reg("^1|([0]+(\\.[0-9]{1,2})?)$"); //匹配0.00~1的数字
+    QRegExp float0To100Reg("^100|(([0]|([1-9][0-9]{0,1}))(\\.[0-9]{1,2})?)$"); //匹配0.00~100的数字
+    QRegExp float0To1000Reg("^1000|(([0]|([1-9][0-9]{0,2}))(\\.[0-9]{1,2})?)$"); //识别0.00~1000的数字
+
+
+
+    //section1
+    ui->edit_sec1_size->setValidator(new IntValidator(1, 10000, this));
+    ui->edit_sec1_roomNum->setValidator(new IntValidator(1, 10000, this));
+    ui->edit_sec1_eastRoomNum->setValidator(new IntValidator(1, 10000, this));
+    ui->edit_sec1_southRoomNum->setValidator(new IntValidator(1, 10000, this));
+    ui->edit_sec1_westRoomNum->setValidator(new IntValidator(1, 10000, this));
+    ui->edit_sec1_northRoomNum->setValidator(new IntValidator(1, 10000, this));
+
+    //section2
+    ui->edit_sec2_year->setValidator(new QRegExpValidator(float0To100Reg, this));
+    ui->edit_sec2_quarter->setValidator(new QRegExpValidator(float0To100Reg, this));
+    ui->edit_sec2_inRoomRate->setValidator(new IntValidator(0, 24, this));
+
+    //section4
+    ui->edit_sec4_UC_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
+    ui->edit_sec4_UCI_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
+
+    //section6
+    ui->edit_sec6_keepHeatTempSet->setValidator(new IntValidator(0, 100, this));
+    IntValidator *heatValid, *coolValid;
+    int coolTempBottom = *_coolLoadReducePercentMap.keyBegin();
+    int coolTempTop = *--_coolLoadReducePercentMap.keyEnd();
+    int heatTempBottom = *_heatLoadReducePercentMap.keyBegin();
+    int heatTempTop = *--_heatLoadReducePercentMap.keyEnd();
+
+    coolValid = new IntValidator(coolTempBottom, coolTempTop, this);
+    heatValid = new IntValidator(heatTempBottom, heatTempTop, this);
+    ui->edit_sec6_lowTemp->setValidator(coolValid);
+    ui->edit_sec6_highTemp->setValidator(heatValid);
+    connect(ui->edit_sec6_lowTemp, &QLineEdit::editingFinished, ui->edit_sec6_highTemp, [=](){
+        int lowTemp = ui->edit_sec6_lowTemp->text().toInt();
+        if (lowTemp > heatValid->bottom())
+        {
+            heatValid->setBottom(lowTemp);
+            QString heatTempStr = ui->edit_sec6_highTemp->text();
+            heatValid->fixup(heatTempStr);
+            ui->edit_sec6_highTemp->setText(heatTempStr);
+        }
+        else { heatValid->setBottom(heatTempBottom); }
+    });
+
+    ui->edit_sec6_nightTempOffset->setValidator(new IntValidator(0, 30, this));
+    ui->edit_sec6_keepTime->setValidator(new IntValidator(0, 24, this));
+    ui->edit_sec6_keepHeatTempSetNR->setValidator(new IntValidator(0, 24, this));
+    ui->edit_sec6_averUsingTime->setValidator(new IntValidator(0, 24, this));
+
+    //section7
+    ui->edit_sec7_light->setValidator(new QRegExpValidator(float0To1000Reg, this));
+    ui->edit_sec7_lightUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
+    ui->edit_sec7_TV->setValidator(new QRegExpValidator(float0To1000Reg, this));
+    ui->edit_sec7_TVUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
+    ui->edit_sec7_fridge->setValidator(new QRegExpValidator(float0To1000Reg, this));
+    ui->edit_sec7_otherDevice->setValidator(new QRegExpValidator(float0To1000Reg, this));
+
+}
+
+/**
+ * @brief MainWindow::initWidgetState >> 初始化控件的状态，并绑定相应的槽函数
+ */
+void MainWindow::initWidgetState()
+{
+    //section1
     QStringList items;
     for (auto cityName: _cityNameMap.keys()) {
         items << cityName;
@@ -65,31 +193,25 @@ void MainWindow::init()
         heatProNum->setText(QString::number(_cityMap[_city]));
     });
 
-    ui->edit_sec1_size->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_roomNum->setValidator(new QIntValidator(1, 1000000, this));
     ui->edit_sec1_roomNum->setReadOnly(true);
     ui->edit_sec1_roomNum->setText("0");
-    ui->edit_sec1_eastRoomNum->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_southRoomNum->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_westRoomNum->setValidator(new QIntValidator(1, 1000000, this));
-    ui->edit_sec1_northRoomNum->setValidator(new QIntValidator(1, 1000000, this));
     connect(ui->edit_sec1_eastRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
     connect(ui->edit_sec1_westRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
     connect(ui->edit_sec1_southRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
     connect(ui->edit_sec1_northRoomNum, &QLineEdit::editingFinished, this, &MainWindow::updateRoomNumber);
+
 
     //section2
     ui->radioButton_sec2_year->setChecked(true);
     ui->edit_sec2_year->setEnabled(true);
     ui->edit_sec2_quarter->setEnabled(false);
     ui->comboBox_sec2_quarter->setEnabled(false);
-    ui->edit_sec2_year->setValidator(new QRegExpValidator(float0To100Reg, this));
-    ui->edit_sec2_quarter->setValidator(new QRegExpValidator(float0To100Reg, this));
-    ui->edit_sec2_inRoomRate->setValidator(new QIntValidator(0, 24, this));
+
 
     //section3
     ui->radioButton_sec3_CO_keep->setChecked(true);
     ui->radioButton_sec3_LR_keep->setChecked(true);
+
 
     //section4
     ui->radioButton_sec4_noCard->setChecked(true);
@@ -97,12 +219,12 @@ void MainWindow::init()
     ui->lab_sec4_UC_noCardNum->setEnabled(false);
     ui->edit_sec4_UCI_noCardNum->setEnabled(false);
     ui->lab_sec4_UCI_noCardNum->setEnabled(false);
-    ui->edit_sec4_UC_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
-    ui->edit_sec4_UCI_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
+
 
     //section5
     ui->radioButton_sec5_4pip->setChecked(true);
     ui->radioButton_sec5_hmlMachine->setChecked(true);
+
 
     //section6
     on_checkBox_sec6_keepHeat_toggled(false);
@@ -111,22 +233,6 @@ void MainWindow::init()
     ui->radioButton_sec6_keepHeatNR->setChecked(true);
     on_radioButton_sec6_keepHeatNR_toggled(true);
     on_radioButton_sec6_newWind_toggled(false);
-
-    ui->edit_sec6_keepHeatTempSet->setValidator(new QIntValidator(0, 100, this));
-    ui->edit_sec6_highTemp->setValidator(new QIntValidator(0, 100, this));
-    ui->edit_sec6_lowTemp->setValidator(new QIntValidator(0, 100, this));
-    ui->edit_sec6_nightTempOffset->setValidator(new QIntValidator(0, 100, this));
-    ui->edit_sec6_keepTime->setValidator(new QIntValidator(0, 24, this));
-    ui->edit_sec6_keepHeatTempSetNR->setValidator(new QIntValidator(0, 24, this));
-    ui->edit_sec6_averUsingTime->setValidator(new QIntValidator(0, 24, this));
-
-    //section7
-    ui->edit_sec7_light->setValidator(new QRegExpValidator(float0To1000Reg, this));
-    ui->edit_sec7_lightUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
-    ui->edit_sec7_TV->setValidator(new QRegExpValidator(float0To1000Reg, this));
-    ui->edit_sec7_TVUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
-    ui->edit_sec7_fridge->setValidator(new QRegExpValidator(float0To1000Reg, this));
-    ui->edit_sec7_otherDevice->setValidator(new QRegExpValidator(float0To1000Reg, this));
 
     //section8
     ui->edit_sec8_year->setReadOnly(true);
@@ -157,51 +263,55 @@ void MainWindow::clear()
 void MainWindow::on_btn_start_clicked()
 {
     clear();
+
     if (checkUserInput()) {
         preImpData();
         callEplus();
         if (pdlg == nullptr) {
             pdlg = new CustomProgressDialog();
+            pdlg->setWindowFlags(windowFlags()&~Qt::WindowCloseButtonHint);
+
             pdlg->setWindowTitle(QString::fromLocal8Bit("正在进行计算..."));
-            pdlg->setFixedSize(ui->centralwidget->width()/2, ui->centralwidget->height()/5);
+            pdlg->setFixedSize(ui->centralwidget->width()/2, 150);
+            pdlg->setCancelButton(nullptr);
             pdlg->setMinimum(0);
-            pdlg->setMaximum(0);
+            pdlg->setMaximum(100);
             pdlg->setLabelText(QString::fromLocal8Bit("正在构建、配置模型..."));
+            pdlg->setValue(20);
             connect(this, &MainWindow::zSignal, [=](){
-                QTimer::singleShot(6*1000, [=]() {
-                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(1/4)..."));
+                QTimer *timer = new QTimer();
+                connect(timer, &QTimer::timeout, [=](){
+                    pdlg->setValue(pdlg->value()+1);
                 });
-            });
-
-            connect(this, &MainWindow::model_base_over, [=](){
-                QTimer::singleShot(1000, [=]() {
-                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(2/4)..."));
-                });
-            });
-
-            connect(this, &MainWindow::model_nr_over, [=](){
-                QTimer::singleShot(1000, [=]() {
-                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(3/4)..."));
-                });
-            });
-
-            connect(this, &MainWindow::model_r_over, [=](){
-                QTimer::singleShot(1000, [=]() {
-                   pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型(4/4)..."));
+                timer->start(1000);
+                QTimer::singleShot(30*1000, [=]() {
+                    timer->stop();
+                    delete timer;
+                    pdlg->setValue(50);
+                    pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型..."));
                 });
             });
 
             connect(this, &MainWindow::mSignal, [=](){
-                QTimer::singleShot(2000, [=]() {
-                   pdlg->setLabelText(QString::fromLocal8Bit("正在计算结果..."));
+                QTimer *timer = new QTimer();
+                connect(timer, &QTimer::timeout, [=](){
+                    pdlg->setValue(pdlg->value()+1);
+                });
+                timer->start(100);
+                QTimer::singleShot(4000, [=]() {
+                    timer->stop();
+                    delete timer;
+                    pdlg->setValue(90);
+                    pdlg->setLabelText(QString::fromLocal8Bit("正在计算结果..."));
                 });
             });
             connect(this, &MainWindow::fetchResult, pdlg, &QProgressDialog::close);
             pdlg->exec();
 
         } else {
+            pdlg->setValue(20);
             pdlg->setLabelText(QString::fromLocal8Bit("正在构建、配置模型..."));
-            pdlg->setFixedSize(ui->centralwidget->width()/2, ui->centralwidget->height()/5);
+            pdlg->setFixedSize(ui->centralwidget->width()/2, 150);
             pdlg->exec();
         }
     } else {
@@ -247,7 +357,8 @@ bool MainWindow::checkUserInput()
         }
 
         if (ui->checkBox_sec6_airconTempSet->isChecked()) {
-            isSec6Ready = isSec6Ready && true;
+            isSec6Ready = isSec6Ready && ui->edit_sec6_lowTemp->hasAcceptableInput()
+                    && ui->edit_sec6_highTemp->hasAcceptableInput();
         }
 
         if (ui->checkBox_sec6_nightSETT->isChecked()) {
@@ -771,19 +882,6 @@ QStringList MainWindow::calSchComHeatRp(QStringList oldDataList)
 void MainWindow::preImpData()
 {
     //@block: 计算房间面积
-    if (_roomSizeVec.isEmpty()) {
-        QDir sourceDir(PathManager::instance()->getPath("SourceDir"));
-        QFileInfoList fileInfoList = sourceDir.entryInfoList(QDir::Files);
-        for (int i = 0; i < fileInfoList.size(); i++) {
-            QFileInfo fileInfo = fileInfoList[i];
-            int size = fileInfo.baseName().toInt();
-            _roomSizeVec.push_back(size);
-        }
-        qSort(_roomSizeVec.begin(), _roomSizeVec.end(), [](int &a, int &b){
-            return a < b;
-        });
-    }
-
     _roomSize = ui->edit_sec1_size->text().toInt();
     for (int i = 0; i < _roomSizeVec.size(); i++) {
         if (_roomSizeVec[i] >= _roomSize) {
@@ -806,7 +904,8 @@ void MainWindow::preImpData()
     }
 
     //在室率
-    double inRoomRate = ui->edit_sec2_inRoomRate->text().toInt()/24.0;
+    //暂时不需要使用在室率
+//    double inRoomRate = ui->edit_sec2_inRoomRate->text().toInt()/24.0;
     int eastRoomNum = ui->edit_sec1_eastRoomNum->text().toInt();
     int southRoomNum = ui->edit_sec1_southRoomNum->text().toInt();
     int westRoomNum = ui->edit_sec1_westRoomNum->text().toInt();
@@ -845,7 +944,10 @@ void MainWindow::preImpData()
     for (int i = 0; i < 24; i++)
     {
         double proInRoomRate = root[QString::number(i+1)].toDouble();
-        double realInRoomRate = inRoomRate*proInRoomRate/proAverInRoomRate;
+//        double realInRoomRate = inRoomRate*proInRoomRate/proAverInRoomRate;
+        //所使用的在在室率暂时是profile中的
+        double realInRoomRate = proInRoomRate;
+
         if (realInRoomRate > 1) realInRoomRate = 1;
         //每小时已租无人房间数
         int rentNoPeopleRoomNum = ceil(rentRoomNum*(1 - realInRoomRate)*(1 - keepOnRate));
@@ -856,11 +958,13 @@ void MainWindow::preImpData()
         _rentPeopleRoomNumVec.push_back(rentPeopleRoomNum);
     }
 
+    //!<debug>
     qDebug() << tr("roomSize") << _roomSize;
     qDebug() << tr("sumRoomNum") << _sumRoomNum;
     qDebug() << tr("noRentRoomNum") << _noRentRoomNum;
     qDebug() << tr("rentPeopleRoomNumVec") << _rentPeopleRoomNumVec;
     qDebug() << tr("rentNoPeopleRoomNumVec") << _rentNoPeopleRoomNumVec;
+    //!</debug>
 }
 
 
@@ -1118,6 +1222,24 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
         }
     }
 
+    //空调面板温度负荷修正
+    if (ui->checkBox_sec6_airconTempSet->isChecked() && !ui->radioButton_sec6_ETM->isChecked())
+    {
+        int coolTemp, heatTemp;
+        coolTemp = ui->edit_sec6_lowTemp->text().toInt();
+        heatTemp = ui->edit_sec6_highTemp->text().toInt();
+        double coolLoadPercent = 0, heatLoadPercent = 0;
+        coolLoadPercent = 1 - _coolLoadReducePercentMap[coolTemp];
+        heatLoadPercent = 1 - _heatLoadReducePercentMap[heatTemp];
+        for (int index = 0; index < baseForm.getFormDataSize(); index++)
+        {
+            baseForm._coolLoad[index] = QString::number(baseForm._coolLoad[index].toDouble()*coolLoadPercent);
+            baseForm._heatLoad[index] = QString::number(baseForm._heatLoad[index].toDouble()*heatLoadPercent);
+            proposedForm._coolLoad[index] = QString::number(proposedForm._coolLoad[index].toDouble()*coolLoadPercent);
+            proposedForm._heatLoad[index] = QString::number(proposedForm._heatLoad[index].toDouble()*heatLoadPercent);
+        }
+    }
+
     qInfo() << "Calculate room heating load, cooling load and fans watts finish!";
 }
 
@@ -1295,9 +1417,6 @@ QStringList MainWindow::fixFanWatts(const QStringList fanWattsList)
          baseForm._deviceEnergy.push_back(QString::number(value));
      }
 
-     //base model的照明能耗(J)
-     qDebug() << "lightRatioList: " << lightRatioList;
-
      for (int i = 0; i < baseForm.getFormDataSize(); i++)
      {
          double watts = 1000*(ui->edit_sec7_light->text().toDouble());
@@ -1347,11 +1466,6 @@ QStringList MainWindow::fixFanWatts(const QStringList fanWattsList)
              }
          }
      }
-
-     //!<debug>
-     qDebug() << "MaxHeat: " << maxHeatLoad;
-     qDebug() << "MaxCool: " << maxCoolLoad;
-     //!</debug>
 
      //螺杆机台数
      int screwMachineNum;
@@ -1509,16 +1623,6 @@ QStringList MainWindow::fixFanWatts(const QStringList fanWattsList)
          form._boilerFuelUse.push_back(QString::number(energy));
      }
 
-     //!<debug>
-     if (isInheritCoreData == false) {
-         CsvReader boilerCsv("boiler.csv");
-         boilerCsv.pushColumnData("plr", boilerPLRList);
-         boilerCsv.pushColumnData("realEff", realEff);
-         boilerCsv.pushColumnData("boilerFulUse", form._boilerFuelUse);
-         boilerCsv.save();
-     }
-     //!</debug>
-
      //8760小时,每个时刻每台冷却塔的总散热量(W)
      QStringList perCooTowerLoseHeatList;
      for (int i = 0; i < currentCopList.size(); i++)
@@ -1610,7 +1714,7 @@ QStringList MainWindow::fixFanWatts(const QStringList fanWattsList)
          form._fanEnergy.push_back(QString::number(energy));
      }
 
-     qDebug() << "Energy calculate finnish!";
+     qInfo() << "Energy calculate finnish!";
  }
 
 /**---------------------------文件IO及Eplus调用操作---------------------------------**/
@@ -1625,9 +1729,7 @@ void MainWindow::lStep()
     QString sourceNoPeFilePath = QString(PathManager::instance()->getPath("SourceNoPeDir")+"/%1.idf").arg(_roomSize);
     HandleMachine *p_src = new HandleMachine(sourceFilePath);
     HandleMachine *p_srcNp = new HandleMachine(sourceNoPeFilePath);
-
     QThread *p_thread_src = new QThread();
-    p_src->moveToThread(p_thread_src);
 
     //对源idf文件进行配置、操作及models分离
     //(注意：lambda表达式的捕捉参数,必须是通过值来捕捉,否则主线程在离开作用域后, 通过引用捕捉的话会导致程序崩溃)
@@ -1652,10 +1754,10 @@ void MainWindow::lStep()
         p_src->separate(fileNameList);
         p_srcNp->separate(nopeFileNameList);
     });
-
     connect(p_src, &HandleMachine::finishSep, p_thread_src, &QThread::quit);
     connect(p_thread_src, &QThread::finished, p_src, &QObject::deleteLater);
     connect(p_thread_src, &QThread::finished, p_srcNp, &QObject::deleteLater);
+    connect(p_thread_src, &QThread::finished, p_thread_src, &QObject::deleteLater);
     connect(p_srcNp, &QObject::destroyed, this, &MainWindow::zSignal);
     p_thread_src->start();
 }
@@ -1674,7 +1776,10 @@ void MainWindow::zStep()
     connect(p_base, &HandleMachine::finishExec, p_thread_base, &QThread::quit);
     connect(p_base, &HandleMachine::finishExec, this, &MainWindow::model_base_over);
     connect(p_thread_base, &QThread::finished, p_base, &QObject::deleteLater);
-
+    //当线程结束时，销毁线程
+    connect(p_thread_base, &QThread::finished, p_thread_base, &QObject::deleteLater);
+    //接收到停止计算信号立即停止线程
+    connect(this, &MainWindow::cancelCal, p_thread_base, &QThread::quit);
     p_thread_base->start();
 
     //proposed model进行配置
@@ -1754,6 +1859,8 @@ void MainWindow::zStep()
     connect(p_thread_pro, &QThread::finished, p_rp, &QObject::deleteLater);
 
     connect(p_rp, &QObject::destroyed, this, &MainWindow::mSignal);
+    //当线程结束时，销毁线程
+    connect(p_thread_pro, &QThread::finished, p_thread_pro, &QObject::deleteLater);
     p_thread_pro->start();
 }
 
@@ -1813,6 +1920,7 @@ void MainWindow::mStep()
     });
 
     connect(this, &MainWindow::fetchResult, p_thread_res, &QThread::quit);
+    connect(p_thread_res, &QThread::finished, p_thread_res, &QObject::deleteLater);
     connect(this, &MainWindow::fetchResult, [=](double percent){
         if (ui->radioButton_sec2_year->isChecked()) {
             ui->edit_sec8_year->setText(QString::number(percent*100, 'f', 2));
@@ -1830,3 +1938,14 @@ void MainWindow::mStep()
     });
     p_thread_res->start();
 }
+
+/**
+ * @brief MainWindow::setLanguage >> 设置语言
+ * @param lang
+ */
+//void MainWindow::setLanguage(Language lang)
+//{
+//    QFile langProfile(PathManager::instance()->getPath("ProfileDir") + "/lang/English.json");
+//    if (!langProfile.open(QIODevice::ReadOnly)) { qFatal("Can't read the language profile!"); }
+//    QTextStream lpStream(&langProfile);
+//}

@@ -23,7 +23,8 @@ HEADERS += \
     stdafx.h \
     passowrd_checker.hpp \
     utils/custom_widget.hpp \
-    utils/thread_pool.hpp
+    custom_validator.hpp \
+    utils/custom_validator.hpp
 
 SOURCES += \
     main.cpp \

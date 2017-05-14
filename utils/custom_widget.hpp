@@ -21,10 +21,19 @@ CustomProgressDialog::CustomProgressDialog(QWidget *parent)
     bar->setStyleSheet(".QProgressBar {"\
                        "background-color: rgb(68, 69, 73);"\
                        "border-radius: 5px;"\
+                       "color: rgb(255, 255, 255);"\
+                       "height: 40px;"\
+                       "font-family: 'Microsoft YaHei';"\
+                       "}"
+                       ".QProgressBar::chunk {"\
+                       "background-color: rgb(38, 190, 200);"\
+                       "border-radius: 5px;"\
                        "}");
+    bar->setAlignment(Qt::AlignCenter);
     this->setBar(bar);
 
     QPushButton *button = new QPushButton(parent);
+    button->setDisabled(true);
     button->setStyleSheet(".QPushButton {"\
                           "border-radius: 5px;"\
                           "font-family: 'Microsoft YaHei';"\

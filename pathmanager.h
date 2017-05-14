@@ -1,4 +1,4 @@
-#ifndef PATHMANAGER_H
+﻿#ifndef PATHMANAGER_H
 #define PATHMANAGER_H
 #include <QtCore>
 #include <QApplication>
@@ -34,6 +34,8 @@ private:
 
         _pathMap.insert("EpIniFile", appDir + "/EnergyPlusV8-1-0/Energy+.ini");
         _pathMap.insert("EpRunFile", appDir + "/EnergyPlusV8-1-0/RunEPlus.bat");
+        _pathMap.insert("EpIniFileBackup", appDir + "/EnergyPlusV8-1-0/Energy+.ini.backup");
+        _pathMap.insert("EpRunFileBackup", appDir + "/EnergyPlusV8-1-0/RunEPlus.bat.backup");
     }
 public:
     static PathManager* instance();

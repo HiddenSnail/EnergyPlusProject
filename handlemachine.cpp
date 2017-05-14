@@ -1,4 +1,4 @@
-#include "handlemachine.h"
+﻿#include "handlemachine.h"
 
 QMutex HandleMachine::_startLock;
 /**
@@ -346,9 +346,17 @@ void HandleMachine::startMachine(QString weatherFileName)
     _startLock.lock();
     //修改Eplus的配置文件(.ini)
     QFile epIniFile(PathManager::instance()->getPath("EpIniFile"));
+    //检查有没有对Energy+.ini的备份文件，若没有则在当前目录备份Energy+.ini.backup
+    //其目的是避免该关键文件丢失
+    QFileInfo epIniFileBackupInfo(PathManager::instance()->getPath("EpIniFileBackup"));
+    if (!epIniFileBackupInfo.exists())
+    {
+        epIniFile.copy(PathManager::instance()->getPath("EpIniFileBackup"));
+    }
+    QFile epIniFileBackup(PathManager::instance()->getPath("EpIniFileBackup"));
     QFile newEpIniFile("new.ini");
-    if (epIniFile.open(QFile::ReadOnly) && newEpIniFile.open(QFile::WriteOnly)) {
-        QTextStream stream1(&epIniFile);
+    if (epIniFileBackup.open(QFile::ReadOnly) && newEpIniFile.open(QFile::WriteOnly)) {
+        QTextStream stream1(&epIniFileBackup);
         QTextStream stream2(&newEpIniFile);
         int flag = 0;  //0:未找到目标行, 1:已找到目标行, 2:已修改目标行
         while (!stream1.atEnd()) {
@@ -371,12 +379,17 @@ void HandleMachine::startMachine(QString weatherFileName)
             }
             stream2 << line << endl;
         }
-        epIniFile.close();
+        epIniFileBackup.close();
         newEpIniFile.close();
-
-        if (epIniFile.remove()) {
+        //若Energy+.ini删除成功或者不存在
+        if (epIniFile.remove() || !epIniFile.exists())
+        {
             newEpIniFile.rename(PathManager::instance()->getPath("EpIniFile"));
             qInfo() << "Energy+.ini configure success.";
+        }
+        else
+        {
+            qFatal("Energy+.ini configure fail.");
         }
     } else {
         qFatal("Can't find Energy+.ini File!");
@@ -384,10 +397,16 @@ void HandleMachine::startMachine(QString weatherFileName)
 
     //修改Eplus的批处理文件(.bat)
     QFile epRunFile(PathManager::instance()->getPath("EpRunFile"));
+    QFileInfo epRunFileBackupInfo(PathManager::instance()->getPath("EpRunFileBackup"));
+    if (!epRunFileBackupInfo.exists())
+    {
+        epRunFile.copy(PathManager::instance()->getPath("EpRunFileBackup"));
+    }
+    QFile epRunFileBackup(PathManager::instance()->getPath("EpRunFileBackup"));
     QFile newEpRunFile("new.bat");
 
-    if (epRunFile.open(QFile::ReadOnly) && newEpRunFile.open(QFile::WriteOnly)) {
-        QTextStream stream1(&epRunFile);
+    if (epRunFileBackup.open(QFile::ReadOnly) && newEpRunFile.open(QFile::WriteOnly)) {
+        QTextStream stream1(&epRunFileBackup);
         QTextStream stream2(&newEpRunFile);
         int flag = 0;  //0:未找到目标行, 1:已修改input_path行, 2:已修改ouput_path行, 3:已修改weather_path行
         while (!stream1.atEnd()) {
@@ -426,11 +445,18 @@ void HandleMachine::startMachine(QString weatherFileName)
             }
             stream2 << line << endl;
         }
-        epRunFile.close();
+        epRunFileBackup.close();
         newEpIniFile.close();
-        if (epRunFile.remove()) {
+
+        //若RunEPlus.bat删除成功或者不存在
+        if (epRunFile.remove() || !epRunFile.exists())
+        {
             newEpRunFile.rename(PathManager::instance()->getPath("EpRunFile"));
             qInfo() << "RunEPlus.bat configure success.";
+        }
+        else
+        {
+            qFatal("RunEPlus.bat configure fail.");
         }
     } else {
         qFatal("Can't find or replace RunEPlus.bat File!");

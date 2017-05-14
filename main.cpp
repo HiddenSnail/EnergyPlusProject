@@ -8,7 +8,6 @@
 #include <QJsonDocument>
 #include "global.h"
 #include "pathmanager.h"
-#include "utils/thread_pool.hpp"
 
 int main(int arg, char* argv[]) {
     qInstallMessageHandler(debugMessage);
