@@ -1,0 +1,8 @@
+{
+  "heatTempBottom": 23,
+  "heatTempTop": 29,
+  "heatReducePercent": [0.1593, 0.1119, 0.0734, 0.0441, 0.0235, 0.0102, 0.0029],
+  "coolTempBottom": 19,
+  "coolTempTop": 24,
+  "coolReducePercent": [0.0018, 0.0077, 0.0172, 0.03, 0.046, 0.0635]
+}

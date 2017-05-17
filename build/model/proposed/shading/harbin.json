@@ -1,0 +1,55 @@
+{
+  "structPartReplace": 0,
+  "structAllReplace": 0,
+  "structInsert": [
+    {
+      "locationKey": "WindowProperty:ShadingControl",
+      "confirmKey": "InteriorShade",
+      "structData": [
+        "WindowProperty:ShadingControl,",
+        "    InteriorShade,           !- Name",
+        "    InteriorShade,           !- Shading Type",
+        "    1001 Shade,              !- Construction with Shading Name",
+        "    OnIfScheduleAllows,      !- Shading Control Type",
+        "    ShadeSch,                !- Schedule Name",
+        "    ,                        !- Setpoint {W/m2, W or deg C}",
+        "    Yes,                     !- Shading Control Is Scheduled",
+        "    No,                      !- Glare Control Is Active",
+        "    ,                        !- Shading Device Material Name",
+        "    FixedSlatAngle,          !- Type of Slat Angle Control for Blinds",
+        "    ;                        !- Slat Angle Schedule Name"]
+    },
+    {
+      "locationKey": "Schedule:Compact",
+      "confirmKey": "ShadeSch",
+      "structData":[
+        "Schedule:Compact,",
+        "   ShadeSch,                !- Name",
+        "   On/Off,                  !- Schedule Type Limits Name",
+        "   Through: 3/31,           !- Field 1",
+        "   For: AllDays,            !- Field 2",
+        "   Until: 9:00,             !- Field 3",
+        "   1,                       !- Field 4",
+        "   Until: 16:00,            !- Field 5",
+        "   0,                       !- Field 6",
+        "   Until: 24:00,            !- Field 7",
+        "   1,                       !- Field 8",
+        "   Through: 10/1,           !- Field 9",
+        "   For: AllDays,            !- Field 10",
+        "   Until: 5:00,             !- Field 11",
+        "   0,                       !- Field 12",
+        "   Until: 22:00,            !- Field 13",
+        "   1,                       !- Field 14",
+        "   Until: 24:00,            !- Field 15",
+        "   0,                       !- Field 16",
+        "   Through: 12/31,          !- Field 17",
+        "   For: AllDays,            !- Field 18",
+        "   Until: 9:00,             !- Field 19",
+        "   1,                       !- Field 20",
+        "   Until: 16:00,            !- Field 21",
+        "   0,                       !- Field 22",
+        "   Until: 24:00,            !- Field 23",
+        "   1;                       !- Field 24"]
+    }
+  ]
+}

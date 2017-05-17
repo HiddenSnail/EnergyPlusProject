@@ -1,11 +1,10 @@
 <RCC>
-    <qresource prefix="/style">
-        <file>mainstyle.qss</file>
-        <file>login.qss</file>
-    </qresource>
     <qresource prefix="/">
-        <file>icons/logo.png</file>
-        <file>icons/login.jpg</file>
-        <file>icons/login.png</file>
+        <file>res/icons/language_1.png</file>
+        <file>res/icons/language_2.png</file>
+        <file>res/icons/login.jpg</file>
+        <file>res/icons/logo.png</file>
+        <file>res/stylesheet/login.qss</file>
+        <file>res/stylesheet/main.qss</file>
     </qresource>
 </RCC>

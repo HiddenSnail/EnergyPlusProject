@@ -1,0 +1,23 @@
+{
+  "structPartReplace": 0,
+  "structAllReplace": 0,
+  "structInsert": [
+    {
+      "locationKey": "WindowProperty:ShadingControl",
+      "confirmKey": "InteriorShade",
+      "structData": [
+        "WindowProperty:ShadingControl,",
+        "    InteriorShade,           !- Name",
+        "    InteriorShade,           !- Shading Type",
+        "    1001 Shade,              !- Construction with Shading Name",
+        "    AlwaysOn,                !- Shading Control Type",
+        "    ,                !- Schedule Name",
+        "    ,                        !- Setpoint {W/m2, W or deg C}",
+        "    No,                     !- Shading Control Is Scheduled",
+        "    No,                      !- Glare Control Is Active",
+        "    ,                        !- Shading Device Material Name",
+        "    FixedSlatAngle,          !- Type of Slat Angle Control for Blinds",
+        "    ;                        !- Slat Angle Schedule Name"]
+    }
+  ]
+}

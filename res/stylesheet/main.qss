@@ -1,0 +1,39 @@
+﻿* {
+  font-family: 'Microsoft YaHei';
+}
+
+.QWidget#widget {
+  background-color: rgb(223, 232, 242);
+}
+
+.QWidget#widget_2 {
+  background-color: rgb(23, 35, 59);
+}
+
+.QLabel#soft_ware_name {
+  color: rgb(77, 81, 101);
+  font-size: 11pt;
+}
+
+.QPushButton#btn_start {
+  border-style: none;
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
+  font-size: 10pt;
+  border-radius: 5px;
+}
+
+.QPushButton#btn_start:hover
+{
+  background-color: rgba(223, 232, 242);
+}
+
+.QPushButton#btn_start:pressed
+{
+    background-color: rgb(217, 227, 238);
+}
+
+.QLineEdit {
+  background-color: rgb(92, 175, 123);
+  text-align: center;
+}

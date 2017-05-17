@@ -27,7 +27,6 @@ CustomProgressDialog::CustomProgressDialog(QWidget *parent)
                        "}"
                        ".QProgressBar::chunk {"\
                        "background-color: rgb(38, 190, 200);"\
-                       "border-radius: 5px;"\
                        "}");
     bar->setAlignment(Qt::AlignCenter);
     this->setBar(bar);

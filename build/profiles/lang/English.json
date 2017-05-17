@@ -1,0 +1,95 @@
+{
+  "section_1":["Hotel Information",
+              "Region(city):",
+              "Heat transfer coefficient:",
+              "Room Area (㎡):",
+              "Num of eastern rooms:",
+              "Num of southern rooms:",
+              "Num of western rooms:",
+              "Num of northern rooms:",
+              "Num of all rooms:"
+              ],
+  "section_2":["Room Status",
+              "Rental rates:",
+              "Year:",
+              "Quarter:",
+              "Aver-occupant time:"
+              ],
+  "section_3":["Electric Curtain",
+              "Leaving:",
+              "Reserved",
+              "Close",
+              "Check-out:",
+              "Reserved",
+              "Close"
+              ],
+  "section_4":["Keycard Holder",
+              "Keycard holder(normal)",
+              "Use frequency:",
+              "Keycard holder(ID)",
+              "Use frequency:",
+              "PIR sensor & Door Magnet"
+              ],
+  "section_5":["AC Properties",
+              "Four-pipe system",
+              "Two-pipe system",
+              "Three-stage FCU",
+              "0-10V FCU"
+              ],
+  "section_6":["AC Status",
+              "Rented",
+              "Insulation mode",
+              "Temperature offset:",
+              "Fan setting:",
+              "Temperature range setting",
+              "Min-temperature setting:",
+              "Max-temperature setting:",
+              "Night mode setting",
+              "Start time:",
+              "Keep hours:",
+              "Temperature offset:",
+              "EMT mode",
+              "Unrented",
+              "Insulation mode",
+              "Temperature offset:",
+              "Fan setting:",
+              "Fresh air mode",
+              "Average using time:"
+              ],
+  "section_7":["Equipment",
+              "Lighting:",
+              "Usage coefficient:",
+              "TV:",
+              "Usage coefficient:",
+              "Fridge:",
+              "Other derives:"
+              ],
+  "section_8":["Energy saving rates",
+              "Annual:",
+              "Jan to Mar:",
+              "Apr to Jun:",
+              "Jul to Sep:",
+              "Oct to Dec:",
+              "Start"
+            ],
+  "city":
+  {
+      "Harbin": "Harbin",
+      "Beijing": "Beijing",
+      "Shanghai": "Shanghai",
+      "Guangzhou": "Guangzhou"
+  },
+  "fanLevel":
+  {
+      "high": "high",
+      "middle": "middle",
+      "low": "low"
+  },
+  "noticeList":["Notice",
+                "The configuration isn't complete!",
+                "Calculating...",
+                "Building and configuring models...",
+                "Handling models...",
+                "Calculating result..."
+              ]
+}

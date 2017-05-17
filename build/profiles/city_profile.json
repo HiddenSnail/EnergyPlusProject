@@ -1,0 +1,7 @@
+{
+	"cityArray": ["Harbin", "Beijing", "Shanghai", "Guangzhou"],
+	"Harbin": 0.38,
+	"Beijing": 0.5,
+	"Shanghai": 0.8,
+	"Guangzhou": 1.5
+}
