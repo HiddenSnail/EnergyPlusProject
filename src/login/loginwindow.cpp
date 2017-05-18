@@ -1,6 +1,4 @@
 ﻿#include "./include/login/loginwindow.h"
-#include "./include/login/userid_creator.hpp"
-#include "./include/login/passowrd_checker.hpp"
 #include "ui_loginwindow.h"
 
 
@@ -20,9 +18,17 @@ LoginWindow::LoginWindow(QWidget *parent):
 
 void LoginWindow::inputUserId()
 {
-    MACAddress address = GetNetBiosMacAddresses().front();
-    std::string userId = createUserId(address);
-    ui->edit_user_name->setText(QString(userId.c_str()));
+    MacAddressList macAddressList;
+    if (MachineInfo::getMacAddressList(macAddressList) == MachineInfo::SUCCESS)
+    {
+        MacAddress macAddress(macAddressList.back());
+        std::string userId = UsrAccount::createUsrId(macAddress);
+        ui->edit_user_name->setText(QString(userId.c_str()));
+    }
+    else
+    {
+        qFatal("Your computer may not have some network card, can't create id for you!");
+    }
 }
 
 LoginWindow::~LoginWindow()
@@ -34,7 +40,7 @@ void LoginWindow::on_btn_login_clicked()
 {
     QString userId = ui->edit_user_name->text();
     QString password = ui->edit_password->text();
-    if (checkPassword(userId.toStdString(), password.toStdString()))
+    if (UsrAccount::checkPassword(userId.toStdString(), password.toStdString()))
     {
         this->hide();
         emit loginSuccess();

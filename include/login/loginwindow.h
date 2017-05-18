@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include "./include/mainwindow/mainwindow.h"
+#include "usraccount.h"
 
 namespace Ui {
 class LoginWindow;
@@ -22,7 +23,6 @@ signals:
 
 private slots:
     void on_btn_login_clicked();
-
     void on_btn_lang_clicked();
 
 private:

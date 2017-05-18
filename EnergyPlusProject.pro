@@ -11,18 +11,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
     include/global/debug.h \
     include/global/stdafx.h \
-    include/login/convert_pip.hpp \
     include/login/loginwindow.h \
-    include/login/mac_address.hpp \
-    include/login/passowrd_checker.hpp \
-    include/login/userid_creator.hpp \
     include/mainwindow/energyform.h \
     include/mainwindow/handlemachine.h \
     include/mainwindow/mainwindow.h \
     utils/csvreader/csvreader.h \
     utils/pathmanager/pathmanager.h \
     utils/custom_validator.hpp \
-    utils/custom_widget.hpp
+    utils/custom_widget.hpp \
+    utils/mcinfo/mcinfo.h \
+    include/login/usraccount.h
 
 SOURCES += \
     src/login/loginwindow.cpp \
@@ -30,7 +28,9 @@ SOURCES += \
     src/mainwindow/mainwindow.cpp \
     src/main.cpp \
     utils/csvreader/csvreader.cpp \
-    utils/pathmanager/pathmanager.cpp
+    utils/pathmanager/pathmanager.cpp \
+    utils/mcinfo/mcinfo.cpp \
+    src/login/usraccount.cpp
 
 DISTFILES += \
     README.md \
