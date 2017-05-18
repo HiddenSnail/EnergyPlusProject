@@ -69,7 +69,7 @@ int MachineInfo::getMacAddressList(std::list<std::string> &macAddressList)
             pIpAdapter = pIpAdapter->Next;
         }
         delete pIpAdapterInfo;
-        return 0;
+        return SUCCESS;
     }
     else
     {

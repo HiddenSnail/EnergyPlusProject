@@ -2,6 +2,7 @@
 #include "./include/mainwindow/mainwindow.h"
 #include "./include/login/loginwindow.h"
 #include "./include/global/debug.h"
+#include "./utils/csvreader/csvreader.h"
 
 int main(int arg, char* argv[]) {
     qInstallMessageHandler(debugMessage);
@@ -16,6 +17,8 @@ int main(int arg, char* argv[]) {
     } else {
         qFatal("Qss file open fail");
     }
+
+    win.show();
 
     LoginWindow loginWin;
     qssFile.setFileName(":/res/stylesheet/login.qss");
