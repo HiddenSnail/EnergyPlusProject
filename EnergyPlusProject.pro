@@ -6,6 +6,9 @@ TARGET = EnergyPlusProject
 
 TEMPLATE = app
 
+INCLUDEPATH += \
+    $$PWD/include/
+
 DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
@@ -20,7 +23,8 @@ HEADERS += \
     utils/custom_validator.hpp \
     utils/custom_widget.hpp \
     utils/mcinfo/mcinfo.h \
-    include/login/usraccount.h
+    include/login/usraccount.h \
+    include/mainwindow/set_rate_diaglog.h
 
 SOURCES += \
     src/login/loginwindow.cpp \
@@ -30,7 +34,8 @@ SOURCES += \
     utils/csvreader/csvreader.cpp \
     utils/pathmanager/pathmanager.cpp \
     utils/mcinfo/mcinfo.cpp \
-    src/login/usraccount.cpp
+    src/login/usraccount.cpp \
+    src/mainwindow/set_rate_dialog.cpp
 
 DISTFILES += \
     README.md \
@@ -46,7 +51,8 @@ DISTFILES += \
 
 FORMS += \
     ui/loginwindow.ui \
-    ui/mainwindow.ui
+    ui/mainwindow.ui \
+    ui/set_rate_dialog.ui
 
 RESOURCES += \
     res.qrc

@@ -13,7 +13,7 @@
               "Rental rates:",
               "Year:",
               "Quarter:",
-              "Aver-occupant time:"
+              "Set In-Room percent"
               ],
   "section_3":["Electric Curtain",
               "Leaving:",
@@ -40,7 +40,6 @@
               "Rented",
               "Insulation mode",
               "Temperature offset:",
-              "Fan setting:",
               "Temperature range setting",
               "Min-temperature setting:",
               "Max-temperature setting:",
@@ -52,7 +51,6 @@
               "Unrented",
               "Insulation mode",
               "Temperature offset:",
-              "Fan setting:",
               "Fresh air mode",
               "Average using time:"
               ],
@@ -74,16 +72,21 @@
             ],
   "city":
   {
-      "Harbin": "Harbin",
-      "Beijing": "Beijing",
-      "Shanghai": "Shanghai",
-      "Guangzhou": "Guangzhou"
-  },
-  "fanLevel":
-  {
-      "high": "high",
-      "middle": "middle",
-      "low": "low"
+      "Beijing":    "Beijing",
+      "Chengdu":    "Chengdu",
+      "Chongqing":  "Chongqing",
+      "Guangzhou":  "Guangzhou",
+      "Guiyang":    "Guiyang",
+      "Hangzhou":   "Hangzhou",
+      "Harbin":     "Harbin",
+      "Lanzhou":    "Lanzhou",
+      "Nanchang":   "Nanchang",
+      "Nanjing":    "Nanjing",
+      "Shanghai":   "Shanghai",
+      "Shenzhen":   "Shenzhen",
+      "Wuhan":      "Wuhan",
+      "XiAn":       "XiAn",
+      "Xiamen":     "Xiamen"
   },
   "noticeList":["Notice",
                 "The configuration isn't complete!",

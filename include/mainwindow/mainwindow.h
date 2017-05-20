@@ -8,10 +8,11 @@
 #include <QProgressBar>
 #include <QMessageBox>
 #include <QTimer>
-#include "./include/global/stdafx.h"
-#include "handlemachine.h"
+#include "./global/stdafx.h"
 #include "./utils/csvreader/csvreader.h"
+#include "handlemachine.h"
 #include "energyform.h"
+#include "set_rate_diaglog.h"
 
 namespace Ui {
 class MainWindow;
@@ -140,7 +141,12 @@ private slots:
     void updateRoomNumber();
 public:
     explicit MainWindow(QWidget *parent = 0);
-    enum Language {Chinese, English};
+    enum Language { Chinese, English };
+    //分为4个地区(1->0.38, 2->0.5, 3->0.8, 4->1.5)
+    enum City { Harbin = 1, Beijing = 2, Lanzhou = 2, XiAn = 2,
+                Chengdu = 3, Chongqing = 3, Hangzhou = 3, Nanchang = 3,
+                Nanjing = 3, Shanghai = 3, Wuhan = 3,
+                Guangzhou = 4, Guiyang = 4, Shenzhen = 4, Xiamen = 4 };
     ~MainWindow();
     void setLanguage(Language lang = Chinese);
 
@@ -148,14 +154,15 @@ private:
     Ui::MainWindow *ui;
     QProgressDialog *pdlg;
     QTimer *timer;
+    SetRateDialog *_pRateDialog;
     Language _language;
 
     //CoreData
 private:
-    QMap<QString, double> _cityMap; //城市与隔热系数的对应关系
+    QMap<int, double> _heatProNumMap; //区域与隔热系数的对应关系
+    QMap<QString, City> _citySecMap; //城市区域对应关系(English-City)
     QMap<QString, QString> _cityNameMap; //在不同语言下的城市对应关系(other-English)
-    QMap<QString, QString> _fanLevelMap; //在不同语言下风机档位的对应关系(other-English)
-    QString _city; //城市名称(英文)
+    QString _city; //城市英文名
     QVector<int> _roomSizeVec; //可选房间面积数组
     QMap<int, double> _coolLoadReducePercentMap; //空调制冷下限温度与冷负荷百分比缩减关系
     QMap<int, double> _heatLoadReducePercentMap; //空调供热上限温度与热负荷百分比缩减关系

@@ -1,4 +1,4 @@
-﻿#include "./include/mainwindow/mainwindow.h"
+﻿#include "./mainwindow/mainwindow.h"
 #include "./utils/custom_widget.hpp"
 #include "./utils/custom_validator.hpp"
 #include "ui_mainwindow.h"
@@ -6,7 +6,8 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    pdlg(nullptr)
+    pdlg(nullptr),
+    _pRateDialog(new SetRateDialog(this))
 
 {
     connect(this, &MainWindow::lSignal, this, &MainWindow::lStep);
@@ -29,37 +30,37 @@ void MainWindow::init()
     setLanguage();
 }
 
+
 /**
  * @brief MainWindow::initCoreData >> 初始化CoreData
  */
 void MainWindow::initCoreData()
 {
-    //获取城市信息和隔热系数
-    QFile cityProfile(PathManager::instance()->getPath("ProfileDir") + "/city_profile.json");
-    if (!cityProfile.open(QFile::ReadOnly)) { qFatal("Can't read the city profile!"); }
-    QTextStream cpStream(&cityProfile);
-    cpStream.setCodec("UTF-8");
-    QJsonDocument cpDoc = QJsonDocument::fromJson(cpStream.readAll().toUtf8());
-    cityProfile.close();
+    _citySecMap.insert("Harbin", City::Harbin);
+    _citySecMap.insert("Beijing", City::Beijing);
+    _citySecMap.insert("Lanzhou", City::Lanzhou);
+    _citySecMap.insert("XiAn", City::XiAn);
+    _citySecMap.insert("Chengdu", City::Chengdu);
+    _citySecMap.insert("Chongqing", City::Chongqing);
+    _citySecMap.insert("Hangzhou", City::Hangzhou);
+    _citySecMap.insert("Nanchang", City::Nanchang);
+    _citySecMap.insert("Nanjing", City::Nanjing);
+    _citySecMap.insert("Shanghai", City::Shanghai);
+    _citySecMap.insert("Wuhan", City::Wuhan);
+    _citySecMap.insert("Guangzhou", City::Guangzhou);
+    _citySecMap.insert("Guiyang", City::Guiyang);
+    _citySecMap.insert("Shenzhen", City::Shenzhen);
+    _citySecMap.insert("Xiamen", City::Xiamen);
 
-    if (!cpDoc.isObject() || cpDoc.isEmpty()) { qFatal("The city profile file maybe broken!"); }
-    QJsonObject cpRoot = cpDoc.object();
-    QJsonArray cityArray = cpRoot["cityArray"].toArray();
-    for (int i = 0; i < cityArray.size(); i++) {
-        QString cityName = cityArray[i].toString();
-        double heatProNum = cpRoot[cityName].toDouble();
-        _cityMap.insert(cityName, heatProNum);
-        _cityNameMap.insert(cityName, cityName);
+    _heatProNumMap.insert(1, 0.38);
+    _heatProNumMap.insert(2, 0.5);
+    _heatProNumMap.insert(3, 0.8);
+    _heatProNumMap.insert(4, 1.5);
+
+    for (auto key: _citySecMap.keys())
+    {
+        _cityNameMap.insert(key, key);
     }
-
-
-
-    //初始化_fanLevelMap
-    _fanLevelMap.insert("high", "high");
-    _fanLevelMap.insert("middle", "middle");
-    _fanLevelMap.insert("low", "low");
-
-
 
     //获取房间可选面积数组
     QDir sourceDir(PathManager::instance()->getPath("SourceDir"));
@@ -73,8 +74,6 @@ void MainWindow::initCoreData()
     qSort(_roomSizeVec.begin(), _roomSizeVec.end(), [](int &a, int &b){
         return a < b;
     });
-
-
 
     //获取冷热负荷缩减百分比关系
     QFile loadReduceProfile(PathManager::instance()->getPath("ProfileDir") + "/load/loadReducePercent_profile.json");
@@ -130,7 +129,6 @@ void MainWindow::initWidgetValidator()
     //section2
     ui->edit_sec2_year->setValidator(new QRegExpValidator(float0To100Reg, this));
     ui->edit_sec2_quarter->setValidator(new QRegExpValidator(float0To100Reg, this));
-    ui->edit_sec2_inRoomRate->setValidator(new IntValidator(0, 24, this));
 
     //section4
     ui->edit_sec4_UC_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
@@ -193,10 +191,10 @@ void MainWindow::initWidgetState()
     //设置隔热系数
     QLineEdit *heatProNum = ui->edit_sec1_heatProNum;
     heatProNum->setReadOnly(true);
-    heatProNum->setText(QString::number(_cityMap[_city]));
+    heatProNum->setText(QString::number(_heatProNumMap[_citySecMap[_city]]));
     connect(cityBox, &QComboBox::currentTextChanged, [=]() {
         _city = _cityNameMap[cityBox->currentText()];
-        heatProNum->setText(QString::number(_cityMap[_city]));
+        heatProNum->setText(QString::number(_heatProNumMap[_citySecMap[_city]]));
     });
 
     ui->edit_sec1_roomNum->setReadOnly(true);
@@ -212,6 +210,7 @@ void MainWindow::initWidgetState()
     ui->edit_sec2_year->setEnabled(true);
     ui->edit_sec2_quarter->setEnabled(false);
     ui->comboBox_sec2_quarter->setEnabled(false);
+    connect(ui->btn_sec2_inroomrate, &QPushButton::clicked, _pRateDialog, &SetRateDialog::exec);
 
 
     //section3
@@ -354,7 +353,6 @@ bool MainWindow::checkUserInput()
     } else {
         isSec2Ready = isSec2Ready && ui->edit_sec2_quarter->hasAcceptableInput();
     }
-    isSec2Ready = isSec2Ready && ui->edit_sec2_inRoomRate->hasAcceptableInput();
 
     //section4
     bool isSec4Ready = true;
@@ -400,90 +398,62 @@ bool MainWindow::checkUserInput()
             && ui->edit_sec7_fridge->hasAcceptableInput()
             && ui->edit_sec7_otherDevice->hasAcceptableInput();
 
-    if (isSec1Ready && isSec2Ready && isSec4Ready && isSec6Ready && isSec7Ready) {
-        ui->frame_1->setStyleSheet(".QFrame#frame_1{"\
-                                   "background-color: rgb(255, 255, 255);"
-                                   "}");
-        ui->frame_2->setStyleSheet(".QFrame#frame_2{"\
-                                   "background-color: rgb(255, 255, 255);"
-                                   "}");
-        ui->frame_4->setStyleSheet(".QFrame#frame_4{"\
-                                   "background-color: rgb(255, 255, 255);"
-                                   "}");
-        ui->frame_6->setStyleSheet(".QFrame#frame_6{"\
-                                   "background-color: rgb(255, 255, 255);"
-                                   "}");
-        ui->frame_7->setStyleSheet(".QFrame#frame_7{"\
-                                   "background-color: rgb(255, 255, 255);"
-                                   "}");
-        return true;
-    } else {
-        if (!isSec1Ready)
-        {
-            ui->frame_1->setStyleSheet(".QFrame#frame_1{"\
-                                       "background-color: rgb(255, 246, 236);"
-                                       "}");
-        }
-        else
-        {
-            ui->frame_1->setStyleSheet(".QFrame#frame_1{"\
-                                       "background-color: rgb(255, 255, 255);"
-                                       "}");
-        }
+    QString styleOK = ".QFrame#%1 {"\
+                      "background-color: rgb(255, 255, 255);"\
+                      "border-radius: 10px;"\
+                      "}";
+    QString styleNot = ".QFrame#%1 {"\
+                       "background-color: rgb(255, 246, 236);"\
+                       "border-radius: 10px;"\
+                       "}";
 
-        if (!isSec2Ready)
-        {
-            ui->frame_2->setStyleSheet(".QFrame#frame_2{"\
-                                       "background-color: rgb(255, 246, 236);"
-                                       "}");
-        }
-        else
-        {
-            ui->frame_2->setStyleSheet(".QFrame#frame_2{"\
-                                       "background-color: rgb(255, 255, 255);"
-                                       "}");
-        }
-
-        if (!isSec4Ready)
-        {
-            ui->frame_4->setStyleSheet(".QFrame#frame_4{"\
-                                       "background-color: rgb(255, 246, 236);"
-                                       "}");
-        }
-        else
-        {
-            ui->frame_4->setStyleSheet(".QFrame#frame_4{"\
-                                       "background-color: rgb(255, 255, 255);"
-                                       "}");
-        }
-
-        if (!isSec6Ready)
-        {
-            ui->frame_6->setStyleSheet(".QFrame#frame_6{"\
-                                       "background-color: rgb(255, 246, 236);"
-                                       "}");
-        }
-        else
-        {
-            ui->frame_6->setStyleSheet(".QFrame#frame_6{"\
-                                       "background-color: rgb(255, 255, 255);"
-                                       "}");
-        }
-
-        if (!isSec7Ready)
-        {
-            ui->frame_7->setStyleSheet(".QFrame#frame_7{"\
-                                       "background-color: rgb(255, 246, 236);"
-                                       "}");
-        }
-        else
-        {
-            ui->frame_7->setStyleSheet(".QFrame#frame_7{"\
-                                       "background-color: rgb(255, 255, 255);"
-                                       "}");
-        }
-        return false;
+    if (!isSec1Ready)
+    {
+        ui->frame_1->setStyleSheet(styleNot.arg("frame_1"));
     }
+    else
+    {
+        ui->frame_1->setStyleSheet(styleOK.arg("frame_1"));
+    }
+
+    if (!isSec2Ready)
+    {
+        ui->frame_2->setStyleSheet(styleNot.arg("frame_2"));
+    }
+    else
+    {
+        ui->frame_2->setStyleSheet(styleOK.arg("frame_2"));
+    }
+
+    if (!isSec4Ready)
+    {
+        ui->frame_4->setStyleSheet(styleNot.arg("frame_4"));
+    }
+    else
+    {
+        ui->frame_4->setStyleSheet(styleOK.arg("frame_4"));
+    }
+
+    if (!isSec6Ready)
+    {
+        ui->frame_6->setStyleSheet(styleNot.arg("frame_6"));
+    }
+    else
+    {
+        ui->frame_6->setStyleSheet(styleOK.arg("frame_6"));
+    }
+
+    if (!isSec7Ready)
+    {
+        ui->frame_7->setStyleSheet(styleNot.arg("frame_7"));
+    }
+    else
+    {
+        ui->frame_7->setStyleSheet(styleOK.arg("frame_7"));
+    }
+
+    bool isAllReady = isSec1Ready && isSec2Ready && isSec4Ready && isSec6Ready && isSec7Ready;
+    return isAllReady;
 }
 
 
@@ -532,9 +502,7 @@ void MainWindow::on_radioButton_sec4_useCardAndId_toggled(bool checked)
 void MainWindow::on_checkBox_sec6_keepHeat_toggled(bool checked)
 {
     ui->lab_sec6_keepHeatTempSet->setEnabled(checked);
-    ui->lab_sec6_keepHeatWindSet->setEnabled(checked);
     ui->edit_sec6_keepHeatTempSet->setEnabled(checked);
-    ui->comboBox_sec6_keepHeatWindSet->setEnabled(checked);
     ui->lab_sec6_offset_2->setEnabled(checked);
 }
 
@@ -582,10 +550,8 @@ void MainWindow::on_radioButton_sec6_ETM_toggled(bool checked)
 void MainWindow::on_radioButton_sec6_keepHeatNR_toggled(bool checked)
 {
     ui->lab_sec6_keepHeatTempSetNR->setEnabled(checked);
-    ui->lab_sec6_keepHeatWindSetNR->setEnabled(checked);
     ui->lab_sec6_offset_3->setEnabled(checked);
     ui->edit_sec6_keepHeatTempSetNR->setEnabled(checked);
-    ui->comboBox_sec6_keepHeatWindSetNR->setEnabled(checked);
 }
 
 void MainWindow::on_radioButton_sec6_newWind_toggled(bool checked)
@@ -624,14 +590,14 @@ QStringList MainWindow::calElecEqtWatts(QStringList oldDataList)
 {   
     //电视的总瓦特数(kW)
     double tvWatts = ui->edit_sec7_TV->text().toDouble();
-    //电视使用系数(占时不使用)
-    //double tvNum = ui->edit_sec7_TVUsingNum->text().toDouble();
+    //电视使用系数
+    double tvNum = ui->edit_sec7_TVUsingNum->text().toDouble();
     //冰箱的总瓦特数(kW)
     double fdgWatts = ui->edit_sec7_fridge->text().toDouble();
     //其他设备的总平均瓦特数(kW)
     double otherWatts = ui->edit_sec7_otherDevice->text().toDouble();
 
-    double averageWatts = (tvWatts + fdgWatts + otherWatts)*1000.0/_roomSize;
+    double averageWatts = (tvWatts*tvNum + fdgWatts + otherWatts)*1000.0/_roomSize;
     QStringList dataList;
     dataList << QString::number(averageWatts, 'f', 2);
     return dataList;
@@ -646,10 +612,10 @@ QStringList MainWindow::calLightsWatts(QStringList oldDataList)
 {
     //照明总瓦特数(kW)
     double lightWatts = ui->edit_sec7_light->text().toDouble();
-    //照明系数(占时不使用)
-    //double lightNum = ui->edit_sec7_light->text().toDouble();
+    //照明系数
+    double lightNum = ui->edit_sec7_light->text().toDouble();
     //房间面积
-    double averageWatts = lightWatts*1000.0/_roomSize;
+    double averageWatts = lightWatts*lightNum*1000.0/_roomSize;
 
     QStringList dataList;
     dataList << QString::number(averageWatts, 'f', 2);
@@ -975,9 +941,7 @@ void MainWindow::preImpData()
         rentalRate = ui->edit_sec2_quarter->text().toDouble()/100;
     }
 
-    //在室率
-    //暂时不需要使用在室率
-//    double inRoomRate = ui->edit_sec2_inRoomRate->text().toInt()/24.0;
+    //房间数分布
     int eastRoomNum = ui->edit_sec1_eastRoomNum->text().toInt();
     int southRoomNum = ui->edit_sec1_southRoomNum->text().toInt();
     int westRoomNum = ui->edit_sec1_westRoomNum->text().toInt();
@@ -1002,24 +966,11 @@ void MainWindow::preImpData()
     //已租房间数
     int rentRoomNum = _sumRoomNum - _noRentRoomNum;
 
-    //读取profile文件
-    QFile profile(PathManager::instance()->getPath("ProfileDir") + "/gudu_profile.json");
-    if (!profile.open(QFile::ReadOnly)) { qFatal("Can't read the room state profile!"); }
-    QTextStream inStream(&profile);
-    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
-    profile.close();
-    if (!doc.isObject() || doc.isNull()) { qFatal("The room state profile file maybe broken!"); }
-    QJsonObject root = doc.object();
-
-    //profile中的平均在室率
-    double proAverInRoomRate = root["average"].toDouble();
+    //读取在室系数计算各状态房间数
+    QList<double> inRoomRateList = _pRateDialog->getInRoomRateList();
     for (int i = 0; i < 24; i++)
     {
-        double proInRoomRate = root[QString::number(i+1)].toDouble();
-//        double realInRoomRate = inRoomRate*proInRoomRate/proAverInRoomRate;
-        //所使用的在在室率暂时是profile中的
-        double realInRoomRate = proInRoomRate;
-
+        double realInRoomRate = inRoomRateList[i];
         if (realInRoomRate > 1) realInRoomRate = 1;
         //每小时已租无人房间数
         int rentNoPeopleRoomNum = ceil(rentRoomNum*(1 - realInRoomRate)*(1 - keepOnRate));
@@ -1796,11 +1747,11 @@ void MainWindow::lStep()
     //对源idf文件进行配置、操作及models分离
     //(注意：lambda表达式的捕捉参数,必须是通过值来捕捉,否则主线程在离开作用域后, 通过引用捕捉的话会导致程序崩溃)
     connect(p_thread_src, &QThread::started , [=](){
-        p_src->initCityData(_city);
+        p_src->configure(PathManager::instance()->getPath("BaseModelDir") + QString("/base_sec%1_config.json").arg(_citySecMap[_city]));
         p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opElectricEquipment", this, &MainWindow::calElecEqtWatts);
         p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opLights", this, &MainWindow::calLightsWatts);
         p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opTimeSpan", this, &MainWindow::calTimeSpan);
-        p_srcNp->initCityData(_city);
+        p_srcNp->configure(PathManager::instance()->getPath("BaseModelDir") + QString("/base_sec%1_config.json").arg(_citySecMap[_city]));
         p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opElectricEquipment", this, &MainWindow::calElecEqtWattsNope);
         p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opLights", this, &MainWindow::calLightsWattsNope);
         p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opTimeSpan", this, &MainWindow::calTimeSpan);
@@ -1867,14 +1818,14 @@ void MainWindow::zStep()
     connect(p_thread_pro, &QThread::started, [=](){
         //客人离房关闭窗帘
         if (ui->radioButton_sec3_LR_close->isChecked()) {
-            p_r->configure(PathManager::instance()->getPath("ShadingDir") + QString("/%1.json").arg(_city));
+            p_r->configure(PathManager::instance()->getPath("ShadingDir") + QString("/sh_sec%1_config.json").arg(_citySecMap[_city]));
             p_r->configure(PathManager::instance()->getPath("RConfigFile"));
         }
 
         if (p_nr != NULL) {
             //客人退房关闭窗帘
             if (ui->radioButton_sec3_CO_close->isChecked()) {
-                p_nr->configure(PathManager::instance()->getPath("ShadingDir") + QString("/%1.json").arg(_city));
+                p_nr->configure(PathManager::instance()->getPath("ShadingDir") + QString("/sh_sec%1_config.json").arg(_citySecMap[_city]));
                 p_nr->configure(PathManager::instance()->getPath("NrConfigFile"));
             }
 
@@ -2058,7 +2009,7 @@ void MainWindow::setLanguage(Language lang)
     ui->lab_sec2_rentRate->setText(sec2Arr[index++].toString());
     ui->lab_sec2_year->setText(sec2Arr[index++].toString());
     ui->lab_sec2_quarter->setText(sec2Arr[index++].toString());
-    ui->lab_sec2_inRoomRate->setText(sec2Arr[index++].toString());
+    ui->btn_sec2_inroomrate->setText(sec2Arr[index++].toString());
 
     //section3
     QJsonArray sec3Arr = lpRoot["section_3"].toArray();
@@ -2097,7 +2048,6 @@ void MainWindow::setLanguage(Language lang)
     ui->lab_sec6_ranted->setText(sec6Arr[index++].toString());
     ui->checkBox_sec6_keepHeat->setText(sec6Arr[index++].toString());
     ui->lab_sec6_keepHeatTempSet->setText(sec6Arr[index++].toString());
-    ui->lab_sec6_keepHeatWindSet->setText(sec6Arr[index++].toString());
     ui->checkBox_sec6_airconTempSet->setText(sec6Arr[index++].toString());
     ui->lab_sec6_lowTemp->setText(sec6Arr[index++].toString());
     ui->lab_sec6_highTemp->setText(sec6Arr[index++].toString());
@@ -2109,7 +2059,6 @@ void MainWindow::setLanguage(Language lang)
     ui->lab_sec6_noRanted->setText(sec6Arr[index++].toString());
     ui->radioButton_sec6_keepHeatNR->setText(sec6Arr[index++].toString());
     ui->lab_sec6_keepHeatTempSetNR->setText(sec6Arr[index++].toString());
-    ui->lab_sec6_keepHeatWindSetNR->setText(sec6Arr[index++].toString());
     ui->radioButton_sec6_newWind->setText(sec6Arr[index++].toString());
     ui->lab_sec6_averUsingTime->setText(sec6Arr[index++].toString());
 
@@ -2135,7 +2084,7 @@ void MainWindow::setLanguage(Language lang)
     ui->lab_sec8_10To12Mon->setText(sec8Arr[index++].toString());
     ui->btn_start->setText(sec8Arr[index++].toString());
 
-    //city,fanLevel 等下拉框选项
+    //city下拉框选项
     QJsonObject cityRoot = lpRoot["city"].toObject();
     QList<QString> cityNameValues = _cityNameMap.values();
     _cityNameMap.clear();
@@ -2156,29 +2105,6 @@ void MainWindow::setLanguage(Language lang)
     ui->comboBox_sec1_city->clear();
     ui->comboBox_sec1_city->addItems(cityItems);
     _city = _cityNameMap[ui->comboBox_sec1_city->currentText()];
-
-
-    QJsonObject levelRoot = lpRoot["fanLevel"].toObject();
-    QList<QString> fanLevelValues = _fanLevelMap.values();
-    _fanLevelMap.clear();
-    for (auto fanLevel: fanLevelValues)
-    {
-        QString fanLevelTrans = levelRoot[fanLevel].toString();
-        if (!fanLevelTrans.isEmpty())
-        {
-            _fanLevelMap.insert(fanLevelTrans, fanLevel);
-        }
-    }
-    QStringList fanItems;
-    for (auto fanLevelTrans: _fanLevelMap.keys())
-    {
-        fanItems << fanLevelTrans;
-    }
-    ui->comboBox_sec6_keepHeatWindSet->clear();
-    ui->comboBox_sec6_keepHeatWindSet->addItems(fanItems);
-    ui->comboBox_sec6_keepHeatWindSetNR->clear();
-    ui->comboBox_sec6_keepHeatWindSetNR->addItems(fanItems);
-
 
 
     //用户提示选项

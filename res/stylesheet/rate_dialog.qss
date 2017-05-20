@@ -1,0 +1,38 @@
+* {
+  font-family: 'Microsoft YaHei';
+}
+
+.QWidget#wdg_srd_main
+{
+  background-color: rgb(255, 255, 255);
+}
+
+.QWidget#wdg_srd_2_2, #wdg_srd_2_4
+{
+  background-color: rgb(255, 234, 227);
+  border-radius: 5px;
+}
+
+.QWidget#wdg_srd_2_1, #wdg_srd_2_3
+{
+  background-color: rgb(225, 242, 253);
+  border-radius: 5px;
+}
+
+.QPushButton#btn_srd_ok, #btn_srd_cancel, #btn_srd_default
+{
+  background-color: rgb(230, 230, 230);
+  border-style: none;
+  border-radius: 2px;
+  padding: 5px 50px;
+}
+
+.QPushButton#btn_srd_ok:hover, #btn_srd_cancel:hover, #btn_srd_default:hover
+{
+  background-color: rgb(225, 242, 253);
+}
+
+.QPushButton#btn_srd_ok:pressed, #btn_srd_cancel:pressed, #btn_srd_default:pressed
+{
+  background-color: rgb(192, 227, 250);
+}

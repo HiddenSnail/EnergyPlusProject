@@ -2,7 +2,7 @@
 #define LOGINWINDOW_H
 #include <QMainWindow>
 #include <QMessageBox>
-#include "./include/mainwindow/mainwindow.h"
+#include "./mainwindow/mainwindow.h"
 #include "usraccount.h"
 
 namespace Ui {

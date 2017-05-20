@@ -6,5 +6,6 @@
         <file>res/icons/logo.png</file>
         <file>res/stylesheet/login.qss</file>
         <file>res/stylesheet/main.qss</file>
+        <file>res/stylesheet/rate_dialog.qss</file>
     </qresource>
 </RCC>
