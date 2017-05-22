@@ -14,6 +14,9 @@
 #include "energyform.h"
 #include "set_rate_diaglog.h"
 
+#define MIN_WIDTH 1200
+#define MIN_HEIGHT 600
+
 namespace Ui {
 class MainWindow;
 }

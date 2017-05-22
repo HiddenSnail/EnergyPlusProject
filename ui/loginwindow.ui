@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>750</height>
+    <width>800</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1200</width>
-    <height>750</height>
+    <width>800</width>
+    <height>550</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1200</width>
-    <height>750</height>
+    <width>800</width>
+    <height>550</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -33,8 +33,8 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>90</y>
-      <width>1200</width>
+      <y>35</y>
+      <width>800</width>
       <height>81</height>
      </rect>
     </property>
@@ -51,11 +51,16 @@
    <widget class="QPushButton" name="btn_login">
     <property name="geometry">
      <rect>
-      <x>498</x>
-      <y>490</y>
-      <width>211</width>
-      <height>51</height>
+      <x>320</x>
+      <y>363</y>
+      <width>150</width>
+      <height>35</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true"/>
@@ -67,11 +72,16 @@
    <widget class="QLabel" name="lab_user_name">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>238</y>
+      <x>220</x>
+      <y>180</y>
       <width>91</width>
       <height>61</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>用户名:</string>
@@ -86,11 +96,16 @@
    <widget class="QLabel" name="lab_password">
     <property name="geometry">
      <rect>
-      <x>351</x>
-      <y>342</y>
+      <x>220</x>
+      <y>260</y>
       <width>91</width>
       <height>61</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
@@ -108,9 +123,9 @@
    <widget class="Line" name="line_1">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>298</y>
-      <width>512</width>
+      <x>216</x>
+      <y>234</y>
+      <width>341</width>
       <height>20</height>
      </rect>
     </property>
@@ -127,10 +142,10 @@
    <widget class="QLineEdit" name="edit_user_name">
     <property name="geometry">
      <rect>
-      <x>493</x>
-      <y>243</y>
-      <width>371</width>
-      <height>61</height>
+      <x>319</x>
+      <y>192</y>
+      <width>231</width>
+      <height>50</height>
      </rect>
     </property>
     <property name="alignment">
@@ -140,10 +155,10 @@
    <widget class="QLineEdit" name="edit_password">
     <property name="geometry">
      <rect>
-      <x>494</x>
-      <y>345</y>
-      <width>371</width>
-      <height>61</height>
+      <x>319</x>
+      <y>271</y>
+      <width>231</width>
+      <height>50</height>
      </rect>
     </property>
     <property name="echoMode">
@@ -159,10 +174,10 @@
    <widget class="Line" name="line_2">
     <property name="geometry">
      <rect>
-      <x>354</x>
-      <y>402</y>
-      <width>512</width>
-      <height>16</height>
+      <x>216</x>
+      <y>313</y>
+      <width>341</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="orientation">
@@ -172,10 +187,10 @@
    <widget class="QPushButton" name="btn_lang">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>590</y>
-      <width>150</width>
-      <height>35</height>
+      <x>40</x>
+      <y>430</y>
+      <width>120</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="cursor">
@@ -191,7 +206,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
+     <width>800</width>
      <height>37</height>
     </rect>
    </property>

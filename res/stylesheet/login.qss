@@ -6,11 +6,11 @@
 	text-align: center;
 	color: rgb(255, 255, 255);
 	font-weight: 400;
-	font-size: 40px;
+	font-size: 32px;
 }
 
 .Line {
-	height: 20px;
+	height: 10px;
 }
 
 .QPushButton#btn_login
@@ -19,7 +19,7 @@
 	background-color: rgba(227, 226, 225, 0.5);
 	border-radius: 5px;
 	text-align: center;
-	font-size: 25px;
+	font-size: 20px;
 }
 
 
@@ -37,7 +37,7 @@
 QLabel#lab_user_name, #lab_password
 {
 	color: rgb(255, 255, 255);
-	font-size: 28px;
+	font-size: 25px;
 	text-align: justify;
 }
 
@@ -45,8 +45,8 @@ QLabel#lab_user_name, #lab_password
 {
 	border-style: none;
 	background-color: rgba(255, 255, 255, 0);
-	font-size: 30px;
-        color: rgb(255, 255, 255);
+	font-size: 25px;
+  color: rgb(255, 255, 255);
 }
 
 .QCheckBox {

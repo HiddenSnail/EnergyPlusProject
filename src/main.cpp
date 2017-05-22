@@ -34,6 +34,5 @@ int main(int arg, char* argv[]) {
 
     QObject::connect(&loginWin, &LoginWindow::updateLang, &win, &MainWindow::setLanguage);
     loginWin.show();
-
     return app.exec();
 }

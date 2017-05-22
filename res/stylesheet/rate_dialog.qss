@@ -1,5 +1,6 @@
 * {
   font-family: 'Microsoft YaHei';
+  font-size: 18px;
 }
 
 .QWidget#wdg_srd_main

@@ -297,9 +297,8 @@ bool HandleMachine::save()
 void HandleMachine::separate(QStringList fileNameList)
 {
     qInfo() << QString("Start seperate! [%1]").arg(_fileName);
-
     QDir appDir(QApplication::applicationDirPath());
-    QString outPutPath = PathManager::instance()->getPath("OutPutDir");
+    QString outPutPath =  PathManager::instance()->getPath("OutPutDir");
     QDir outputDir(outPutPath);
     if (!outputDir.exists()) {
         appDir.mkdir("output");
@@ -469,21 +468,21 @@ void HandleMachine::startMachine(QString weatherFileName)
             //设置脚本执行环境,而并非当前程序运行环境
             p_proc->setWorkingDirectory(PathManager::instance()->getPath("EplusDir"));
             //获取脚本文件信息
-            QFileInfo shell =  QFileInfo(PathManager::instance()->getPath("EpRunFile"));
+            QFileInfo shell = QFileInfo(PathManager::instance()->getPath("EpRunFile"));
             //设置脚本参数
             QStringList args;
 
             args << _baseName << weatherFileName;
             //启动脚本
-            p_proc->start(shell.absoluteFilePath(), args);
 
+            p_proc->start(shell.absoluteFilePath(), args);
             if (p_proc->waitForStarted()) {
                 qInfo() << "EnergyPlus process start!";
             } else {
                 qFatal("EnergyPlus process start error!");
             }
 
-            if(p_proc->waitForFinished()) {
+            if(p_proc->waitForFinished(50000)) {
                 if (0 == p_proc->exitCode()) {
                     qInfo() << QString("Execute normal [%1]!").arg(_fileName);
                 } else {

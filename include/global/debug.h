@@ -30,7 +30,13 @@ void debugMessage(QtMsgType type, const QMessageLogContext &context, const QStri
     QString contextInfo = QString("  Message:{ %1 }\n  File:{ %2 }\n  Line:{ %3 }\n  Func:{ %4 }\n  Time:{ %5 }\n")
             .arg(msg).arg(QString(context.file)).arg(QString::number(context.line))
             .arg(QString(context.function)).arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ddd"));
+    QFile log("debug.log");
+    log.open(QFile::Append);
+    QTextStream logout(&log);
     qout << text << QThread::currentThreadId() << "\n" << contextInfo << endl;
+    logout << text << QThread::currentThreadId() << "\n" << contextInfo << endl;
+    logout << "\n";
+    log.close();
     mutex.unlock();
 }
 

@@ -164,12 +164,21 @@ void MainWindow::initWidgetValidator()
     ui->edit_sec6_averUsingTime->setValidator(new IntValidator(0, 24, this));
 
     //section7
-    ui->edit_sec7_light->setValidator(new QRegExpValidator(float0To1000Reg, this));
+    ui->edit_sec7_light->setValidator(new DoubleValidator(0, 5, 2, this));
+//    ui->edit_sec7_light->setValidator(new QRegExpValidator(float0To10Reg, this));
+
     ui->edit_sec7_lightUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
-    ui->edit_sec7_TV->setValidator(new QRegExpValidator(float0To1000Reg, this));
+
+    ui->edit_sec7_TV->setValidator(new DoubleValidator(0, 5, 2, this));
+//    ui->edit_sec7_TV->setValidator(new QRegExpValidator(float0To10Reg, this));
+
     ui->edit_sec7_TVUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
-    ui->edit_sec7_fridge->setValidator(new QRegExpValidator(float0To1000Reg, this));
-    ui->edit_sec7_otherDevice->setValidator(new QRegExpValidator(float0To1000Reg, this));
+
+    ui->edit_sec7_fridge->setValidator(new DoubleValidator(0, 5, 2, this));
+//    ui->edit_sec7_fridge->setValidator(new QRegExpValidator(float0To10Reg, this));
+
+    ui->edit_sec7_otherDevice->setValidator(new DoubleValidator(0, 10, 2, this) );
+//    ui->edit_sec7_otherDevice->setValidator(new QRegExpValidator(float0To10Reg, this));
 
 }
 
@@ -178,6 +187,8 @@ void MainWindow::initWidgetValidator()
  */
 void MainWindow::initWidgetState()
 {
+    this->setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
+
     //section1
     QStringList items;
     for (auto cityName: _cityNameMap.keys()) {
@@ -332,7 +343,7 @@ void MainWindow::on_btn_start_clicked()
     else
     {
         QMessageBox::warning(this,_noticeList[0],_noticeList[1]);
-        qDebug() << "Not ready!";
+        qInfo() << "Not ready!";
     }
 }
 
@@ -400,11 +411,11 @@ bool MainWindow::checkUserInput()
 
     QString styleOK = ".QFrame#%1 {"\
                       "background-color: rgb(255, 255, 255);"\
-                      "border-radius: 10px;"\
+                      "border-radius: 2px;"\
                       "}";
     QString styleNot = ".QFrame#%1 {"\
                        "background-color: rgb(255, 246, 236);"\
-                       "border-radius: 10px;"\
+                       "border-radius: 2px;"\
                        "}";
 
     if (!isSec1Ready)
@@ -1966,16 +1977,19 @@ void MainWindow::setLanguage(Language lang)
     case MainWindow::Chinese:
     {
         fileName = "Chinese";
+        this->setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
         break;
     }
     case MainWindow::English:
     {
         fileName = "English";
+        this->setMinimumSize(MIN_WIDTH+100, MIN_HEIGHT);
         break;
     }
     default:
     {
         fileName = "Chinese";
+        this->setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
         break;
     }
     }

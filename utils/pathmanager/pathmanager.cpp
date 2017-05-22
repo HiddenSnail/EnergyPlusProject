@@ -1,4 +1,4 @@
-#include "pathmanager.h"
+﻿#include "pathmanager.h"
 
 PathManager* PathManager::instance()
 {
