@@ -2,9 +2,12 @@
 #include "./mainwindow/mainwindow.h"
 #include "./login/loginwindow.h"
 #include "./global/debug.h"
+#include "./global/stdafx.h"
+#include "./mainwindow/handlemachine.h"
 
 int main(int arg, char* argv[]) {
     qInstallMessageHandler(debugMessage);
+    installErrorHandler();
     QApplication app(arg, argv);
 
     MainWindow win;
@@ -31,8 +34,8 @@ int main(int arg, char* argv[]) {
         loginWin.close();
         win.show();
     });
-
     QObject::connect(&loginWin, &LoginWindow::updateLang, &win, &MainWindow::setLanguage);
-    loginWin.show();
+
+    loginWin.login();
     return app.exec();
 }

@@ -24,7 +24,11 @@ HEADERS += \
     utils/custom_widget.hpp \
     utils/mcinfo/mcinfo.h \
     include/login/usraccount.h \
-    include/mainwindow/set_rate_diaglog.h
+    include/mainwindow/set_rate_diaglog.h \
+    include/mainwindow/ephandler.h \
+    include/qerrorobject.h \
+    utils/error/error.h \
+    utils/no_class_funcs.h
 
 SOURCES += \
     src/login/loginwindow.cpp \
@@ -35,7 +39,11 @@ SOURCES += \
     utils/pathmanager/pathmanager.cpp \
     utils/mcinfo/mcinfo.cpp \
     src/login/usraccount.cpp \
-    src/mainwindow/set_rate_dialog.cpp
+    src/mainwindow/set_rate_dialog.cpp \
+    src/mainwindow/ephandler.cpp \
+    src/qerrorobject.cpp \
+    utils/error/error.cpp \
+    utils/no_class_funcs.cpp
 
 DISTFILES += \
     README.md \

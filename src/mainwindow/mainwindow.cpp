@@ -257,6 +257,29 @@ void MainWindow::initWidgetState()
     ui->edit_sec8_7To9Mon->setReadOnly(true);
     ui->edit_sec8_10To12Mon->setReadOnly(true);
 
+    //menubar
+    QMenuBar *pMenuBar = ui->menuBar;
+    QMenu *pLangMenu = new QMenu(QString::fromLocal8Bit("Language"), this);
+    pMenuBar->addMenu(pLangMenu);
+    QAction *pActionChi = new QAction(QString::fromLocal8Bit("中文"), pLangMenu);
+    QAction *pActionEng = new QAction(QString::fromLocal8Bit("English"), pLangMenu);
+    pLangMenu->addAction(pActionChi);
+    pLangMenu->addAction(pActionEng);
+    connect(pMenuBar, &QMenuBar::triggered, this, [=](QAction *pAction)
+    {
+        if (pAction->text() == QString::fromLocal8Bit("中文"))
+        {
+            this->setLanguage();
+        }
+        else if (pAction->text() == QString::fromLocal8Bit("English"))
+        {
+            this->setLanguage(English);
+        }
+        else
+        {
+            ;
+        }
+    });
 }
 
 void MainWindow::clear()
@@ -283,67 +306,67 @@ void MainWindow::on_btn_start_clicked()
         preImpData();
         callEplus();
 
-        if (pdlg == nullptr) {
-            pdlg = new CustomProgressDialog(ui->centralwidget);
-            pdlg->setWindowFlags(windowFlags()&~Qt::WindowCloseButtonHint);
-            //pdlg->setWindowTitle(QString::fromLocal8Bit("正在进行计算..."));
-            pdlg->setWindowTitle(_noticeList[2]);
-            pdlg->setFixedSize(ui->centralwidget->width()/2, 150);
-            pdlg->setCancelButton(nullptr);
-            pdlg->setMinimum(0);
-            pdlg->setMaximum(100);
-            timer = new QTimer(ui->centralwidget);
-            connect(timer, &QTimer::timeout, [=](){
-                int curValue = pdlg->value();
-                switch (curValue) {
-                case 0:
-                {
-                    //pdlg->setLabelText(QString::fromLocal8Bit("正在构建、配置模型..."));
-                    pdlg->exec();
-                    pdlg->setLabelText(_noticeList[3]);
-                    pdlg->setValue(curValue+1);
-                    break;
-                }
-                case 30:
-                {
-                    //pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型..."));
-                     pdlg->setLabelText(_noticeList[4]);
-                     pdlg->setValue(curValue+1);
-                     break;
-                }
-                case 99:
-                {
-                    //pdlg->setLabelText(QString::fromLocal8Bit("正在计算结果..."));
-                     timer->stop();
-                     pdlg->setLabelText(_noticeList[5]);
-                     break;
+//        if (pdlg == nullptr) {
+//            pdlg = new CustomProgressDialog(ui->centralwidget);
+//            pdlg->setWindowFlags(windowFlags()&~Qt::WindowCloseButtonHint);
+//            //pdlg->setWindowTitle(QString::fromLocal8Bit("正在进行计算..."));
+//            pdlg->setWindowTitle(_noticeList[2]);
+//            pdlg->setFixedSize(ui->centralwidget->width()/2, 150);
+//            pdlg->setCancelButton(nullptr);
+//            pdlg->setMinimum(0);
+//            pdlg->setMaximum(100);
+//            timer = new QTimer(ui->centralwidget);
+//            connect(timer, &QTimer::timeout, [=](){
+//                int curValue = pdlg->value();
+//                switch (curValue) {
+//                case 0:
+//                {
+//                    //pdlg->setLabelText(QString::fromLocal8Bit("正在构建、配置模型..."));
+//                    pdlg->exec();
+//                    pdlg->setLabelText(_noticeList[3]);
+//                    pdlg->setValue(curValue+1);
+//                    break;
+//                }
+//                case 30:
+//                {
+//                    //pdlg->setLabelText(QString::fromLocal8Bit("正在处理模型..."));
+//                     pdlg->setLabelText(_noticeList[4]);
+//                     pdlg->setValue(curValue+1);
+//                     break;
+//                }
+//                case 99:
+//                {
+//                    //pdlg->setLabelText(QString::fromLocal8Bit("正在计算结果..."));
+//                     timer->stop();
+//                     pdlg->setLabelText(_noticeList[5]);
+//                     break;
 
-                }
-                default:
-                {
-                    pdlg->setValue(curValue+1);
-                    break;
-                }
-                }
-            });
-            connect(this, &MainWindow::mSignal, [=](){
-                timer->stop();
-                pdlg->setValue(99);
-            });
-            connect(this, &MainWindow::fetchResult, pdlg, &QProgressDialog::close);
-        }
-        else
-        {
-            pdlg->setValue(0);
-        }
+//                }
+//                default:
+//                {
+//                    pdlg->setValue(curValue+1);
+//                    break;
+//                }
+//                }
+//            });
+//            connect(this, &MainWindow::mSignal, [=](){
+//                timer->stop();
+//                pdlg->setValue(99);
+//            });
+//            connect(this, &MainWindow::fetchResult, pdlg, &QProgressDialog::close);
+//        }
+//        else
+//        {
+//            pdlg->setValue(0);
+//        }
 
-        timer->start(500);
-        pdlg->exec();
-    }
-    else
-    {
-        QMessageBox::warning(this,_noticeList[0],_noticeList[1]);
-        qInfo() << "Not ready!";
+//        timer->start(500);
+//        pdlg->exec();
+//    }
+//    else
+//    {
+//        QMessageBox::warning(this,_noticeList[0],_noticeList[1]);
+//        qInfo() << "Not ready!";
     }
 }
 
@@ -968,7 +991,7 @@ void MainWindow::preImpData()
         keepOnRate = ui->edit_sec4_UCI_noCardNum->text().toDouble();
     }
     else {
-        keepOnRate = 1;
+        keepOnRate = 0;
     }
 
     //待租房间数
@@ -996,6 +1019,9 @@ void MainWindow::preImpData()
 
 void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &proposedForm)
 {
+    //要处理的csv文件所在路径模板
+    QString csvFilePath = PathManager::instance()->getPath("OutPutDir") + QString("/%1/%2/%2.csv").arg(_roomSize);
+
     int eastRoomNum = ui->edit_sec1_eastRoomNum->text().toInt();
     int westRoomNum = ui->edit_sec1_westRoomNum->text().toInt();
     int southRoomNum = ui->edit_sec1_southRoomNum->text().toInt();
@@ -1008,7 +1034,7 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
     //每小时总房间数(用于函数调用)
     QVector<int> baseSumRoomNumVec(24, _sumRoomNum);
     //读取base.csv文件
-    CsvReader baseReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/base.csv").arg(_roomSize));
+    CsvReader baseReader(csvFilePath.arg("base"));
     if (!baseReader.analyze()) { qFatal("BaseReader can't analyze!"); }
 
     //房间热负荷序列
@@ -1051,12 +1077,12 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
     //读取nr.csv r.csv rp.csv文件
     CsvReader nrReader;
     if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
-        nrReader = CsvReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/nr.csv").arg(_roomSize));
+        nrReader = CsvReader(csvFilePath.arg("nr"));
         if (!nrReader.analyze()) { qFatal("NrReader can't analyze!"); }
     }
-    CsvReader rReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/r.csv").arg(_roomSize));
+    CsvReader rReader(csvFilePath.arg("r"));
     if (!rReader.analyze()) { qFatal("RReader can't analyze!"); }
-    CsvReader rpReader(PathManager::instance()->getPath("OutPutDir") + QString("/%1/rp.csv").arg(_roomSize));
+    CsvReader rpReader(csvFilePath.arg("rp"));
     if (!rpReader.analyze()) { qFatal("RpReader can't analyze!"); }
 
     QVector<QVector<int> > modelsRoomNumVec;
@@ -1177,63 +1203,9 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
     }
 
 
-//    //读取每间房的洗澡负荷
-//    QFile showerLoadProfile(PathManager::instance()->getPath("ProfileDir") + "/load/showerLoad_profile.json");
-//    if (!showerLoadProfile.open(QFile::ReadOnly)) { qFatal("Can't read the shower load profile!"); }
-//    QTextStream inStream(&showerLoadProfile);
-//    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
-//    showerLoadProfile.close();
-//    if (!doc.isObject() || doc.isNull()) { qFatal("The shower load profile file maybe broken!"); }
-//    QJsonObject root = doc.object();
-//    QStringList showerLoadList;
-//    for (int i = 0; i < root.size(); i++) {
-//        double data = root[QString::number(i+1)].toDouble();
-//        showerLoadList.push_back(QString::number(data));
-//    }
-
-//    //base model的冷热负荷修正
-//    for (int i = 0; i < baseForm._heatLoad.size(); i++) {
-//        int currentHour = i % 24;
-//        double realShowerLoad = showerLoadList[currentHour].toDouble()*_sumRoomNum;
-//        double heatLoad = baseForm._heatLoad[i].toDouble();
-//        double coolLoad = baseForm._coolLoad[i].toDouble();
-//        if (heatLoad > coolLoad) {
-//            baseForm._heatLoad[i] = QString::number(heatLoad - realShowerLoad);
-//        } else {
-//            baseForm._coolLoad[i] = QString::number(coolLoad + realShowerLoad);
-//        }
-//    }
-
-//    //proposed model的冷热负荷修正
-//    for (int i = 0; i < proposedForm._heatLoad.size(); i++)
-//    {
-//        int currentHour = i % 24;
-//        double realShowerLoad = showerLoadList[currentHour].toDouble()*_rentPeopleRoomNumVec[currentHour];
-//        double heatLoad = proposedForm._heatLoad[i].toDouble();
-//        double coolLoad = proposedForm._coolLoad[i].toDouble();
-//        if (heatLoad > coolLoad) {
-//            proposedForm._heatLoad[i] = QString::number(heatLoad - realShowerLoad);
-//        } else {
-//            proposedForm._coolLoad[i] = QString::number(coolLoad + realShowerLoad);
-//        }
-//    }
-
-    //两管或四管制的负荷修正
+    //两管制的负荷修正（仅对proposed model进行修正，base model不需要改变）
     if (ui->radioButton_sec5_2pip->isChecked()) {
         qDebug() << "Pip load fix can use....";
-        for (int i = 0; i < baseForm.getFormDataSize(); i++) {
-            if (baseForm._heatLoad[i].toDouble() > baseForm._coolLoad[i].toDouble())
-            {
-                double load = baseForm._heatLoad[i].toDouble() - baseForm._coolLoad[i].toDouble();
-                baseForm._heatLoad[i] = QString::number(load);
-                baseForm._coolLoad[i] = QString::number(0);
-            } else {
-                double load = baseForm._coolLoad[i].toDouble() - baseForm._heatLoad[i].toDouble();
-                baseForm._coolLoad[i] = QString::number(load);
-                baseForm._heatLoad[i] = QString::number(0);
-            }
-        }
-
         for (int i = 0; i < proposedForm.getFormDataSize(); i++) {
             if (proposedForm._heatLoad[i].toDouble() > proposedForm._coolLoad[i].toDouble())
             {
@@ -1540,7 +1512,6 @@ QStringList MainWindow::fixFanWatts(const QStringList fanWattsList)
 
      //锅炉容量(W)
      double boilerCapacity = maxHeatLoad*1.05;
-     qDebug() << "boilerCapacity: " << boilerCapacity;
 
      //(螺杆机)冷冻水泵额定流量(m³/s)
      double freWaterPumpFlow = maxCoolLoad/(5*1000*4200*screwMachineNum);
@@ -1756,8 +1727,9 @@ void MainWindow::lStep()
     QThread *p_thread_src = new QThread();
 
     //对源idf文件进行配置、操作及models分离
-    //(注意：lambda表达式的捕捉参数,必须是通过值来捕捉,否则主线程在离开作用域后, 通过引用捕捉的话会导致程序崩溃)
-    connect(p_thread_src, &QThread::started , [=](){
+    //(注意：lambda表达式的捕捉参数,必须是通过值来捕捉,否则主线程在离开函数作用域后, 通过引用捕捉的函数内部变量会被销毁, 导致程序崩溃)
+    connect(p_thread_src, &QThread::started , [=]()
+    {
         p_src->configure(PathManager::instance()->getPath("BaseModelDir") + QString("/base_sec%1_config.json").arg(_citySecMap[_city]));
         p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opElectricEquipment", this, &MainWindow::calElecEqtWatts);
         p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opLights", this, &MainWindow::calLightsWatts);
@@ -1770,124 +1742,163 @@ void MainWindow::lStep()
         QStringList fileNameList, nopeFileNameList;
         fileNameList << "base" << "rp";
         //若使用新风模式,则不会去生成未租房间的idf
-        if (ui->radioButton_sec6_newWind->isChecked()) {
+        if (ui->radioButton_sec6_newWind->isChecked())
+        {
             nopeFileNameList << "r";
         } else {
             nopeFileNameList << "nr" << "r";
         }
         p_src->separate(fileNameList);
         p_srcNp->separate(nopeFileNameList);
+        p_thread_src->quit();
     });
-    connect(p_src, &HandleMachine::finishSep, p_thread_src, &QThread::quit);
     connect(p_thread_src, &QThread::finished, p_src, &QObject::deleteLater);
     connect(p_thread_src, &QThread::finished, p_srcNp, &QObject::deleteLater);
     connect(p_thread_src, &QThread::finished, p_thread_src, &QObject::deleteLater);
-    connect(p_srcNp, &QObject::destroyed, this, &MainWindow::zSignal);
+    connect(p_thread_src, &QThread::finished, this, &MainWindow::zSignal);
     p_thread_src->start();
 }
 
 void MainWindow::zStep()
 {
-    //优先运行base model
-    QString baseFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/base.idf").arg(_roomSize);
-    HandleMachine *p_base = new HandleMachine(baseFilePath);
-    QThread *p_thread_base = new QThread();
-    p_base->moveToThread(p_thread_base);
+    //尝试发送信号的函数, 1:base, 2:nr, 3:r, 4:rp
+    static std::function<void(const unsigned int)> tryEmitMSig = [this](const unsigned int modelId)
+    {
+        static bool isBaseFinish = false;
+        static bool isNrFinish = false;
+        static bool isRFinish = false;
+        static bool isRpFinish = false;
+        switch (modelId) {
+        case 1:
+            isBaseFinish = true;
+            break;
+        case 2:
+            isNrFinish = true;
+            break;
+        case 3:
+            isRFinish = true;
+            break;
+        case 4:
+            isRpFinish = true;
+            break;
+        default:
+            break;
+        }
+        if (isBaseFinish && isNrFinish && isRFinish && isRpFinish)
+        {
+            isBaseFinish = false;
+            isNrFinish = false;
+            isRFinish = false;
+            isRpFinish = false;
+            emit mSignal();
+        }
+    };
 
-    connect(p_thread_base, &QThread::started, [=](){
-        p_base->startMachine(_city);
+    //要运行的文件路径模板
+    QString excFilePathTemp = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/%2/%2.idf").arg(_roomSize);
+
+    //优先运行base model
+    QString baseFilePath = excFilePathTemp.arg("base");
+    QThread *p_thread_base = new QThread();
+    connect(p_thread_base, &QThread::started, [=]()
+    {
+        EPHandler::instance()->callEplus(baseFilePath, _city);
+        p_thread_base->quit();
+        tryEmitMSig(1);
     });
-    connect(p_base, &HandleMachine::finishExec, p_thread_base, &QThread::quit);
-    connect(p_base, &HandleMachine::finishExec, this, &MainWindow::model_base_over);
-    connect(p_thread_base, &QThread::finished, p_base, &QObject::deleteLater);
     //当线程结束时，销毁线程
     connect(p_thread_base, &QThread::finished, p_thread_base, &QObject::deleteLater);
-    //接收到停止计算信号立即停止线程
-    connect(this, &MainWindow::cancelCal, p_thread_base, &QThread::quit);
+    //开始执行base model线程
     p_thread_base->start();
 
-    //proposed model进行配置
-    QString nrFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/nr.idf").arg(_roomSize);
-    QString rFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/r.idf").arg(_roomSize);
-    QString rpFilePath = QString(PathManager::instance()->getPath("OutPutDir")+"/%1/rp.idf").arg(_roomSize);
 
-    HandleMachine *p_nr = NULL;
+    //proposed model进行配置
+    QString nrFilePath = excFilePathTemp.arg("nr");
+    QString rFilePath = excFilePathTemp.arg("r");
+    QString rpFilePath = excFilePathTemp.arg("rp");
+
     //若开启新风模式，则不使用Eplus调用未租房间的idf
-    if (ui->radioButton_sec6_newWind->isChecked()) {
-        p_nr = NULL;
-    } else {
-        p_nr = new HandleMachine(nrFilePath);
-    }
+    HandleMachine *p_nr = ui->radioButton_sec6_newWind->isChecked() ? nullptr : new HandleMachine(nrFilePath);
     HandleMachine *p_r = new HandleMachine(rFilePath);
     HandleMachine *p_rp = new HandleMachine(rpFilePath);
-
-    QThread *p_thread_pro = new QThread();
-    if (p_nr != NULL) p_nr->moveToThread(p_thread_pro);
-    p_r->moveToThread(p_thread_pro);
-    p_rp->moveToThread(p_thread_pro);
-
-    connect(p_thread_pro, &QThread::started, [=](){
-        //客人离房关闭窗帘
-        if (ui->radioButton_sec3_LR_close->isChecked()) {
-            p_r->configure(PathManager::instance()->getPath("ShadingDir") + QString("/sh_sec%1_config.json").arg(_citySecMap[_city]));
-            p_r->configure(PathManager::instance()->getPath("RConfigFile"));
-        }
-
-        if (p_nr != NULL) {
+    QThread *p_thread_nr = (p_nr == nullptr) ? nullptr : new QThread();
+    QThread *p_thread_r = new QThread();
+    QThread *p_thread_rp = new QThread();
+    //nr model线程执行过程
+    if (p_nr != nullptr)
+    {
+        connect(p_thread_nr, &QThread::started, [=]()
+        {
             //客人退房关闭窗帘
-            if (ui->radioButton_sec3_CO_close->isChecked()) {
+            if (ui->radioButton_sec3_CO_close->isChecked())
+            {
                 p_nr->configure(PathManager::instance()->getPath("ShadingDir") + QString("/sh_sec%1_config.json").arg(_citySecMap[_city]));
                 p_nr->configure(PathManager::instance()->getPath("NrConfigFile"));
             }
 
-            if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
+            if (ui->radioButton_sec6_keepHeatNR->isChecked())
+            {
                 p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComCool", this,
                                           &MainWindow::calSchComCoolNr);
                 p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComHeat", this,
                                           &MainWindow::calSchComHeatNr);
             }
+            p_nr->save();
+            EPHandler::instance()->callEplus(nrFilePath, _city);
+            p_thread_nr->quit();
+            tryEmitMSig(2);
+        });
+        connect(p_thread_nr, &QThread::finished, p_nr, &QObject::deleteLater);
+        connect(p_thread_nr, &QThread::finished, p_thread_nr, &QObject::deleteLater);
+        p_thread_nr->start();
+    }
+    else
+    {
+        tryEmitMSig(2);
+    }
+
+    connect(p_thread_r, &QThread::started, [=]()
+    {
+        //客人离房关闭窗帘
+        if (ui->radioButton_sec3_LR_close->isChecked())
+        {
+            p_r->configure(PathManager::instance()->getPath("ShadingDir") + QString("/sh_sec%1_config.json").arg(_citySecMap[_city]));
+            p_r->configure(PathManager::instance()->getPath("RConfigFile"));
         }
 
-        if (ui->checkBox_sec6_keepHeat->isChecked() && !ui->radioButton_sec6_ETM->isChecked()) {
+        if (ui->checkBox_sec6_keepHeat->isChecked() && !ui->radioButton_sec6_ETM->isChecked())
+        {
             p_r->operate<MainWindow>(PathManager::instance()->getPath("ROpFile"), "opSchComCool", this,
                                      &MainWindow::calSchComCoolR);
             p_r->operate<MainWindow>(PathManager::instance()->getPath("ROpFile"), "opSchComHeat", this,
                                      &MainWindow::calSchComHeatR);
         }
+        p_r->save();
+        EPHandler::instance()->callEplus(rFilePath, _city);
+        p_thread_r->quit();
+        tryEmitMSig(3);
+    });
+    connect(p_thread_r, &QThread::finished, p_r, &QObject::deleteLater);
+    connect(p_thread_r, &QThread::finished, p_thread_r, &QObject::deleteLater);
+    p_thread_r->start();
 
-        if (ui->checkBox_sec6_nightSETT->isChecked() && !ui->radioButton_sec6_ETM->isChecked()) {
+    connect(p_thread_rp, &QThread::started, [=]()
+    {
+        if (ui->checkBox_sec6_nightSETT->isChecked() && !ui->radioButton_sec6_ETM->isChecked())
+        {
             p_rp->operate<MainWindow>(PathManager::instance()->getPath("RpOpFile"), "opSchComCool", this,
                                       &MainWindow::calSchComCoolRp);
             p_rp->operate<MainWindow>(PathManager::instance()->getPath("RpOpFile"), "opSchComHeat", this,
-                                     &MainWindow::calSchComHeatRp);
+                                      &MainWindow::calSchComHeatRp);
         }
-
-        if (p_nr != NULL) p_nr->startMachine(_city);
-        p_r->startMachine(_city);
-        p_rp->startMachine(_city);
+        p_rp->save();
+        EPHandler::instance()->callEplus(rpFilePath, _city);
+        p_thread_rp->quit();
+        tryEmitMSig(4);
     });
-    connect(p_rp, &HandleMachine::finishExec, [](){
-        qInfo() << "Output finish!";
-    });
-    connect(p_rp, &HandleMachine::finishExec, p_thread_pro, &QThread::quit);
-    if (p_nr != NULL)
-    {
-        connect(p_nr, &HandleMachine::finishExec, this, &MainWindow::model_nr_over);
-        connect(p_thread_pro, &QThread::finished, p_nr, &QObject::deleteLater);
-    } else {
-        emit model_base_over();
-    }
-
-    connect(p_r, &HandleMachine::finishExec, this, &MainWindow::model_r_over);
-    connect(p_thread_pro, &QThread::finished, p_r, &QObject::deleteLater);
-
-    connect(p_rp, &HandleMachine::finishExec, this, &MainWindow::model_rp_over);
-    connect(p_thread_pro, &QThread::finished, p_rp, &QObject::deleteLater);
-
-    connect(p_rp, &QObject::destroyed, this, &MainWindow::mSignal);
-    //当线程结束时，销毁线程
-    connect(p_thread_pro, &QThread::finished, p_thread_pro, &QObject::deleteLater);
-    p_thread_pro->start();
+    connect(p_thread_rp, &QThread::finished, p_rp, &QObject::deleteLater);
+    connect(p_thread_rp, &QThread::finished, p_thread_rp, &QThread::deleteLater);
+    p_thread_rp->start();
 }
 
 void MainWindow::mStep()

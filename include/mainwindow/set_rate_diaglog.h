@@ -7,7 +7,7 @@
 #include <QFile>
 #include <QLineEdit>
 #include <QList>
-#include "./utils/pathmanager/pathmanager.h"
+#include "./global/stdafx.h"
 
 namespace Ui {
 class SetRateDialog;

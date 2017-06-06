@@ -22,12 +22,12 @@ void LoginWindow::inputUserId()
     if (MachineInfo::getMacAddressList(macAddressList) == MachineInfo::SUCCESS)
     {
         MacAddress macAddress(macAddressList.back());
-        std::string userId = UsrAccount::createUsrId(macAddress);
-        ui->edit_user_name->setText(QString(userId.c_str()));
+        QString userId = UsrAccount::createUsrId(macAddress);
+        ui->edit_user_name->setText(userId);
     }
     else
     {
-        qFatal("Your computer may not have some network card, can't create id for you!");
+        qFatal("Your computer may not have network card, can't create id for you!");
     }
 }
 
@@ -40,8 +40,9 @@ void LoginWindow::on_btn_login_clicked()
 {
     QString userId = ui->edit_user_name->text();
     QString password = ui->edit_password->text();
-    if (UsrAccount::checkPassword(userId.toStdString(), password.toStdString()))
+    if (UsrAccount::checkPassword(userId, password))
     {
+        UsrAccount::rememberPassword(password);
         this->hide();
         emit loginSuccess();
     } else {
@@ -67,4 +68,18 @@ void LoginWindow::on_btn_lang_clicked()
          emit updateLang(MainWindow::Chinese);
     }
     isChinese = !isChinese;
+}
+
+void LoginWindow::login()
+{
+    QString password;
+    if (UsrAccount::getPassword(password) == 0)
+    {
+        ui->edit_password->setText(password);
+        this->show();
+    }
+    else
+    {
+        this->show();
+    }
 }

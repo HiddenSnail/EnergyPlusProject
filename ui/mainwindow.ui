@@ -4572,6 +4572,16 @@ border-style:none;</string>
     </item>
    </layout>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1463</width>
+     <height>37</height>
+    </rect>
+   </property>
+  </widget>
   <action name="action_2">
    <property name="text">
     <string>中文</string>
@@ -4593,12 +4603,12 @@ border-style:none;</string>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="btng_sec3_leaveRoom"/>
-  <buttongroup name="btng_sec2_rentRateType"/>
-  <buttongroup name="radioButton_sec6_newWind_2"/>
   <buttongroup name="btng_sec5_pipType"/>
-  <buttongroup name="btng_sec3_checkOut"/>
+  <buttongroup name="btng_sec3_leaveRoom"/>
+  <buttongroup name="radioButton_sec6_newWind_2"/>
   <buttongroup name="bntg_sec4_elecType"/>
   <buttongroup name="btng_sec5_machineType"/>
+  <buttongroup name="btng_sec3_checkOut"/>
+  <buttongroup name="btng_sec2_rentRateType"/>
  </buttongroups>
 </ui>

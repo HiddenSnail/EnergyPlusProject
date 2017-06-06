@@ -13,9 +13,10 @@
 #include "handlemachine.h"
 #include "energyform.h"
 #include "set_rate_diaglog.h"
+#include "ephandler.h"
 
 #define MIN_WIDTH 1200
-#define MIN_HEIGHT 600
+#define MIN_HEIGHT 650
 
 namespace Ui {
 class MainWindow;

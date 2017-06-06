@@ -14,8 +14,8 @@ class LoginWindow: public QMainWindow
      Q_OBJECT
 public:
     explicit LoginWindow(QWidget *parent = 0);
-    void inputUserId();
     ~LoginWindow();
+    void login();
 
 signals:
     void loginSuccess();
@@ -27,6 +27,7 @@ private slots:
 
 private:
     Ui::LoginWindow *ui;
+    void inputUserId();
 
 };
 

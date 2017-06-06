@@ -6,7 +6,8 @@
 class PathManager {
 private:
     QHash<QString, QString> _pathMap;
-    PathManager() {
+    PathManager()
+    {
         QString appDir = QApplication::applicationDirPath();
         _pathMap.insert("AppDir", appDir);
         _pathMap.insert("WeatherDir", appDir + "/weather");

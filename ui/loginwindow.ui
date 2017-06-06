@@ -51,7 +51,7 @@
    <widget class="QPushButton" name="btn_login">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>332</x>
       <y>363</y>
       <width>150</width>
       <height>35</height>
@@ -72,7 +72,7 @@
    <widget class="QLabel" name="lab_user_name">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>232</x>
       <y>180</y>
       <width>91</width>
       <height>61</height>
@@ -96,7 +96,7 @@
    <widget class="QLabel" name="lab_password">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>232</x>
       <y>260</y>
       <width>91</width>
       <height>61</height>
@@ -123,7 +123,7 @@
    <widget class="Line" name="line_1">
     <property name="geometry">
      <rect>
-      <x>216</x>
+      <x>228</x>
       <y>234</y>
       <width>341</width>
       <height>20</height>
@@ -142,7 +142,7 @@
    <widget class="QLineEdit" name="edit_user_name">
     <property name="geometry">
      <rect>
-      <x>319</x>
+      <x>331</x>
       <y>192</y>
       <width>231</width>
       <height>50</height>
@@ -155,7 +155,7 @@
    <widget class="QLineEdit" name="edit_password">
     <property name="geometry">
      <rect>
-      <x>319</x>
+      <x>331</x>
       <y>271</y>
       <width>231</width>
       <height>50</height>
@@ -174,7 +174,7 @@
    <widget class="Line" name="line_2">
     <property name="geometry">
      <rect>
-      <x>216</x>
+      <x>228</x>
       <y>313</y>
       <width>341</width>
       <height>20</height>
