@@ -1,0 +1,37 @@
+{
+	"opElectricEquipment": {
+		"locationKey": "ElectricEquipment",
+		"confirmKey": "Equipment 1",
+		"offsets":[6]
+	},
+	"opLights": {
+		"locationKey": "Lights",
+		"confirmKey": "General lighting",
+		"offsets":[6]
+	},
+	"opTimeSpan": {
+		"locationKey": "RunPeriod",
+		"confirmKey": "__default_key__",
+		"offsets":[2, 3, 4, 5]
+	},
+  "opSchComCoolByOffset": {
+		"locationKey": "Schedule:Compact",
+		"confirmKey": "Cooling SP Sch",
+		"offsets":[8, 9, 10, 11, 12, 13]
+	},
+	"opSchComHeatByOffset": {
+		"locationKey": "Schedule:Compact",
+		"confirmKey": "Heating SP Sch",
+		"offsets":[8, 9, 10, 11, 12, 13]
+	},
+	"opSchComCool": {
+		"locationKey": "Schedule:Compact",
+		"confirmKey": "Cooling SP Sch",
+		"offsets":[6, 9, 11, 13]
+	},
+	"opSchComHeat": {
+		"locationKey": "Schedule:Compact",
+		"confirmKey": "Heating SP Sch",
+		"offsets":[6, 9, 11, 13]
+	}
+}

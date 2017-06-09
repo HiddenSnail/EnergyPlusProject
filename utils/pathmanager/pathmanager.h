@@ -16,23 +16,9 @@ private:
         _pathMap.insert("OutPutDir", appDir + "/output");
         _pathMap.insert("EplusDir", appDir + "/EnergyPlusV8-1-0");
         _pathMap.insert("ProfileDir", appDir + "/profiles");
+        _pathMap.insert("ConfigDir", appDir + "/setting/config");
 
-        _pathMap.insert("BaseModelDir", appDir + "/model/base");
-        _pathMap.insert("NrModelDir", appDir + "/model/proposed/nr");
-        _pathMap.insert("RModelDir", appDir + "/model/proposed/r");
-        _pathMap.insert("RpModelDir", appDir + "/model/proposed/rp");
-        _pathMap.insert("ShadingDir", appDir + "/model/proposed/shading");
-
-        _pathMap.insert("BaseOpFile", appDir + "/model/base/base_operation.json");
-
-        _pathMap.insert("NrConfigFile", appDir + "/model/proposed/nr/nr_config.json");
-        _pathMap.insert("NrOpFile", appDir + "/model/proposed/nr/nr_operation.json");
-
-        _pathMap.insert("RConfigFile", appDir + "/model/proposed/r/r_config.json");
-        _pathMap.insert("ROpFile", appDir + "/model/proposed/r/r_operation.json");
-
-        _pathMap.insert("RpConfigFile", appDir +  "/model/proposed/rp/rp_config.json");
-        _pathMap.insert("RpOpFile", appDir + "/model/proposed/rp/rp_operation.json");
+        _pathMap.insert("OpFile", appDir + "/setting/op/operation.json");
 
         _pathMap.insert("EpIniFile", appDir + "/EnergyPlusV8-1-0/Energy+.ini");
         _pathMap.insert("EpRunFile", appDir + "/EnergyPlusV8-1-0/RunEPlus.bat");

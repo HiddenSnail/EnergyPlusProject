@@ -114,9 +114,6 @@ void MainWindow::initWidgetValidator()
     //准备所需验证器正则表达式
     QRegExp float0To1Reg("^1|([0]+(\\.[0-9]{1,2})?)$"); //匹配0.00~1的数字
     QRegExp float0To100Reg("^100|(([0]|([1-9][0-9]{0,1}))(\\.[0-9]{1,2})?)$"); //匹配0.00~100的数字
-    QRegExp float0To1000Reg("^1000|(([0]|([1-9][0-9]{0,2}))(\\.[0-9]{1,2})?)$"); //识别0.00~1000的数字
-
-
 
     //section1
     ui->edit_sec1_size->setValidator(new IntValidator(1, 10000, this));
@@ -135,50 +132,89 @@ void MainWindow::initWidgetValidator()
     ui->edit_sec4_UCI_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
 
     //section6
-    ui->edit_sec6_keepHeatTempSet->setValidator(new IntValidator(0, 100, this));
+    //已租状态：保温模式
+    ui->edit_sec6_keepTempOffset->setValidator(new IntValidator(0, 10, this));
+    int tempInitBottom = 18, tempInitTop = 28;
+    IntValidator *summerTempValid = new IntValidator(tempInitBottom, tempInitTop, this);
+    IntValidator *winterTempValid = new IntValidator(tempInitBottom, tempInitTop, this);
+    ui->edit_sec6_keepCoolTemp->setValidator(summerTempValid); //已租状态:夏季温度18-28
+    ui->edit_sec6_keepHeatTemp->setValidator(winterTempValid); //已租状态:冬季温度18-28
+    //夏季温度 >= 冬季温度
+    connect(ui->edit_sec6_keepCoolTemp, &QLineEdit::editingFinished, ui->edit_sec6_keepHeatTemp, [=]()
+    {
+        int summerTemp = ui->edit_sec6_keepCoolTemp->text().toInt();
+        winterTempValid->setTop(summerTemp);
+        QString winterTempStr = ui->edit_sec6_keepHeatTemp->text();
+        int pos = 0;
+        if (!winterTempStr.isEmpty() && winterTempValid->validate(winterTempStr, pos) != QValidator::Acceptable)
+        {
+            winterTempValid->fixup(winterTempStr);
+            ui->edit_sec6_keepHeatTemp->setText(winterTempStr);
+        }
+    });
+
+    //已租状态：空调面板可设定温度范围
     IntValidator *heatValid, *coolValid;
     int coolTempBottom = *_coolLoadReducePercentMap.keyBegin();
     int coolTempTop = *--_coolLoadReducePercentMap.keyEnd();
     int heatTempBottom = *_heatLoadReducePercentMap.keyBegin();
     int heatTempTop = *--_heatLoadReducePercentMap.keyEnd();
-
     coolValid = new IntValidator(coolTempBottom, coolTempTop, this);
     heatValid = new IntValidator(heatTempBottom, heatTempTop, this);
     ui->edit_sec6_lowTemp->setValidator(coolValid);
     ui->edit_sec6_highTemp->setValidator(heatValid);
-    connect(ui->edit_sec6_lowTemp, &QLineEdit::editingFinished, ui->edit_sec6_highTemp, [=](){
-        int lowTemp = ui->edit_sec6_lowTemp->text().toInt();
+    //制冷下限 <= 供热上限
+    connect(ui->edit_sec6_lowTemp, &QLineEdit::editingFinished, ui->edit_sec6_highTemp, [=]()
+    {
+        int lowTemp = ui->edit_sec6_lowTemp->text().toInt();   
         if (lowTemp > heatValid->bottom())
         {
             heatValid->setBottom(lowTemp);
             QString heatTempStr = ui->edit_sec6_highTemp->text();
-            heatValid->fixup(heatTempStr);
-            ui->edit_sec6_highTemp->setText(heatTempStr);
+            //若heatTempStr不为空，则验证其是否符合要求并修改
+            int pos = 0;
+            if (!heatTempStr.isEmpty() &&  heatValid->validate(heatTempStr, pos) != QValidator::Acceptable)
+            {
+                heatValid->fixup(heatTempStr);
+                ui->edit_sec6_highTemp->setText(heatTempStr);
+            }
         }
-        else { heatValid->setBottom(heatTempBottom); }
+        else
+        {
+            heatValid->setBottom(heatTempBottom);
+        }
     });
 
     ui->edit_sec6_nightTempOffset->setValidator(new IntValidator(0, 30, this));
     ui->edit_sec6_keepTime->setValidator(new IntValidator(0, 24, this));
-    ui->edit_sec6_keepHeatTempSetNR->setValidator(new IntValidator(0, 24, this));
+    //未租状态:保温模式
+    int tempInitBottomNR = 18, tempInitTopNR = 28;
+    IntValidator *summerTempValidNR = new IntValidator(tempInitBottomNR, tempInitTopNR, this);
+    IntValidator *winterTempValidNR = new IntValidator(tempInitBottomNR, tempInitTopNR, this);
+    ui->edit_sec6_keepCoolTempNR->setValidator(summerTempValidNR);
+    ui->edit_sec6_keepHeatTempNR->setValidator(winterTempValidNR);
+    //夏季温度 >= 冬季温度
+    connect(ui->edit_sec6_keepCoolTempNR, &QLineEdit::editingFinished, ui->edit_sec6_keepHeatTempNR, [=]()
+    {
+        int summerTempNR = ui->edit_sec6_keepCoolTempNR->text().toInt();
+        winterTempValidNR->setTop(summerTempNR);
+        QString winterTempNRStr = ui->edit_sec6_keepHeatTempNR->text();
+        int pos = 0;
+        if (!winterTempNRStr.isEmpty() && winterTempValidNR->validate(winterTempNRStr, pos) != QValidator::Acceptable)
+        {
+            winterTempValidNR->fixup(winterTempNRStr);
+            ui->edit_sec6_keepHeatTemp->setText(winterTempNRStr);
+        }
+    });
     ui->edit_sec6_averUsingTime->setValidator(new IntValidator(0, 24, this));
 
     //section7
     ui->edit_sec7_light->setValidator(new DoubleValidator(0, 5, 2, this));
-//    ui->edit_sec7_light->setValidator(new QRegExpValidator(float0To10Reg, this));
-
     ui->edit_sec7_lightUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
-
     ui->edit_sec7_TV->setValidator(new DoubleValidator(0, 5, 2, this));
-//    ui->edit_sec7_TV->setValidator(new QRegExpValidator(float0To10Reg, this));
-
     ui->edit_sec7_TVUsingNum->setValidator(new QRegExpValidator(float0To1Reg, this));
-
     ui->edit_sec7_fridge->setValidator(new DoubleValidator(0, 5, 2, this));
-//    ui->edit_sec7_fridge->setValidator(new QRegExpValidator(float0To10Reg, this));
-
     ui->edit_sec7_otherDevice->setValidator(new DoubleValidator(0, 10, 2, this) );
-//    ui->edit_sec7_otherDevice->setValidator(new QRegExpValidator(float0To10Reg, this));
 
 }
 
@@ -243,6 +279,7 @@ void MainWindow::initWidgetState()
 
 
     //section6
+    ui->radioButton_sec6_keepTempOffset->setChecked(true);
     on_checkBox_sec6_keepHeat_toggled(false);
     on_checkBox_sec6_airconTempSet_toggled(false);
     on_checkBox_sec6_nightSETT_toggled(false);
@@ -402,7 +439,15 @@ bool MainWindow::checkUserInput()
     bool isSec6Ready = true;
     if (!ui->radioButton_sec6_ETM->isChecked()) {
         if (ui->checkBox_sec6_keepHeat->isChecked()) {
-            isSec6Ready = isSec6Ready && ui->edit_sec6_keepHeatTempSet->hasAcceptableInput();
+            if (ui->radioButton_sec6_keepTempOffset->isChecked())
+            {
+                isSec6Ready = isSec6Ready && ui->edit_sec6_keepTempOffset->hasAcceptableInput();
+            }
+            else
+            {
+                isSec6Ready = isSec6Ready && ui->edit_sec6_keepCoolTemp->hasAcceptableInput()
+                        && ui->edit_sec6_keepHeatTemp->hasAcceptableInput();
+            }
         }
 
         if (ui->checkBox_sec6_airconTempSet->isChecked()) {
@@ -418,9 +463,13 @@ bool MainWindow::checkUserInput()
         isSec6Ready = isSec6Ready && true;
     }
 
-    if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
-        isSec6Ready = isSec6Ready && ui->edit_sec6_keepHeatTempSetNR->hasAcceptableInput();
-    } else {
+    if (ui->radioButton_sec6_keepHeatNR->isChecked())
+    {
+        isSec6Ready = isSec6Ready && ui->edit_sec6_keepCoolTempNR->hasAcceptableInput()
+                && ui->edit_sec6_keepHeatTempNR->hasAcceptableInput();
+    }
+    else
+    {
         isSec6Ready = isSec6Ready && ui->edit_sec6_averUsingTime->hasAcceptableInput();
     }
 
@@ -524,20 +573,46 @@ void MainWindow::on_radioButton_sec4_useCard_toggled(bool checked)
 
 void MainWindow::on_radioButton_sec4_useCardAndId_toggled(bool checked)
 {
-    if (checked) {
-        ui->edit_sec4_UCI_noCardNum->setEnabled(true);
-        ui->lab_sec4_UCI_noCardNum->setEnabled(true);
-    } else {
-        ui->edit_sec4_UCI_noCardNum->setEnabled(false);
-        ui->lab_sec4_UCI_noCardNum->setEnabled(false);
-    }
+        ui->edit_sec4_UCI_noCardNum->setEnabled(checked);
+        ui->lab_sec4_UCI_noCardNum->setEnabled(checked);
+}
+
+void MainWindow::on_radioButton_sec6_keepTempOffset_toggled(bool checked)
+{
+    ui->edit_sec6_keepTempOffset->setEnabled(checked);
+}
+
+void MainWindow::on_radioButton_sec6_keepTempSet_toggled(bool checked)
+{
+    ui->edit_sec6_keepCoolTemp->setEnabled(checked);
+    ui->edit_sec6_keepHeatTemp->setEnabled(checked);
 }
 
 void MainWindow::on_checkBox_sec6_keepHeat_toggled(bool checked)
 {
-    ui->lab_sec6_keepHeatTempSet->setEnabled(checked);
-    ui->edit_sec6_keepHeatTempSet->setEnabled(checked);
+    ui->radioButton_sec6_keepTempOffset->setEnabled(checked);
+    ui->lab_sec6_keepTempOffset->setEnabled(checked);
+
+    ui->radioButton_sec6_keepTempSet->setEnabled(checked);
+    ui->lab_sec6_keepCoolTemp->setEnabled(checked);
+    ui->lab_sec6_keepHeatTemp->setEnabled(checked);
     ui->lab_sec6_offset_2->setEnabled(checked);
+    if (checked)
+    {
+        if (ui->radioButton_sec6_keepTempOffset->isChecked())
+        {
+            on_radioButton_sec6_keepTempOffset_toggled(true);
+        }
+        if (ui->radioButton_sec6_keepTempSet->isChecked())
+        {
+            on_radioButton_sec6_keepTempSet_toggled(true);
+        }
+    }
+    else
+    {
+        on_radioButton_sec6_keepTempOffset_toggled(false);
+        on_radioButton_sec6_keepTempSet_toggled(false);
+    }
 }
 
 void MainWindow::on_checkBox_sec6_airconTempSet_toggled(bool checked)
@@ -583,9 +658,10 @@ void MainWindow::on_radioButton_sec6_ETM_toggled(bool checked)
 
 void MainWindow::on_radioButton_sec6_keepHeatNR_toggled(bool checked)
 {
-    ui->lab_sec6_keepHeatTempSetNR->setEnabled(checked);
-    ui->lab_sec6_offset_3->setEnabled(checked);
-    ui->edit_sec6_keepHeatTempSetNR->setEnabled(checked);
+    ui->lab_sec6_keepCoolTempNR->setEnabled(checked);
+    ui->edit_sec6_keepCoolTempNR->setEnabled(checked);
+    ui->lab_sec6_keepHeatTempNR->setEnabled(checked);
+    ui->edit_sec6_keepHeatTempNR->setEnabled(checked);
 }
 
 void MainWindow::on_radioButton_sec6_newWind_toggled(bool checked)
@@ -613,342 +689,7 @@ void MainWindow::updateRoomNumber()
 }
 
 
-/**----------------------------计算操作------------------------------**/
-
-/**
- * @brief MainWindow::calElecEqtWatts
- * @param oldDataList: [每平米设备功率]
- * @return
- */
-QStringList MainWindow::calElecEqtWatts(QStringList oldDataList)
-{   
-    //电视的总瓦特数(kW)
-    double tvWatts = ui->edit_sec7_TV->text().toDouble();
-    //电视使用系数
-    double tvNum = ui->edit_sec7_TVUsingNum->text().toDouble();
-    //冰箱的总瓦特数(kW)
-    double fdgWatts = ui->edit_sec7_fridge->text().toDouble();
-    //其他设备的总平均瓦特数(kW)
-    double otherWatts = ui->edit_sec7_otherDevice->text().toDouble();
-
-    double averageWatts = (tvWatts*tvNum + fdgWatts + otherWatts)*1000.0/_roomSize;
-    QStringList dataList;
-    dataList << QString::number(averageWatts, 'f', 2);
-    return dataList;
-}
-
-/**
- * @brief MainWindow::calLightsWatts
- * @param oldDataList: [每平米光照功率]
- * @return
- */
-QStringList MainWindow::calLightsWatts(QStringList oldDataList)
-{
-    //照明总瓦特数(kW)
-    double lightWatts = ui->edit_sec7_light->text().toDouble();
-    //照明系数
-    double lightNum = ui->edit_sec7_light->text().toDouble();
-    //房间面积
-    double averageWatts = lightWatts*lightNum*1000.0/_roomSize;
-
-    QStringList dataList;
-    dataList << QString::number(averageWatts, 'f', 2);
-    return dataList;
-}
-
-/**
- * @brief MainWindow::calTimeSpan
- * @param oldDataList: [起始月份，起始日期，结束月份，结束日期]
- * @return
- */
-QStringList MainWindow::calTimeSpan(QStringList oldDataList)
-{
-    QStringList dataList;
-    if (ui->radioButton_sec2_year->isChecked()) {
-        dataList << QString::number(1) << QString::number(1) << QString::number(12) << QString::number(31);
-    } else {
-        int quarter = ui->comboBox_sec2_quarter->currentText().toInt();
-        switch (quarter) {
-        case 1:
-        {
-            dataList << QString::number(1) << QString::number(1) << QString::number(3) << QString::number(31);
-            break;
-        }
-        case 2:
-        {
-            dataList << QString::number(4) << QString::number(1) << QString::number(6) << QString::number(30);
-            break;
-        }
-        case 3:
-        {
-            dataList << QString::number(7) << QString::number(1) << QString::number(9) << QString::number(30);
-            break;
-        }
-        default:
-        {
-            dataList << QString::number(10) << QString::number(1) << QString::number(12) << QString::number(31);
-            break;
-        }
-        }
-    }
-    return dataList;
-}
-
-
-/**
- * @brief MainWindow::calSchComCoolNr
- * @param oldDataList: [保温温度，保温温度，保温温度]
- * @return
- */
-QStringList MainWindow::calSchComCoolNr(QStringList oldDataList)
-{
-    QStringList dataList(oldDataList);
-    if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
-        int tempOffset = ui->edit_sec6_keepHeatTempSetNR->text().toInt();
-        for (int i = 0; i < dataList.size(); i++) {
-            int temp = dataList[i].toInt();
-            dataList[i] = QString::number(temp + tempOffset);
-        }
-    }
-    return dataList;
-}
-
-/**
- * @brief MainWindow::calSchComHeatNr
- * @param oldDataList: [保温温度，保温温度，保温温度]
- * @return
- */
-QStringList MainWindow::calSchComHeatNr(QStringList oldDataList)
-{
-    QStringList dataList(oldDataList);
-    if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
-        int tempOffset = ui->edit_sec6_keepHeatTempSetNR->text().toInt();
-        for (int i = 0; i < dataList.size(); i++) {
-            int temp = dataList[i].toInt();
-            dataList[i] = QString::number(temp - tempOffset);
-        }
-    }
-    return dataList;
-}
-
-/**
- * @brief MainWindow::calSchComCoolR
- * @param oldDataList: [保温温度，保温温度，保温温度]
- * @return
- */
-QStringList MainWindow::calSchComCoolR(QStringList oldDataList)
-{
-    QStringList dataList(oldDataList);
-    if (ui->checkBox_sec6_keepHeat->isChecked()) {
-        int tempOffset = ui->edit_sec6_keepHeatTempSet->text().toInt();
-        for (int i = 0; i < dataList.size(); i++) {
-            int temp = dataList[i].toInt();
-            dataList[i] = QString::number(temp + tempOffset);
-        }
-    }
-    return dataList;
-}
-
-/**
- * @brief MainWindow::calSchComHeatR
- * @param oldDataList: [保温温度，保温温度，保温温度]
- * @return
- */
-QStringList MainWindow::calSchComHeatR(QStringList oldDataList)
-{
-    QStringList dataList(oldDataList);
-    if (ui->checkBox_sec6_keepHeat->isChecked()) {
-        int tempOffset = ui->edit_sec6_keepHeatTempSet->text().toInt();
-        for (int i = 0; i < dataList.size(); i++) {
-            int temp = dataList[i].toInt();
-            dataList[i] = QString::number(temp - tempOffset);
-        }
-    }
-    return dataList;
-}
-
-/**
- * @brief MainWindow::calSchComCoolRp
- * @param oldList: [Until: 时间(headTime)，温度，Until: 时间(tailTime)，温度，Until: 24， 温度]
- * @return
- */
-QStringList MainWindow::calSchComCoolRp(QStringList oldDataList)
-{
-    QStringList dataList(oldDataList);
-    if (ui->checkBox_sec6_nightSETT->isChecked()) {
-        int tempOffset = ui->edit_sec6_nightTempOffset->text().toInt();
-        int temp = dataList[1].toInt();
-        //获取headTime和tailTime
-        QRegularExpression reg("([2]{1}[0-3]{1}:[0-6]{1}[0-9]{1}|[1]{0,1}[0-9]{1}:[0-6]{1}[0-9]{1})");
-        QRegularExpressionMatch result1, result2;
-        QString headTimeStr, tailTimeStr;
-        if (dataList[0].contains(reg, &result1) && dataList[2].contains(reg, &result2)) {
-            headTimeStr = result1.captured(1);
-            tailTimeStr = result2.captured(1);
-        } else {
-            qFatal("Some mistake happen when handle rp model!");
-        }
-        QTime headTime = QTime::fromString(headTimeStr, "H:mm");
-        QTime tailTime = QTime::fromString(tailTimeStr, "H:mm");
-        QTime sTime = ui->timeEdit_sec6_nightStartTime->time();
-        int keepTime = ui->edit_sec6_keepTime->text().toInt();
-        if (keepTime < 24)
-        {
-            if (QTime(0, 0) == sTime)
-            {
-                QTime startTime = sTime;
-                QTime endTime(keepTime, 0);
-                if (endTime < tailTime)
-                {
-                    dataList[0] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[1] = QString::number(temp + tempOffset);
-                }
-                else
-                {
-                    dataList[1] = QString::number(temp + tempOffset);
-                    dataList[2] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[3] = QString::number(temp + tempOffset);
-                }
-            }
-            else
-            {
-                int totalHours = sTime.hour() + keepTime;
-                QTime startTime = sTime;
-                QTime endTime((startTime.hour()+keepTime)%24, startTime.minute());
-                if (totalHours > 24 || (totalHours == 24 && sTime.minute() > 0))
-                {
-                    dataList[0] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[1] = QString::number(temp + tempOffset);
-                    dataList[2] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                    dataList[5] = QString::number(temp + tempOffset);
-                }
-                else if (totalHours < 24)
-                {
-                    dataList[0] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                    dataList[2] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[3] = QString::number(temp + tempOffset);
-                }
-                else
-                {
-                    if (startTime > headTime)
-                    {
-                        dataList[2] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                        dataList[5] = QString::number(temp + tempOffset);
-                    }
-                    else
-                    {
-                        dataList[0] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                        dataList[3] = QString::number(temp + tempOffset);
-                        dataList[5] = QString::number(temp + tempOffset);
-                    }
-                }
-            }
-        }
-        else if (24 == keepTime)
-        {
-            dataList[1] = QString::number(temp + tempOffset);
-            dataList[3] = QString::number(temp + tempOffset);
-            dataList[5] = QString::number(temp + tempOffset);
-        }
-        else
-        {
-            ;
-        }
-    }
-    qDebug() << dataList;
-    return dataList;
-}
-
-/**
- * @brief MainWindow::calSchComHeatRp
- * @param oldDataList: [Until: 时间(headTime)，温度，Until: 时间(tailTime)，温度，Until: 24， 温度]
- * @return
- */
-QStringList MainWindow::calSchComHeatRp(QStringList oldDataList)
-{
-    QStringList dataList(oldDataList);
-    if (ui->checkBox_sec6_nightSETT->isChecked()) {
-        int tempOffset = ui->edit_sec6_nightTempOffset->text().toInt();
-        int temp = dataList[1].toInt();
-        //获取headTime和tailTime
-        QRegularExpression reg("([2]{1}[0-3]{1}:[0-6]{1}[0-9]{1}|[1]{0,1}[0-9]{1}:[0-6]{1}[0-9]{1})");
-        QRegularExpressionMatch result1, result2;
-        QString headTimeStr, tailTimeStr;
-        if (dataList[0].contains(reg, &result1) && dataList[2].contains(reg, &result2)) {
-            headTimeStr = result1.captured(1);
-            tailTimeStr = result2.captured(1);
-        } else {
-            qFatal("Some mistake happen when handle rp model!");
-        }
-        QTime headTime = QTime::fromString(headTimeStr, "H:mm");
-        QTime tailTime = QTime::fromString(tailTimeStr, "H:mm");
-        QTime sTime = ui->timeEdit_sec6_nightStartTime->time();
-        int keepTime = ui->edit_sec6_keepTime->text().toInt();
-        if (keepTime < 24)
-        {
-            if (QTime(0, 0) == sTime)
-            {
-                QTime startTime = sTime;
-                QTime endTime(keepTime, 0);
-                if (endTime < tailTime)
-                {
-                    dataList[0] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[1] = QString::number(temp - tempOffset);
-                }
-                else
-                {
-                    dataList[1] = QString::number(temp - tempOffset);
-                    dataList[2] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[3] = QString::number(temp - tempOffset);
-                }
-            }
-            else
-            {
-                int totalHours = sTime.hour() + keepTime;
-                QTime startTime = sTime;
-                QTime endTime((startTime.hour()+keepTime)%24, startTime.minute());
-                if (totalHours > 24 || (totalHours == 24 && sTime.minute() > 0))
-                {
-                    dataList[0] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[1] = QString::number(temp - tempOffset);
-                    dataList[2] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                    dataList[5] = QString::number(temp - tempOffset);
-                }
-                else if (totalHours < 24)
-                {
-                    dataList[0] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                    dataList[2] = QString("Until: %1").arg(endTime.toString("H:mm"));
-                    dataList[3] = QString::number(temp - tempOffset);
-                }
-                else
-                {
-                    if (startTime > headTime)
-                    {
-                        dataList[2] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                        dataList[5] = QString::number(temp - tempOffset);
-                    }
-                    else
-                    {
-                        dataList[0] = QString("Until: %1").arg(startTime.toString("H:mm"));
-                        dataList[3] = QString::number(temp - tempOffset);
-                        dataList[5] = QString::number(temp - tempOffset);
-                    }
-                }
-            }
-        }
-        else if (24 == keepTime)
-        {
-            dataList[1] = QString::number(temp - tempOffset);
-            dataList[3] = QString::number(temp - tempOffset);
-            dataList[5] = QString::number(temp - tempOffset);
-        }
-        else
-        {
-            ;
-        }
-    }
-    return dataList;
-}
+//-------------------------------------计算操作----------------------------------------------//
 
 
 void MainWindow::preImpData()
@@ -1167,11 +908,14 @@ void MainWindow::calRoomLoadAndFanWatts(EnergyForm &baseForm, EnergyForm &propos
         }
     }
 
-    if (ui->radioButton_sec6_keepHeatNR->isChecked()) {
+    if (ui->radioButton_sec6_keepHeatNR->isChecked())
+    {
         proposedForm._heatLoad = sumHeatLoad;
         proposedForm._coolLoad = sumCoolLoad;
         proposedForm._fanWatts = sumFanWatts;
-    } else {
+    }
+    else
+    {
         proposedForm._heatLoad = sumHeatLoad;
         proposedForm._coolLoad = sumCoolLoad;
         //换气次数
@@ -1730,14 +1474,25 @@ void MainWindow::lStep()
     //(注意：lambda表达式的捕捉参数,必须是通过值来捕捉,否则主线程在离开函数作用域后, 通过引用捕捉的函数内部变量会被销毁, 导致程序崩溃)
     connect(p_thread_src, &QThread::started , [=]()
     {
-        p_src->configure(PathManager::instance()->getPath("BaseModelDir") + QString("/base_sec%1_config.json").arg(_citySecMap[_city]));
-        p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opElectricEquipment", this, &MainWindow::calElecEqtWatts);
-        p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opLights", this, &MainWindow::calLightsWatts);
-        p_src->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opTimeSpan", this, &MainWindow::calTimeSpan);
-        p_srcNp->configure(PathManager::instance()->getPath("BaseModelDir") + QString("/base_sec%1_config.json").arg(_citySecMap[_city]));
-        p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opElectricEquipment", this, &MainWindow::calElecEqtWattsNope);
-        p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opLights", this, &MainWindow::calLightsWattsNope);
-        p_srcNp->operate<MainWindow>(PathManager::instance()->getPath("BaseOpFile"), "opTimeSpan", this, &MainWindow::calTimeSpan);
+        QString initConfigFilePath(PathManager::instance()->getPath("ConfigDir") + QString("/init/init_sec%1_config.json").arg(_citySecMap[_city]));
+        p_src->configure(initConfigFilePath);
+        p_srcNp->configure(initConfigFilePath);
+
+        unsigned int quarter = ui->radioButton_sec2_year->isChecked() ? 0 : ui->comboBox_sec2_quarter->currentText().toInt();
+        double lightKW = ui->edit_sec7_light->text().toDouble();
+        double tvKW = ui->edit_sec7_TV->text().toDouble();
+        double fridgeKW = ui->edit_sec7_fridge->text().toDouble();
+        double otherDevKW = ui->edit_sec7_otherDevice->text().toDouble();
+        double tvUseNum = ui->edit_sec7_TVUsingNum->text().toDouble();
+        double lightUseNum = ui->edit_sec7_lightUsingNum->text().toDouble();
+
+        p_src->operate(OperateFactory::opElectricEquipment(_roomSize, tvKW, fridgeKW, otherDevKW, tvUseNum));
+        p_src->operate(OperateFactory::opLights(_roomSize, lightKW, lightUseNum));
+        p_src->operate(OperateFactory::opTimeSpan(quarter));
+
+        p_srcNp->operate(OperateFactory::opElectricEquipment(0));
+        p_srcNp->operate(OperateFactory::opLights(0));
+        p_srcNp->operate(OperateFactory::opTimeSpan(quarter));
 
         QStringList fileNameList, nopeFileNameList;
         fileNameList << "base" << "rp";
@@ -1817,7 +1572,7 @@ void MainWindow::zStep()
     QString rFilePath = excFilePathTemp.arg("r");
     QString rpFilePath = excFilePathTemp.arg("rp");
 
-    //若开启新风模式，则不使用Eplus调用未租房间的idf
+    //若开启新风模式，则不使用Eplus调用nr.idf
     HandleMachine *p_nr = ui->radioButton_sec6_newWind->isChecked() ? nullptr : new HandleMachine(nrFilePath);
     HandleMachine *p_r = new HandleMachine(rFilePath);
     HandleMachine *p_rp = new HandleMachine(rpFilePath);
@@ -1832,16 +1587,16 @@ void MainWindow::zStep()
             //客人退房关闭窗帘
             if (ui->radioButton_sec3_CO_close->isChecked())
             {
-                p_nr->configure(PathManager::instance()->getPath("ShadingDir") + QString("/sh_sec%1_config.json").arg(_citySecMap[_city]));
-                p_nr->configure(PathManager::instance()->getPath("NrConfigFile"));
+                p_nr->configure(PathManager::instance()->getPath("ConfigDir") + QString("/shading/sh_sec%1_config.json").arg(_citySecMap[_city]));
+                p_nr->configure(PathManager::instance()->getPath("ConfigDir") + QString("/global/nopeople_config.json"));
             }
 
             if (ui->radioButton_sec6_keepHeatNR->isChecked())
             {
-                p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComCool", this,
-                                          &MainWindow::calSchComCoolNr);
-                p_nr->operate<MainWindow>(PathManager::instance()->getPath("NrOpFile"), "opSchComHeat", this,
-                                          &MainWindow::calSchComHeatNr);
+                unsigned int coolTemp = ui->edit_sec6_keepCoolTempNR->text().toInt();
+                unsigned int heatTemp = ui->edit_sec6_keepHeatTempNR->text().toInt();
+                p_nr->operate(OperateFactory::opSchComByTemp(coolTemp, true));
+                p_nr->operate(OperateFactory::opSchComByTemp(heatTemp, false));
             }
             p_nr->save();
             EPHandler::instance()->callEplus(nrFilePath, _city);
@@ -1857,22 +1612,33 @@ void MainWindow::zStep()
         tryEmitMSig(2);
     }
 
+    //r model线程执行过程
     connect(p_thread_r, &QThread::started, [=]()
     {
         //客人离房关闭窗帘
         if (ui->radioButton_sec3_LR_close->isChecked())
         {
-            p_r->configure(PathManager::instance()->getPath("ShadingDir") + QString("/sh_sec%1_config.json").arg(_citySecMap[_city]));
-            p_r->configure(PathManager::instance()->getPath("RConfigFile"));
+            p_r->configure(PathManager::instance()->getPath("ConfigDir") + QString("/shading/sh_sec%1_config.json").arg(_citySecMap[_city]));
+            p_r->configure(PathManager::instance()->getPath("ConfigDir") + QString("/global/nopeople_config.json"));
         }
 
         if (ui->checkBox_sec6_keepHeat->isChecked() && !ui->radioButton_sec6_ETM->isChecked())
         {
-            p_r->operate<MainWindow>(PathManager::instance()->getPath("ROpFile"), "opSchComCool", this,
-                                     &MainWindow::calSchComCoolR);
-            p_r->operate<MainWindow>(PathManager::instance()->getPath("ROpFile"), "opSchComHeat", this,
-                                     &MainWindow::calSchComHeatR);
+            if (ui->radioButton_sec6_keepTempOffset->isChecked())
+            {
+                unsigned int tempOffset = ui->edit_sec6_keepTempOffset->text().toInt();
+                p_r->operate(OperateFactory::opSchComByTempOffset(tempOffset, true));
+                p_r->operate(OperateFactory::opSchComByTempOffset(tempOffset, false));
+            }
+            else
+            {
+                unsigned int coolTemp = ui->edit_sec6_keepCoolTemp->text().toInt();
+                unsigned int heatTemp = ui->edit_sec6_keepHeatTemp->text().toInt();
+                p_r->operate(OperateFactory::opSchComByTemp(coolTemp, true));
+                p_r->operate(OperateFactory::opSchComByTemp(heatTemp, false));
+            }
         }
+
         p_r->save();
         EPHandler::instance()->callEplus(rFilePath, _city);
         p_thread_r->quit();
@@ -1882,14 +1648,16 @@ void MainWindow::zStep()
     connect(p_thread_r, &QThread::finished, p_thread_r, &QObject::deleteLater);
     p_thread_r->start();
 
+    //rp model线程执行过程
     connect(p_thread_rp, &QThread::started, [=]()
     {
         if (ui->checkBox_sec6_nightSETT->isChecked() && !ui->radioButton_sec6_ETM->isChecked())
         {
-            p_rp->operate<MainWindow>(PathManager::instance()->getPath("RpOpFile"), "opSchComCool", this,
-                                      &MainWindow::calSchComCoolRp);
-            p_rp->operate<MainWindow>(PathManager::instance()->getPath("RpOpFile"), "opSchComHeat", this,
-                                      &MainWindow::calSchComHeatRp);
+            QTime startTime = ui->timeEdit_sec6_nightStartTime->time();
+            unsigned int keepHours = ui->edit_sec6_keepTime->text().toInt();
+            unsigned int tempOffset = ui->edit_sec6_nightTempOffset->text().toInt();
+            p_rp->operate(OperateFactory::opSchComByTempOffset(startTime, keepHours, tempOffset, true));
+            p_rp->operate(OperateFactory::opSchComByTempOffset(startTime, keepHours, tempOffset, false));
         }
         p_rp->save();
         EPHandler::instance()->callEplus(rpFilePath, _city);
@@ -2072,7 +1840,9 @@ void MainWindow::setLanguage(Language lang)
     ui->lab_sec6_title->setText(sec6Arr[index++].toString());
     ui->lab_sec6_ranted->setText(sec6Arr[index++].toString());
     ui->checkBox_sec6_keepHeat->setText(sec6Arr[index++].toString());
-    ui->lab_sec6_keepHeatTempSet->setText(sec6Arr[index++].toString());
+    ui->lab_sec6_keepTempOffset->setText(sec6Arr[index++].toString());
+    ui->lab_sec6_keepCoolTemp->setText(sec6Arr[index++].toString());
+    ui->lab_sec6_keepHeatTemp->setText(sec6Arr[index++].toString());
     ui->checkBox_sec6_airconTempSet->setText(sec6Arr[index++].toString());
     ui->lab_sec6_lowTemp->setText(sec6Arr[index++].toString());
     ui->lab_sec6_highTemp->setText(sec6Arr[index++].toString());
@@ -2083,7 +1853,8 @@ void MainWindow::setLanguage(Language lang)
     ui->radioButton_sec6_ETM->setText(sec6Arr[index++].toString());
     ui->lab_sec6_noRanted->setText(sec6Arr[index++].toString());
     ui->radioButton_sec6_keepHeatNR->setText(sec6Arr[index++].toString());
-    ui->lab_sec6_keepHeatTempSetNR->setText(sec6Arr[index++].toString());
+    ui->lab_sec6_keepCoolTempNR->setText(sec6Arr[index++].toString());
+    ui->lab_sec6_keepHeatTempNR->setText(sec6Arr[index++].toString());
     ui->radioButton_sec6_newWind->setText(sec6Arr[index++].toString());
     ui->lab_sec6_averUsingTime->setText(sec6Arr[index++].toString());
 
@@ -2141,3 +1912,4 @@ void MainWindow::setLanguage(Language lang)
     }
 
 }
+

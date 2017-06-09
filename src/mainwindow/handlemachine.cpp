@@ -289,19 +289,7 @@ bool HandleMachine::insertStruct(QJsonObject root)
 }
 
 /**
- * @brief HandleMachine::initCityData >> 根据city变量对源.idf文本进行初始化设置
- * @param cityName
- * @param cityFilePath
- */
-bool HandleMachine::initCityData(QString cityName, ErrorCode *pErrCode)
-{
-    QString pathPrefix = PathManager::instance()->getPath("BaseModelDir");
-    QString cityFilePath = QString(pathPrefix + "/%1.json").arg(cityName.toLower());
-    return configure(cityFilePath, pErrCode);
-}
-
-/**
- * @brief HandleMachine::configure >> 对源.idf文本进行初始化配置
+ * @brief HandleMachine::configure >> 使用配置文件对源.idf文本进行配置
  * @param cfgFilePath
  */
 bool HandleMachine::configure(QString cfgFilePath, ErrorCode *pErrCode)
@@ -317,7 +305,7 @@ bool HandleMachine::configure(QString cfgFilePath, ErrorCode *pErrCode)
 
         if (!doc.isObject() || doc.isNull())
         {
-            eCode = _P_ERR_OBJ_->addError("FILE_BROKEN", QString("Configure file %1 broken.").arg(cfgFileInfo.fileName()));
+            eCode = _P_ERR_OBJ_->addError("FILE_BROKEN", QString("Configure file %1 broken.").arg(cfgFileInfo.filePath()));
             if (pErrCode != nullptr) *pErrCode = eCode;
             return false;
         }
@@ -340,11 +328,103 @@ bool HandleMachine::configure(QString cfgFilePath, ErrorCode *pErrCode)
     }
     else
     {
-        eCode = _P_ERR_OBJ_->addError("FILE_OPEN_FAIL", QString("Configure file %1 open fail.").arg(cfgFileInfo.fileName()));
+        eCode = _P_ERR_OBJ_->addError("FILE_OPEN_FAIL", QString("Configure file %1 open fail.").arg(cfgFileInfo.filePath()));
         if (pErrCode != nullptr) *pErrCode = eCode;
         return false;
     }
 }
+
+/**
+ * @brief HandleMachine::operate >> 对.idf文本进行动作配置，即配置数据来自外部输入
+ * @param opPackage: opKey & opFunc
+ * @param pErrCode
+ * @return
+ */
+bool HandleMachine::operate(OperatePackage opPackage, ErrorCode *pErrCode)
+{
+    ErrorCode eCode = 0;
+    QString opFilePath(PathManager::instance()->getPath("OpFile"));
+    QFile opFile(opFilePath);
+    if (!opFile.open(QFile::ReadOnly))
+    {
+        eCode = _P_ERR_OBJ_->addError("FILE_OPEN_FAIL", QString("Operation file %1 open fail.").arg(opFile.fileName()));
+        if (pErrCode != nullptr) *pErrCode = eCode;
+        return false;
+    }
+
+    QTextStream inStream(&opFile);
+    QJsonDocument doc = QJsonDocument::fromJson(inStream.readAll().toLatin1());
+    opFile.close();
+
+    if (!doc.isObject() || doc.isNull())
+    {
+        eCode = _P_ERR_OBJ_->addError("FILE_BROKEN", QString("Operation file %1 broken.").arg(opFile.fileName()));
+        if (pErrCode != nullptr) *pErrCode = eCode;
+        return false;
+    }
+    else
+    {
+        QString opKey = opPackage.first;
+        QJsonObject opObject = doc.object()[opKey].toObject();
+        if (!opObject.isEmpty())
+        {
+            QString locationKey = opObject["locationKey"].toString();
+            QString confirmKey = opObject["confirmKey"].toString();
+            Q_ASSERT_X(opObject["offsets"].isArray(), "json try to array", "this json value isn't array");
+            QJsonArray offsets = opObject["offsets"].toArray();
+
+            int beginLoc = getReplaceLocation(locationKey, confirmKey);
+            if (beginLoc > -1)
+            {
+                QRegularExpression reg("(^\\s*)(.*)(,|;)(.*)");
+                QString fmt, prefix("\\1"), suffix("\\3\\4");
+                QStringList oldDataList; //被操参数的旧值序列
+                QVector<int> posVec; //操作参数的具体位置序列
+                for (int index = 0; index < offsets.size(); index++)
+                {
+                    int targetPos = beginLoc + offsets[index].toInt();
+                    posVec.push_back(targetPos);
+                    QRegularExpressionMatch match;
+                    if (_content[targetPos].contains(reg, &match))
+                    {
+                        oldDataList << match.captured(2);
+                    }
+                    else
+                    {
+                        eCode = _P_ERR_OBJ_->addError("FILE_BROKEN", QString("File %1 broken.").arg(_fileName));
+                        if (pErrCode != nullptr) *pErrCode = eCode;
+                        return false;
+                    }
+                }
+                //使用opFunc回调函数获取被操作参数新值序列
+                auto opFunc = opPackage.second;
+                QStringList newDataList = opFunc(oldDataList);
+                for (int index = 0; index < posVec.size(); index++)
+                {
+                    QString newData = newDataList[index];
+                    fmt = prefix + newData + suffix;
+                    _content[posVec[index]].replace(reg, fmt);
+                }
+                eCode = _P_ERR_OBJ_->addError("SUCCESS", QString("Operation #%1# to %2 success.").arg(opKey, _fileName));
+                if (pErrCode != nullptr) *pErrCode = eCode;
+                return true;
+            }
+            else
+            {
+                eCode = _P_ERR_OBJ_->addError("FILE_BROKEN", QString("Can't locate operation #%1# begin pos.").arg(opKey));
+                if (pErrCode != nullptr) *pErrCode = eCode;
+                return false;
+            }
+        }
+        else
+        {
+            eCode = _P_ERR_OBJ_->addError("PARA_ERR", QString("Operation #%1# to %2 isn't exist.").arg(opKey, _fileName));
+            if (pErrCode != nullptr) *pErrCode = eCode;
+            return false;
+        }
+    }
+}
+
 
 /**
  * @brief HandleMachine::save >> 保存配置操作后的.idf文件
@@ -445,3 +525,263 @@ bool HandleMachine::separate(QStringList fileNameList, ErrorCode *pErrCode)
     }
 }
 
+
+//--------------------------------Class OpHandleFuncCreator-----------------------------------
+
+/**
+ * @brief OperateFactory::calElecEqtWatts >> 计算房间除照明外其它设备的单位面积功率
+ * @param roomSize: 房间面积
+ * @param tvKW: 电视功率(kW)
+ * @param fridgeKW: 冰箱功率(kW)
+ * @param otherDevKW: 其它设备功率(kW)
+ * @return
+ */
+OperatePackage OperateFactory::opElectricEquipment(const double roomSize, const double tvKW, const double fridgeKW, const double otherDevKW,
+                                                    const double tvUseNum, const double fridgeUseNum, const double otherDevUseNum)
+{   
+    QString opKey("opElectricEquipment");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        double averageWatts = (tvKW*tvUseNum + fridgeKW*fridgeUseNum + otherDevKW*otherDevUseNum)*1000.0/roomSize;
+        QStringList dataList;
+        dataList << QString::number(averageWatts, 'f', 2);
+        return dataList;
+    });
+}
+
+/**
+ * @brief OperateFactory::opElectricEquipment >> (重载)计算房间除照明外其它设备的单位面积功率
+ * @param resultAverageW: 返回的房间除照明外其它设备的单位面积功率(w)
+ * @return
+ */
+OperatePackage OperateFactory::opElectricEquipment(const double retAverageW)
+{
+    QString opKey("opElectricEquipment");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        QStringList dataList;
+        dataList << QString::number(retAverageW, 'f', 2);
+        return dataList;
+    });
+}
+
+/**
+ * @brief OperateFactory::calLightsWatts >> 计算房间照明的单位面积功率
+ * @param roomSize: 房间面积
+ * @param lightWatts: 照明总功率
+ * @param lightUseNum: 照明使用系数
+ * @return
+ */
+OperatePackage OperateFactory::opLights(const double roomSize, const double lightKW, const double lightUseNum)
+{
+    QString opKey("opLights");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        double averageWatts = lightKW*lightUseNum*1000.0/roomSize;
+        QStringList dataList;
+        dataList << QString::number(averageWatts, 'f', 2);
+        return dataList;
+    });
+}
+
+/**
+ * @brief OperateFactory::opLights >> (重载)计算房间照明的单位面积功率
+ * @param retAverageW: 返回的房间照明的单位面积功率(W)
+ * @return
+ */
+OperatePackage OperateFactory::opLights(const double retAverageW)
+{
+    QString opKey("opLights");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        QStringList dataList;
+        dataList << QString::number(retAverageW, 'f', 2);
+        return dataList;
+    });
+}
+
+/**
+ * @brief OperateFactory::opSchComByTempOffset >> 通过温度偏差设置设计日的时间范围及温度大小
+ * @param startTime: 起始时间
+ * @param keepHours: 持续时间
+ * @param tempOffset: 温度偏差
+ * @param isCool: 是否是使用冷气（即夏季设计日）
+ * @return
+ */
+OperatePackage OperateFactory::opSchComByTempOffset(const QTime startTime, const unsigned int keepHours,
+                                                   const unsigned int tempOffset, const bool isCool)
+{
+    QString opKey = isCool ? QString("opSchComCoolByOffset") : QString("opSchComHeatByOffset");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        QStringList dataList(oldDataList);
+        int realTempOffset = isCool ? (int)tempOffset : -(int)tempOffset;
+
+        //获取headTime和tailTime
+        QRegularExpression reg("([2]{1}[0-3]{1}:[0-6]{1}[0-9]{1}|[1]{0,1}[0-9]{1}:[0-6]{1}[0-9]{1})");
+        QRegularExpressionMatch result1, result2;
+        QString headTimeStr, tailTimeStr;
+        if (dataList[0].contains(reg, &result1) && dataList[2].contains(reg, &result2))
+        {
+            headTimeStr = result1.captured(1);
+            tailTimeStr = result2.captured(1);
+        }
+        else
+        {
+            headTimeStr = "6:00";
+            tailTimeStr = "22:00";
+        }
+        QTime headTime = QTime::fromString(headTimeStr, "H:mm");
+        QTime tailTime = QTime::fromString(tailTimeStr, "H:mm");
+
+        if (keepHours > 0 && keepHours < 24)
+        {
+            if (QTime(0, 0) == startTime)
+            {
+                QTime endTime(keepHours, 0);
+                if (endTime < tailTime)
+                {
+                    dataList[0] = QString("Until: %1").arg(endTime.toString("H:mm"));
+                    dataList[1] = QString::number(dataList[1].toInt() + realTempOffset);
+                }
+                else
+                {
+                    dataList[1] = QString::number(dataList[1].toInt() + realTempOffset);
+                    dataList[2] = QString("Until: %1").arg(endTime.toString("H:mm"));
+                    dataList[3] = QString::number(dataList[3].toInt() + realTempOffset);
+                }
+            }
+            else
+            {
+                int totalHours = startTime.hour() + keepHours;
+                QTime endTime((startTime.hour()+keepHours)%24, startTime.minute());
+                if (totalHours > 24 || (totalHours == 24 && startTime.minute() > 0))
+                {
+                    dataList[0] = QString("Until: %1").arg(endTime.toString("H:mm"));
+                    dataList[1] = QString::number(dataList[1].toInt() + realTempOffset);
+                    dataList[2] = QString("Until: %1").arg(startTime.toString("H:mm"));
+                    dataList[5] = QString::number(dataList[5].toInt() + realTempOffset);
+                }
+                else if (totalHours < 24)
+                {
+                    dataList[0] = QString("Until: %1").arg(startTime.toString("H:mm"));
+                    dataList[2] = QString("Until: %1").arg(endTime.toString("H:mm"));
+                    dataList[3] = QString::number(dataList[3].toInt() + realTempOffset);
+                }
+                else
+                {
+                    if (startTime > headTime)
+                    {
+                        dataList[2] = QString("Until: %1").arg(startTime.toString("H:mm"));
+                        dataList[5] = QString::number(dataList[5].toInt() + realTempOffset);
+                    }
+                    else
+                    {
+                        dataList[0] = QString("Until: %1").arg(startTime.toString("H:mm"));
+                        dataList[3] = QString::number(dataList[3].toInt() + realTempOffset);
+                        dataList[5] = QString::number(dataList[5].toInt() + realTempOffset);
+                    }
+                }
+            }
+        }
+        else if (24 == keepHours)
+        {
+            dataList[1] = QString::number(dataList[1].toInt() + realTempOffset);
+            dataList[3] = QString::number(dataList[3].toInt() + realTempOffset);
+            dataList[5] = QString::number(dataList[5].toInt() + realTempOffset);
+        }
+        else
+        {
+            ;
+        }
+        return dataList;
+    });
+}
+
+/**
+ * @brief OperateFactory::opSchComByTempOffset >> (重载)通过温度偏差设置设计日的时间范围及温度大小
+ * @param tempOffset: 温度偏差
+ * @return
+ */
+OperatePackage OperateFactory::opSchComByTempOffset(const unsigned int tempOffset, const bool isCool)
+{
+    QString opKey = isCool ? QString("opSchComCoolByOffset") : QString("opSchComHeatByOffset");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        QStringList dataList(oldDataList);
+        for (int i = 1; i < dataList.size(); i+=2)
+        {
+            int temp = dataList[i].toInt();
+            dataList[i] = (isCool) ? QString::number(temp + tempOffset) : QString::number(temp - tempOffset);
+        }
+        return dataList;
+    });
+}
+
+/**
+ * @brief OperateFactory::opSchComByTemp >> 通过指定温度设置设计日的时间范围及温度大小
+ * @param temperature
+ * @param isCool
+ * @return
+ */
+OperatePackage OperateFactory::opSchComByTemp(const unsigned int temperature, const bool isCool)
+{
+    QString opKey = isCool ? QString("opSchComCool") : QString("opSchComHeat");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        QStringList dataList;
+        for (int i = 0; i < oldDataList.size(); i++)
+        {
+            dataList << QString::number(temperature);
+        }
+        return dataList;
+    });
+}
+
+/**
+ * @brief OperateFactory::opTimeSpan >> 设置时间跨度
+ * @param quarter: 季度(模5) {0: 全年，1：第一季度, 2：第二季, 3：第三季度, 4：第四季度}
+ * @return
+ */
+OperatePackage OperateFactory::opTimeSpan(const unsigned int quarter)
+{
+    QString opKey("opTimeSpan");
+    return OperatePackage(opKey, [=](QStringList oldDataList)
+    {
+        QStringList dataList;
+        switch (quarter % 5) {
+        case 0:
+        {
+            //year
+            dataList << QString::number(1) << QString::number(1) << QString::number(12) << QString::number(31);
+            break;
+        }
+        case 1:
+        {
+            dataList << QString::number(1) << QString::number(1) << QString::number(3) << QString::number(31);
+            break;
+        }
+        case 2:
+        {
+            dataList << QString::number(4) << QString::number(1) << QString::number(6) << QString::number(30);
+            break;
+        }
+        case 3:
+        {
+            dataList << QString::number(7) << QString::number(1) << QString::number(9) << QString::number(30);
+            break;
+        }
+        case 4:
+        {
+            //year
+            dataList << QString::number(10) << QString::number(1) << QString::number(12) << QString::number(31);
+            break;
+        }
+        default:
+        {
+            dataList << QString::number(1) << QString::number(1) << QString::number(12) << QString::number(31);
+            break;
+        }}
+        return dataList;
+    });
+}

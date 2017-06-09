@@ -47,44 +47,10 @@ private:
     void initWidgetValidator();
     //初始化CoreData
     void initCoreData();
-
     //清除之前的数据
     void clear();
 
-    /* sourceFile */
-    //计算设备的能耗量
-    QStringList calElecEqtWatts(QStringList oldDataList);
-    //计算照明的能耗量
-    QStringList calLightsWatts(QStringList oldDataList);
 
-    /* sourceNopeFile */
-    QStringList calElecEqtWattsNope(QStringList oldDataList)
-    {
-        QStringList dataList;
-        dataList << QString::number(0);
-        return dataList;
-    }
-
-    QStringList calLightsWattsNope(QStringList oldDataList)
-    {
-        QStringList dataList;
-        dataList << QString::number(0);
-        return dataList;
-    }
-
-    /* sourceFile && sourceNopeFile */
-    //计算夜间模式的时间跨度
-    QStringList calTimeSpan(QStringList oldDataList);
-
-    /* proposedFile */
-    QStringList calSchComCoolNr(QStringList oldDataList);
-    QStringList calSchComHeatNr(QStringList oldDataList);
-
-    QStringList calSchComCoolR(QStringList oldData);
-    QStringList calSchComHeatR(QStringList oldData);
-
-    QStringList calSchComCoolRp(QStringList oldDataList);
-    QStringList calSchComHeatRp(QStringList oldDataList);
 
     //检查用户的输入
     bool checkUserInput();
@@ -141,8 +107,13 @@ private slots:
 
     void on_radioButton_sec6_newWind_toggled(bool checked);
 
+    void on_radioButton_sec6_keepTempOffset_toggled(bool checked);
+    void on_radioButton_sec6_keepTempSet_toggled(bool checked);
+
     //更新房间总量
     void updateRoomNumber();
+
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     enum Language { Chinese, English };

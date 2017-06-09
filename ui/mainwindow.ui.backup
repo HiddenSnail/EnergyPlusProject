@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1465</width>
-    <height>785</height>
+    <width>1463</width>
+    <height>761</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>1465</width>
-    <height>785</height>
+    <width>1000</width>
+    <height>600</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -164,7 +164,7 @@
       <property name="styleSheet">
        <string notr="true"/>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_35" stretch="7,6,7,6">
+      <layout class="QHBoxLayout" name="horizontalLayout_35" stretch="10,10,10,10">
        <property name="spacing">
         <number>2</number>
        </property>
@@ -2346,12 +2346,12 @@ background-color: rgb(255, 255, 255);</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1">
+         <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1">
           <property name="spacing">
-           <number>5</number>
+           <number>2</number>
           </property>
           <property name="leftMargin">
-           <number>5</number>
+           <number>8</number>
           </property>
           <property name="topMargin">
            <number>5</number>
@@ -2462,28 +2462,12 @@ text-align:center;</string>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="0,4,1,1,1">
+           <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="4,1,1,1">
             <property name="spacing">
              <number>5</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="radioButton_sec6_keepTempOffset">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">btng_sec6_keepTemp</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="lab_sec6_keepTempOffset">
+             <widget class="QLabel" name="lab_sec6_keepHeatTempSet">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -2499,7 +2483,7 @@ text-align:center;</string>
                <enum>Qt::LeftToRight</enum>
               </property>
               <property name="text">
-               <string>温度偏差:</string>
+               <string>温度设定:</string>
               </property>
              </widget>
             </item>
@@ -2535,7 +2519,7 @@ text-align:center;</string>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="edit_sec6_keepTempOffset">
+             <widget class="QLineEdit" name="edit_sec6_keepHeatTempSet">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -2597,205 +2581,6 @@ text-align:center;</string>
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_38">
-            <property name="spacing">
-             <number>5</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="radioButton_sec6_keepTempSet">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">btng_sec6_keepTemp</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_39" stretch="1,1,1">
-              <property name="spacing">
-               <number>5</number>
-              </property>
-              <property name="rightMargin">
-               <number>5</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="lab_sec6_keepCoolTemp">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>夏季温度:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edit_sec6_keepCoolTemp">
-                <property name="minimumSize">
-                 <size>
-                  <width>40</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="lab_sec6_degree5_3">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>22</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>℃</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_40" stretch="1,1,1">
-              <property name="spacing">
-               <number>5</number>
-              </property>
-              <property name="leftMargin">
-               <number>5</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="lab_sec6_keepHeatTemp">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>冬季温度:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edit_sec6_keepHeatTemp">
-                <property name="minimumSize">
-                 <size>
-                  <width>40</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="lab_sec6_degree5_4">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>22</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>℃</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-          <item>
            <widget class="QCheckBox" name="checkBox_sec6_airconTempSet">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -2823,9 +2608,6 @@ text-align:center;</string>
            <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="4,1,1,1">
             <property name="spacing">
              <number>5</number>
-            </property>
-            <property name="leftMargin">
-             <number>35</number>
             </property>
             <item>
              <widget class="QLabel" name="lab_sec6_lowTemp">
@@ -2921,9 +2703,6 @@ text-align:center;</string>
            <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="4,0,1,1">
             <property name="spacing">
              <number>5</number>
-            </property>
-            <property name="leftMargin">
-             <number>35</number>
             </property>
             <item>
              <widget class="QLabel" name="lab_sec6_highTemp">
@@ -3038,9 +2817,6 @@ text-align:center;</string>
             <property name="spacing">
              <number>5</number>
             </property>
-            <property name="leftMargin">
-             <number>35</number>
-            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
@@ -3146,9 +2922,6 @@ border-radius: 0;</string>
             <property name="spacing">
              <number>5</number>
             </property>
-            <property name="leftMargin">
-             <number>35</number>
-            </property>
             <item>
              <widget class="QLabel" name="lab_sec6_keepTime">
               <property name="font">
@@ -3243,9 +3016,6 @@ border-radius: 0;</string>
            <layout class="QHBoxLayout" name="horizontalLayout_21" stretch="4,1,1,1">
             <property name="spacing">
              <number>5</number>
-            </property>
-            <property name="leftMargin">
-             <number>35</number>
             </property>
             <item>
              <widget class="QLabel" name="lab_sec6_nightTempOffset">
@@ -3441,193 +3211,114 @@ border-radius:0;</string>
              <string>保温模式</string>
             </property>
             <attribute name="buttonGroup">
-             <string notr="true">btng_sec6_newWind_2</string>
+             <string notr="true">radioButton_sec6_newWind_2</string>
             </attribute>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_37" stretch="1,1">
+           <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="4,1,1,1">
             <property name="spacing">
              <number>5</number>
             </property>
-            <property name="leftMargin">
-             <number>35</number>
-            </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="1,1,1">
-              <property name="spacing">
-               <number>5</number>
+             <widget class="QLabel" name="lab_sec6_keepHeatTempSetNR">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="rightMargin">
-               <number>5</number>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>22</height>
+               </size>
               </property>
-              <item>
-               <widget class="QLabel" name="lab_sec6_keepCoolTempNR">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>夏季温度:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edit_sec6_keepCoolTempNR">
-                <property name="minimumSize">
-                 <size>
-                  <width>40</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="lab_sec6_degree5">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>22</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>℃</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+              <property name="font">
+               <font>
+                <pointsize>6</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>温度设定:</string>
+              </property>
+             </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="1,1,1">
-              <property name="spacing">
-               <number>5</number>
+             <widget class="QLabel" name="lab_sec6_offset_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="leftMargin">
-               <number>5</number>
+              <property name="minimumSize">
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
               </property>
-              <item>
-               <widget class="QLabel" name="lab_sec6_keepHeatTempNR">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>冬季温度:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edit_sec6_keepHeatTempNR">
-                <property name="minimumSize">
-                 <size>
-                  <width>40</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="lab_sec6_degree5_2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>22</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>℃</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+              <property name="styleSheet">
+               <string notr="true">font-family: &quot;Consolas&quot;;</string>
+              </property>
+              <property name="text">
+               <string>±</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="edit_sec6_keepHeatTempSetNR">
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>6</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lab_sec6_degree5">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>6</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>℃</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -3648,7 +3339,7 @@ border-radius:0;</string>
              <string>新风模式</string>
             </property>
             <attribute name="buttonGroup">
-             <string notr="true">btng_sec6_newWind_2</string>
+             <string notr="true">radioButton_sec6_newWind_2</string>
             </attribute>
            </widget>
           </item>
@@ -3656,9 +3347,6 @@ border-radius:0;</string>
            <layout class="QHBoxLayout" name="horizontalLayout_23" stretch="4,1,1,1">
             <property name="spacing">
              <number>5</number>
-            </property>
-            <property name="leftMargin">
-             <number>35</number>
             </property>
             <item>
              <widget class="QLabel" name="lab_sec6_averUsingTime">
@@ -4889,7 +4577,7 @@ border-style:none;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1465</width>
+     <width>1463</width>
      <height>37</height>
     </rect>
    </property>
@@ -4915,13 +4603,12 @@ border-style:none;</string>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="btng_sec6_newWind_2"/>
-  <buttongroup name="btng_sec3_leaveRoom"/>
-  <buttongroup name="btng_sec2_rentRateType"/>
-  <buttongroup name="btng_sec5_machineType"/>
-  <buttongroup name="bntg_sec4_elecType"/>
-  <buttongroup name="btng_sec6_keepTemp"/>
   <buttongroup name="btng_sec5_pipType"/>
+  <buttongroup name="btng_sec3_leaveRoom"/>
+  <buttongroup name="radioButton_sec6_newWind_2"/>
+  <buttongroup name="bntg_sec4_elecType"/>
+  <buttongroup name="btng_sec5_machineType"/>
   <buttongroup name="btng_sec3_checkOut"/>
+  <buttongroup name="btng_sec2_rentRateType"/>
  </buttongroups>
 </ui>
