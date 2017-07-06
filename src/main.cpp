@@ -3,12 +3,10 @@
 #include "./login/loginwindow.h"
 #include "./global/debug.h"
 #include "./global/stdafx.h"
-#include "./mainwindow/handlemachine.h"
-
-int sum(int a, ...)
-{
-    return a;
-}
+#include "./core/processor.h"
+#include "./mainwindow/quarter_dialog.h"
+#include <string>
+using namespace std;
 
 int main(int arg, char* argv[]) {
     qInstallMessageHandler(debugMessage);
@@ -42,15 +40,5 @@ int main(int arg, char* argv[]) {
     QObject::connect(&loginWin, &LoginWindow::updateLang, &win, &MainWindow::setLanguage);
 
     loginWin.login();
-
-//    HandleMachine h(PathManager::instance()->getPath("OutPutDir") + "/60/base/base.idf");
-//    h.operateTest(PathManager::instance()->getPath("ModelDir") + "/operation.json",
-//                  OperateFactory::opSchComCoolOrHeat(14, false));
-//    h.save();
-
-//    QStringList l;
-//    l << "Until: 6:00" << "20" << "Until: 22:00" << "23" << "Until: 24:00" << "20";
-//    qDebug() << OperateFactory::opSchComCoolOrHeat(QTime(13,0), 4, 3, false).second(l);
-
     return app.exec();
 }

@@ -58,3 +58,9 @@ QLabel#lab_user_name, #lab_password
 {
     border-image: url(:/res/icons/language_1.png);
 }
+
+.QLabel#lab_pb
+{
+		font-size: 16px;
+		color: rgb(255, 255, 255);
+}

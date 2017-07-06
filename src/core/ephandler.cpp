@@ -1,4 +1,4 @@
-﻿#include "mainwindow/ephandler.h"
+﻿#include "./core/ephandler.h"
 
 
 ErrorCode EPHandler::prepareEnv()
@@ -237,7 +237,7 @@ ErrorCode EPHandler::callEplus(QString filePath, QString weatherFileName)
 
         if (p_proc->waitForStarted())
         {
-            if(p_proc->waitForFinished(30000))
+            if(p_proc->waitForFinished(50000))
             {
                 if (0 == p_proc->exitCode())
                 {

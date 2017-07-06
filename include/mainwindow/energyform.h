@@ -1,4 +1,4 @@
-﻿#ifndef ENERGYFORM_H
+﻿ #ifndef ENERGYFORM_H
 #define ENERGYFORM_H
 #include <QtCore>
 #include <algorithm>

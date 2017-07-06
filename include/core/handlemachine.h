@@ -40,20 +40,23 @@ public:
 
 
 class OperateFactory {
+private:
+    OperateFactory() {}
 public:
-    static OperatePackage opElectricEquipment(const double roomSize, const double tvKW, const double fridgeKW, const double otherDevKW,
+    static OperateFactory* instance();
+    OperatePackage opElectricEquipment(const double roomSize, const double tvKW, const double fridgeKW, const double otherDevKW,
                                            const double tvUseNum = 1.0, const double fridgeUseNum = 1.0, const double otherDevUseNum = 1.0);
-    static OperatePackage opElectricEquipment(const double retAverageW);
+    OperatePackage opElectricEquipment(const double retAverageW);
 
-    static OperatePackage opLights(const double roomSize, const double lightKW, const double lightUseNum = 1.0);
-    static OperatePackage opLights(const double retAverageW);
+    OperatePackage opLights(const double roomSize, const double lightKW, const double lightUseNum = 1.0);
+    OperatePackage opLights(const double retAverageW);
 
-    static OperatePackage opSchComByTempOffset(const QTime startTime, const unsigned int keepHours, const unsigned int tempOffset, const bool isCool = true);
-    static OperatePackage opSchComByTempOffset(const unsigned int tempOffset, const bool isCool = true);
+    OperatePackage opSchComByTempOffset(const QTime startTime, const unsigned int keepHours, const unsigned int tempOffset, const bool isCool = true);
+    OperatePackage opSchComByTempOffset(const unsigned int tempOffset, const bool isCool = true);
 
-    static OperatePackage opSchComByTemp(const unsigned int temperature, const bool isCool = true);
+    OperatePackage opSchComByTemp(const unsigned int temperature, const bool isCool = true);
 
-    static OperatePackage opTimeSpan(const unsigned int quarter);
+    OperatePackage opTimeSpan(const unsigned int quarter);
 };
 
 #endif // HANDLEMACHINE_H

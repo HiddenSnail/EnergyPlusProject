@@ -1,12 +1,14 @@
 ﻿#include "qerrorobject.h"
 
-//------------------------------Class QErrorObject-------------------------------------
+//---Class QErrorObject---//
 
 QErrorObject *_P_ERR_OBJ_ = QErrorObject::instance();
 
 std::map<std::string, Error> QErrorObject::_errorMap
 {
     {"SUCCESS", Error(0, "Success", Error::SUCCESS)},
+    {"OPERANDS_ERR", Error(10 ,"Operands type conflict", Error::EXCEPTION)},
+    {"OVERFLOW", Error(11, "Container overflow", Error::EXCEPTION)},
     {"UNEXP_ERR", Error(-1, "Unexcpected error happen", Error::FATAL)},
     {"FILE_OPEN_FAIL", Error(101, "File open fail", Error::FATAL)},
     {"FILE_MISS", Error(102, "File missing", Error::FATAL)},
@@ -17,8 +19,8 @@ std::map<std::string, Error> QErrorObject::_errorMap
     {"EXC_ERR", Error(130, "Program can't excuted", Error::FATAL)},
     {"EXC_TIMEOUT", Error(131, "Program excuted timeout", Error::EXCEPTION)},
     {"START_FAIL", Error(132, "Program start fail", Error::FATAL)},
-    {"PARA_ERR", Error(140, "Parameter error", Error::FATAL)},
-    {"SYS_FUNC_ERR", Error(141, "System function error", Error::FATAL)}
+    {"PARA_ERR", Error(140, "Parameter error", Error::EXCEPTION)},
+    {"SYS_FUNC_ERR", Error(141, "System function error", Error::FATAL)},
 };
 
 
@@ -64,8 +66,7 @@ ErrorCode QErrorObject::addError(const QString errorKey, const QString detail)
     return addError(errorKey.toStdString(), detail.toStdString());
 }
 
-//------------------------------------Class QErrorHandler-------------------------------
-
+//---Class QErrorHandler---//
 QErrorHandler *_P_ERR_HDL_ = QErrorHandler::instance();
 
 QErrorHandler* QErrorHandler::instance()
@@ -87,6 +88,14 @@ void QErrorHandler::doSuccess()
     Error e;
     _P_ERR_OBJ_->getError(e);
     handle(e);
+    QFile errorFile("error.log");
+    if (errorFile.open(QFile::Append))
+    {
+        QTextStream outStream(&errorFile);
+        outStream.setCodec("UTF-8");
+        outStream << QString::fromStdString(e.content()) << "\n";
+        errorFile.close();
+    }
     _mutex.unlock();
 }
 
@@ -97,6 +106,14 @@ void QErrorHandler::doException()
     Error e;
     _P_ERR_OBJ_->getError(e);
     handle(e);
+    QFile errorFile("error.log");
+    if (errorFile.open(QFile::Append))
+    {
+        QTextStream outStream(&errorFile);
+        outStream.setCodec("UTF-8");
+        outStream << QString::fromStdString(e.content()) << "\n";
+        errorFile.close();
+    }
     _mutex.unlock();
 }
 
@@ -107,11 +124,19 @@ void QErrorHandler::doFatal()
     Error e;
     _P_ERR_OBJ_->getError(e);
     handle(e);
-    exit(e._eCode);
+    QFile errorFile("error.log");
+    if (errorFile.open(QFile::Append))
+    {
+        QTextStream outStream(&errorFile);
+        outStream.setCodec("UTF-8");
+        outStream << QString::fromStdString(e.content()) << "\n";
+        errorFile.close();
+    }
     _mutex.unlock();
+    exit(e._eCode);
 }
 
-//---------------------------------------Install function--------------------------------------------
+//---Install function---//
 void installErrorHandler()
 {
     QObject::connect(_P_ERR_OBJ_, &QErrorObject::successSig, _P_ERR_HDL_, &QErrorHandler::doSuccess);

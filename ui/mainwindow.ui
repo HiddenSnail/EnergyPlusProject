@@ -1169,7 +1169,7 @@ background-color: rgb(225, 242, 253);</string>
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="0,3,1,0,1,0">
+             <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="0,3,1">
               <property name="spacing">
                <number>0</number>
               </property>
@@ -1231,115 +1231,17 @@ background-color: rgb(225, 242, 253);</string>
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_sec2_quarter">
+               <widget class="QPushButton" name="btn_sec2_quarter">
                 <property name="minimumSize">
                  <size>
-                  <width>38</width>
+                  <width>82</width>
                   <height>22</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>50</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>22</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>1</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>2</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>3</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>4</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_8">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>15</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edit_sec2_quarter">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>60</width>
-                  <height>22</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">border: 2px solid rgb(202, 202, 202);
-border-radius: 0;
-background-color: rgb(255, 255, 255);</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="lab_sec2_percent2">
-                <property name="minimumSize">
-                 <size>
-                  <width>22</width>
-                  <height>22</height>
+                  <width>122</width>
+                  <height>30</height>
                  </size>
                 </property>
                 <property name="font">
@@ -1348,7 +1250,7 @@ background-color: rgb(255, 255, 255);</string>
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;%&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>设置</string>
                 </property>
                </widget>
               </item>
@@ -2644,6 +2546,9 @@ text-align:center;</string>
                   <pointsize>6</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>18℃-28℃</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true"/>
                 </property>
@@ -2731,6 +2636,9 @@ text-align:center;</string>
                  <font>
                   <pointsize>6</pointsize>
                  </font>
+                </property>
+                <property name="toolTip">
+                 <string>18℃-28℃</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true"/>
@@ -3480,6 +3388,9 @@ border-radius:0;</string>
                   <pointsize>6</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>18℃-28℃</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true"/>
                 </property>
@@ -3567,6 +3478,9 @@ border-radius:0;</string>
                  <font>
                   <pointsize>6</pointsize>
                  </font>
+                </property>
+                <property name="toolTip">
+                 <string>18℃-28℃</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true"/>
@@ -4915,13 +4829,13 @@ border-style:none;</string>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="btng_sec6_newWind_2"/>
-  <buttongroup name="btng_sec3_leaveRoom"/>
-  <buttongroup name="btng_sec2_rentRateType"/>
-  <buttongroup name="btng_sec5_machineType"/>
-  <buttongroup name="bntg_sec4_elecType"/>
-  <buttongroup name="btng_sec6_keepTemp"/>
-  <buttongroup name="btng_sec5_pipType"/>
   <buttongroup name="btng_sec3_checkOut"/>
+  <buttongroup name="btng_sec5_pipType"/>
+  <buttongroup name="btng_sec5_machineType"/>
+  <buttongroup name="btng_sec6_keepTemp"/>
+  <buttongroup name="btng_sec2_rentRateType"/>
+  <buttongroup name="btng_sec3_leaveRoom"/>
+  <buttongroup name="bntg_sec4_elecType"/>
+  <buttongroup name="btng_sec6_newWind_2"/>
  </buttongroups>
 </ui>

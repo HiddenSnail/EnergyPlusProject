@@ -1,5 +1,4 @@
-﻿#include "./mainwindow/handlemachine.h"
-
+﻿#include "./core/handlemachine.h"
 
 HandleMachine::HandleMachine(QString sourceFilePath)
 {
@@ -527,6 +526,13 @@ bool HandleMachine::separate(QStringList fileNameList, ErrorCode *pErrCode)
 
 
 //--------------------------------Class OpHandleFuncCreator-----------------------------------
+
+OperateFactory* OperateFactory::instance()
+{
+    static OperateFactory operateFactory;
+    return &operateFactory;
+}
+
 
 /**
  * @brief OperateFactory::calElecEqtWatts >> 计算房间除照明外其它设备的单位面积功率

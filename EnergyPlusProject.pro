@@ -16,23 +16,28 @@ HEADERS += \
     include/global/stdafx.h \
     include/login/loginwindow.h \
     include/mainwindow/energyform.h \
-    include/mainwindow/handlemachine.h \
     include/mainwindow/mainwindow.h \
     utils/csvreader/csvreader.h \
     utils/pathmanager/pathmanager.h \
     utils/custom_validator.hpp \
-    utils/custom_widget.hpp \
     utils/mcinfo/mcinfo.h \
     include/login/usraccount.h \
     include/mainwindow/set_rate_diaglog.h \
-    include/mainwindow/ephandler.h \
     include/qerrorobject.h \
     utils/error/error.h \
-    utils/no_class_funcs.h
+    utils/no_class_funcs.h \
+    include/core/ephandler.h \
+    include/core/handlemachine.h \
+    include/core/all.h \
+    include/core/column.h \
+    include/core/roomstate.h \
+    include/core/sheet.h \
+    include/core/processor.h \
+    include/mainwindow/quarter_dialog.h \
+    utils/custom_widget.h
 
 SOURCES += \
     src/login/loginwindow.cpp \
-    src/mainwindow/handlemachine.cpp \
     src/mainwindow/mainwindow.cpp \
     src/main.cpp \
     utils/csvreader/csvreader.cpp \
@@ -40,10 +45,17 @@ SOURCES += \
     utils/mcinfo/mcinfo.cpp \
     src/login/usraccount.cpp \
     src/mainwindow/set_rate_dialog.cpp \
-    src/mainwindow/ephandler.cpp \
     src/qerrorobject.cpp \
     utils/error/error.cpp \
-    utils/no_class_funcs.cpp
+    utils/no_class_funcs.cpp \
+    src/core/ephandler.cpp \
+    src/core/handlemachine.cpp \
+    src/core/column.cpp \
+    src/core/roomstate.cpp \
+    src/core/sheet.cpp \
+    src/core/processor.cpp \
+    src/mainwindow/quarter_dialog.cpp \
+    utils/custom_widget.cpp
 
 DISTFILES += \
     README.md \
@@ -60,7 +72,8 @@ DISTFILES += \
 FORMS += \
     ui/loginwindow.ui \
     ui/mainwindow.ui \
-    ui/set_rate_dialog.ui
+    ui/set_rate_dialog.ui \
+    ui/quarter_dialog.ui
 
 RESOURCES += \
     res.qrc

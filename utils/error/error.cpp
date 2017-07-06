@@ -52,7 +52,7 @@ std::string Error::content() const
     return info;
 }
 
-//----------------------------------Class ErrorHolder---------------------------------
+//----------------------------------Class ErrorHolder---------------------------------//
 
 void ErrorHolder::addError(const Error &error)
 {

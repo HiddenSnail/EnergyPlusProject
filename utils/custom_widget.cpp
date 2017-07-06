@@ -1,14 +1,4 @@
-﻿#ifndef CUSTOM_WIDGET_HPP
-#define CUSTOM_WIDGET_HPP
-#include <QLabel>
-#include <QProgressBar>
-#include <QPushButton>
-#include <QProgressDialog>
-
-class CustomProgressDialog: public QProgressDialog {
-public:
-    CustomProgressDialog(QWidget *parent = Q_NULLPTR);
-};
+﻿#include "custom_widget.h"
 
 CustomProgressDialog::CustomProgressDialog(QWidget *parent)
     :QProgressDialog(parent)
@@ -52,4 +42,59 @@ CustomProgressDialog::CustomProgressDialog(QWidget *parent)
 
 }
 
-#endif //CUSTOM_WIDGET_HPP
+void CustomProgressDialog::update(int stepId, QString detail)
+{
+    QTimer *timer = new QTimer();
+    int toValue = 0;
+    switch (stepId) {
+    case 0:
+        toValue = 10;
+        break;
+    case 1:
+        toValue = 45;
+        break;
+    case 2:
+        toValue = 85;
+        break;
+    case 3:
+        toValue = 100;
+        break;
+    default:
+    {
+        exit (9090);
+        break;
+    }
+    }
+
+    connect(timer, &QTimer::timeout, [=](){
+        int value = this->value();
+        if (value < toValue - 1)
+        {
+            this->setValue(value + 1);
+        }
+        else
+        {
+            timer->stop();
+            delete timer;
+            this->setValue(value + 1);
+            this->setLabelText(detail);
+            switch (stepId) {
+            case 0:
+                emit lSignal();
+                break;
+            case 1:
+                emit zSignal();
+                break;
+            case 2:
+                emit rSignal();
+                break;
+            case 3:
+                emit showSignal();
+                break;
+            default:
+                break;
+            }
+        }
+    });
+    timer->start(50);
+}

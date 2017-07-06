@@ -1,0 +1,24 @@
+* {
+  font-family: 'Microsoft YaHei';
+  font-size: 20px;
+}
+
+/*.QPushButton#btn_ok
+{
+  color: rgb(0, 0, 0);
+  background-color: rgb(230, 230, 230);
+  border-style: none;
+  font-size: 20px;
+  border-radius: 2px;
+  padding: 5px 50px;
+}
+
+.QPushButton#btn_ok:hover
+{
+  background-color: rgb(225, 242, 253);
+}
+
+.QPushButton#btn_ok:pressed
+{
+  background-color: rgb(192, 227, 250);
+}*/

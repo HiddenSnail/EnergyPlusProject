@@ -7,5 +7,7 @@
         <file>res/stylesheet/login.qss</file>
         <file>res/stylesheet/main.qss</file>
         <file>res/stylesheet/rate_dialog.qss</file>
+        <file>res/stylesheet/quarter_dialog.qss</file>
+        <file>res/icons/ep.png</file>
     </qresource>
 </RCC>
