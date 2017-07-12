@@ -6,13 +6,13 @@
 #include "./core/processor.h"
 #include "./mainwindow/quarter_dialog.h"
 #include <string>
+
 using namespace std;
 
 int main(int arg, char* argv[]) {
     qInstallMessageHandler(debugMessage);
     installErrorHandler();
     QApplication app(arg, argv);
-
     MainWindow win;
     QFile qssFile(":/res/stylesheet/main.qss");
     if(qssFile.open(QFile::ReadOnly)) {
@@ -40,5 +40,6 @@ int main(int arg, char* argv[]) {
     QObject::connect(&loginWin, &LoginWindow::updateLang, &win, &MainWindow::setLanguage);
 
     loginWin.login();
+
     return app.exec();
 }

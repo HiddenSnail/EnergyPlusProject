@@ -50,7 +50,6 @@ SOURCES += \
     utils/no_class_funcs.cpp \
     src/core/ephandler.cpp \
     src/core/handlemachine.cpp \
-    src/core/column.cpp \
     src/core/roomstate.cpp \
     src/core/sheet.cpp \
     src/core/processor.cpp \

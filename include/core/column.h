@@ -1,36 +1,30 @@
 ﻿#pragma once
 #include <QtCore>
 
-//用于进行列操作的Column类型, E必须是int,double,float三种类型中的一种
+//用于进行列操作的Column类型
 template<typename E>
 struct Column {
-    template<typename T>
-    friend Column<T> operator + (const Column<T> &lhs, const Column<T> &rhs);
-    template<typename T>
-    friend Column<T> operator + (const Column<T> &lhs, const double &rhs);
-    template<typename T>
-    friend Column<T> operator + (const double &lhs, const Column<E> &rhs);
-    template<typename T>
-    friend Column<T> operator - (const Column<T> &lhs, const Column<T> &rhs);
-    template<typename T>
-    friend Column<T> operator - (const Column<T> &lhs, const double &rhs);
-    template<typename T>
-    friend Column<T> operator * (const Column<T> &lhs, const Column<T> &rhs);
-    template<typename T>
-    friend Column<T> operator * (const Column<T> &lhs, const double &rhs);
-    template<typename T>
-    friend Column<T> operator * (const double &lhs, const Column<E> &rhs);
-    template<typename T>
-    friend Column<T> operator - (const Column<T> &lhs, const Column<T> &rhs);
-    template<typename T>
-    friend Column<T> operator - (const Column<T> &lhs, const double &rhs);
+    template<typename T, typename S>
+    friend Column<T> operator + (const Column<T> &lhs, const S &rhs);
+
+    template<typename T, typename S>
+    friend Column<T> operator - (const Column<T> &lhs, const S &rhs);
+
+    template<typename T, typename S>
+    friend Column<T> operator * (const Column<T> &lhs, const S &rhs);
+
+    template<typename T, typename S>
+    friend Column<T> operator / (const Column<T> &lhs, const S &rhs);
 protected:
     QVector<E> _data;
 public:
     Column();
-    explicit Column(const QVector<E> &columnData);
+    Column(const QVector<E> &columnData);
+    Column(const E val);
     Column(const unsigned int size, const E data);
     Column(const Column<E> &column);
+    //花括号构造函数
+    Column(const std::initializer_list<E> &list);
     void changeData(const QVector<E> &columnData);
     QVector<E>& data();
     int size() const;
@@ -41,17 +35,25 @@ public:
     void replace(const E &oldData, const E &newData);
     void replace(std::function<bool(E)> condition, const E &newData);
     E sum() const;
+    //类型转换函数
+    template<typename S>
+    operator Column<S> () const;
     Column<E>& operator = (const Column<E> &rhs);
     Column<E>& operator += (const Column<E> &rhs);
-    Column<E>& operator += (const double &rhs);
     Column<E>& operator -= (const Column<E> &rhs);
-    Column<E>& operator -= (const double &rhs);
     Column<E>& operator *= (const Column<E> &rhs);
-    Column<E>& operator *= (const double &rhs);
+    //除法除数0，会使整个column为0
     Column<E>& operator /= (const Column<E> &rhs);
-    Column<E>& operator /= (const double &rhs);
     E& operator [] (const int index);
+    void show();
 };
+
+
+template<typename E>
+void Column<E>::show()
+{
+    qDebug() << _data;
+}
 
 template<typename E>
 Column<E>::Column()
@@ -74,6 +76,12 @@ Column<E>::Column(const QVector<E> &columnData)
 }
 
 template<typename E>
+Column<E>::Column(const E val)
+{
+    _data = QVector<E>(1, val);
+}
+
+template<typename E>
 Column<E>::Column(const unsigned int size, const E data)
 {
     _data.clear();
@@ -87,6 +95,14 @@ template<typename E>
 Column<E>::Column(const Column<E> &column)
 {
     *this = column;
+}
+
+//花括号构造函数
+template<typename E>
+Column<E>::Column(const std::initializer_list<E> &list)
+{
+    QVector<E> vec(list);
+    _data = vec;
 }
 
 template<typename E>
@@ -163,6 +179,18 @@ E Column<E>::sum() const
 }
 
 template<typename E>
+template<typename S>
+Column<E>::operator Column<S> () const
+{
+    Column<S> col;
+    for (auto &data: _data)
+    {
+        col.push_back(S(data));
+    }
+    return col;
+}
+
+template<typename E>
 Column<E>& Column<E>::operator = (const Column<E> &rhs)
 {
     if (this != &rhs)
@@ -187,17 +215,6 @@ Column<E>& Column<E>::operator += (const Column<E> &rhs)
 }
 
 template<typename E>
-Column<E>& Column<E>::operator += (const double &rhs)
-{
-
-    for (int index = 0; index < _data.size(); index++)
-    {
-        _data[index] += rhs;
-    }
-    return *this;
-}
-
-template<typename E>
 Column<E>& Column<E>::operator -= (const Column<E> &rhs)
 {
     if (rhs.size() > 0)
@@ -212,16 +229,6 @@ Column<E>& Column<E>::operator -= (const Column<E> &rhs)
 }
 
 template<typename E>
-Column<E>& Column<E>::operator -= (const double &rhs)
-{
-    for (int index = 0; index < _data.size(); index++)
-    {
-        _data[index] -= rhs;
-    }
-    return *this;
-}
-
-template<typename E>
 Column<E>& Column<E>::operator *= (const Column<E> &rhs)
 {
     if (rhs.size() > 0)
@@ -231,16 +238,6 @@ Column<E>& Column<E>::operator *= (const Column<E> &rhs)
         {
             _data[index] *= rhs._data[index%modNum];
         }
-    }
-    return *this;
-}
-
-template<typename E>
-Column<E>& Column<E>::operator *= (const double &rhs)
-{
-    for (int index = 0; index < _data.size(); index++)
-    {
-        _data[index] *= rhs;
     }
     return *this;
 }
@@ -267,16 +264,6 @@ Column<E>& Column<E>::operator /= (const Column<E> &rhs)
 }
 
 template<typename E>
-Column<E>& Column<E>::operator /= (const double &rhs)
-{
-    for (int index = 0; index < _data.size(); index++)
-    {
-        _data[index] = (rhs != 0) ? (_data[index] / rhs) : _data[index];
-    }
-    return *this;
-}
-
-template<typename E>
 E& Column<E>::operator [] (const int index)
 {
     return _data[index];
@@ -284,85 +271,37 @@ E& Column<E>::operator [] (const int index)
 
 //------------------------------------friend functions------------------------------------
 //operator +
-template<typename T>
-Column<T> operator + (const Column<T> &lhs, const Column<T> &rhs)
+template<typename T, typename S>
+Column<T> operator + (const Column<T> &lhs, const S &rhs)
 {
     Column<T> res(lhs);
-    res += rhs;
-    return res;
-}
-
-template<typename T>
-Column<T> operator + (const Column<T> &lhs, const double &rhs)
-{
-    Column<T> res(lhs);
-    res += rhs;
-    return res;
-}
-
-template<typename T>
-Column<T> operator + (const double &lhs, const Column<T> &rhs)
-{
-    Column<T> res(rhs);
-    res += lhs;
+    res += Column<T>(rhs);
     return res;
 }
 
 //operator -
-template<typename T>
-Column<T> operator - (const Column<T> &lhs, const Column<T> &rhs)
+template<typename T, typename S>
+Column<T> operator - (const Column<T> &lhs, const S &rhs)
 {
     Column<T> res(lhs);
-    res -= rhs;
-    return res;
-}
-
-template<typename T>
-Column<T> operator - (const Column<T> &lhs, const double &rhs)
-{
-    Column<T> res(lhs);
-    res -= rhs;
+    res -= Column<T>(rhs);
     return res;
 }
 
 //operator *
-template<typename T>
-Column<T> operator * (const Column<T> &lhs, const Column<T> &rhs)
+template<typename T, typename S>
+Column<T> operator * (const Column<T> &lhs, const S &rhs)
 {
     Column<T> res(lhs);
-    res *= rhs;
-    return res;
-}
-
-template<typename T>
-Column<T> operator * (const Column<T> &lhs, const double &rhs)
-{
-    Column<T> res(lhs);
-    res *= rhs;
-    return res;
-}
-
-template<typename T>
-Column<T> operator * (const double &lhs, const Column<T> &rhs)
-{
-    Column<T> res(rhs);
-    res *= lhs;
+    res *= Column<T>(rhs);
     return res;
 }
 
 //operator /
-template<typename T>
-Column<T> operator / (const Column<T> &lhs, const Column<T> &rhs)
+template<typename T, typename S>
+Column<T> operator / (const Column<T> &lhs, const S &rhs)
 {
     Column<T> res(lhs);
-    res /= rhs;
-    return res;
-}
-
-template<typename T>
-Column<T> operator / (const Column<T> &lhs, const double &rhs)
-{
-    Column<T> res(lhs);
-    res /= rhs;
+    res /= Column<T>(rhs);
     return res;
 }

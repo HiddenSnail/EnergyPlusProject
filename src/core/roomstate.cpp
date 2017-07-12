@@ -104,7 +104,7 @@ void RoomState::analyze()
         int noRentedRooms = (int)ceil(_totalRooms*(1 - _rentalRate));
         //已租房间数
         int rentedRooms = _totalRooms - noRentedRooms;
-        for(double rentalRate: _inRoomRateVec)
+        for(double rentalRate: _inRoomRateVec.data())
         {
             //每小时已租无人房间数
             int rentedNoPeRooms = ceil(rentedRooms * (1 - rentalRate)* (1 - _keepOnRate));

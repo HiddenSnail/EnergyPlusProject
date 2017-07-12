@@ -910,7 +910,7 @@ void MainWindow::rStep()
         {
             keepOnRate = 0;
         }
-        QVector<double> inRoomRateVec = _pRateDialog->getInRoomRateList().toVector();
+        D24hVector inRoomRateVec = _pRateDialog->getInRoomRateList().toVector();
 
         double deviceKW = ui->edit_sec7_TV->text().toDouble() * ui->edit_sec7_TVUsingNum->text().toDouble()
                 + ui->edit_sec7_fridge->text().toDouble() + ui->edit_sec7_otherDevice->text().toDouble();

@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include <QtCore>
+#include "column.h"
 
-typedef QVector<double> D24hVector; //24小时的double数据向量类型,长度要为24
-typedef QVector<int> I24hVector; //24小时的int数据向量类型,长度要为24
+typedef Column<double> D24hVector; //24小时的double数据向量类型,长度要为24
+typedef Column<int> I24hVector; //24小时的int数据向量类型,长度要为24
 
 class RoomState {
 private:

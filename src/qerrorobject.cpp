@@ -20,7 +20,7 @@ std::map<std::string, Error> QErrorObject::_errorMap
     {"EXC_TIMEOUT", Error(131, "Program excuted timeout", Error::EXCEPTION)},
     {"START_FAIL", Error(132, "Program start fail", Error::FATAL)},
     {"PARA_ERR", Error(140, "Parameter error", Error::EXCEPTION)},
-    {"SYS_FUNC_ERR", Error(141, "System function error", Error::FATAL)},
+    {"SYS_FUNC_ERR", Error(141, "System function error", Error::FATAL)}
 };
 
 

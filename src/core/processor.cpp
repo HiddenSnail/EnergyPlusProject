@@ -64,12 +64,7 @@ HCFSheet RawDataSheetProcessor::produceHCFSheet(RoomState::RoomType roomType)
         double sRate = (double)_roomState.getSouthRoomsNumber()/_roomState.getTotalRoomsNumber();
         double nRate = (double)_roomState.getNorthRoomsNumber()/_roomState.getTotalRoomsNumber();
         double dsRate = 0.25;
-        QVector<int> roomsVec = _roomState.getRoomsVec(roomType);
-        Column<double> roomsCol;
-        for (auto data: roomsVec)
-        {
-            roomsCol.push_back((double)data);
-        }
+        Column<int> roomsCol = _roomState.getRoomsVec(roomType);
         sheet._heatLoad = _dataSheet[RawDataSheet::eHeatCol]*roomsCol*eRate +
                 _dataSheet[RawDataSheet::wHeatCol]*roomsCol*wRate +
                 _dataSheet[RawDataSheet::sHeatCol]*roomsCol*sRate +
@@ -205,16 +200,12 @@ EnergySheet HCFSheetProcessor::mainProcess(HCFSheet hcfSheet, RoomState roomStat
     EnergySheet result;
     double deviceWatts = roomState.getDeviceKW() * 1000;
     double lightWatts = roomState.getLightKW() * 1000;
-    QVector<int> roomVec = roomState.getRoomsVec(type);
-    Column<double> roomCol;
-    for (auto data: roomVec)
-    {
-        roomCol.push_back((double)data);
-    }
+    Column<int> roomCol = roomState.getRoomsVec(type);
+
     result[EnergySheet::Device] = Column<double>(hcfSheet._coolLoad.size(), 1);
-    result[EnergySheet::Device] *= 3600 * deviceWatts * roomCol * _deviceRatioCol;
+    result[EnergySheet::Device] *= roomCol * deviceWatts * 3600 * _deviceRatioCol;
     result[EnergySheet::Light] = Column<double>(hcfSheet._coolLoad.size(), 1);
-    result[EnergySheet::Light] *= 3600 * lightWatts * roomCol * _lightRatioCol;
+    result[EnergySheet::Light] *= roomCol * lightWatts * 3600 * _lightRatioCol;
 
     static double maxHeatLoad = 0;
     static double maxCoolLoad = 0;
@@ -284,8 +275,8 @@ EnergySheet HCFSheetProcessor::mainProcess(HCFSheet hcfSheet, RoomState roomStat
     Column<double> partLoadPercentPLRCol = runningCooMachineLoadCol / screwCapacity;
 
     //8760小时,每个时刻的修正曲线值
-    Column<double> correctedValueCol = 0.5958 + 1.5534* partLoadPercentPLRCol
-            - 1.1552 *  partLoadPercentPLRCol * partLoadPercentPLRCol;
+    Column<double> correctedValueCol = partLoadPercentPLRCol * 1.5534
+            - partLoadPercentPLRCol * partLoadPercentPLRCol * 1.1552 +  0.5958;
 
     //8760小时,每个时刻的COP值
     Column<double> currentCopCol = correctedValueCol * cop;
@@ -300,14 +291,13 @@ EnergySheet HCFSheetProcessor::mainProcess(HCFSheet hcfSheet, RoomState roomStat
     Column<double> boilerPLRCol = hcfSheet._heatLoad / boilerCapacity;
 
     //8760小时,每个时刻的锅炉实际效率
-    Column<double> realEffCol = 0.8 * (0.97 + 0.0633 * boilerPLRCol - 0.0333 *  boilerPLRCol *  boilerPLRCol);
+    Column<double> realEffCol = (boilerPLRCol * 0.0633 - boilerPLRCol *  boilerPLRCol * 0.0333 + 0.97) * 0.8;
 
     //8760小时,每个时刻的锅炉能耗(J)
     result[EnergySheet::BoilerFuelUse] = hcfSheet._heatLoad / realEffCol;
 
     //8760小时,每个时刻每台冷却塔的总散热量(W)
-    Column<double> perCooTowerLoseHeatCol = (1 + Column<double>(currentCopCol.size(), 1)
-                                             / currentCopCol) * runningCooMachineLoadCol;
+    Column<double> perCooTowerLoseHeatCol = (Column<double>(currentCopCol.size(), 1) / currentCopCol + 1) * runningCooMachineLoadCol;
 
     //获取冷却塔的最大散热量(W)
     double maxCooTowerLoseHeat = *std::max_element(perCooTowerLoseHeatCol.data().begin(),
@@ -317,32 +307,32 @@ EnergySheet HCFSheetProcessor::mainProcess(HCFSheet hcfSheet, RoomState roomStat
     double cooTowerFanWatts = 0.0088 * maxCooTowerLoseHeat - 1.1766;
 
     //8760小时,每个时刻每台冷却塔风机的功率(W)
-    Column<double> cooTowerFanWattsCol = (0.35071223 + 0.30850535 * partLoadPercentPLRCol - 0.54137364 * partLoadPercentPLRCol * partLoadPercentPLRCol +
-                                          0.87198823 * partLoadPercentPLRCol * partLoadPercentPLRCol * partLoadPercentPLRCol) * cooTowerFanWatts;
+    Column<double> cooTowerFanWattsCol = (partLoadPercentPLRCol * 0.30850535 - partLoadPercentPLRCol * 0.54137364 * partLoadPercentPLRCol +
+                                          partLoadPercentPLRCol * 0.87198823 * partLoadPercentPLRCol * partLoadPercentPLRCol + 0.35071223) * cooTowerFanWatts;
 
     //8760小时,每个时刻冷却塔的能耗(J)
-    result[EnergySheet::CooTower] = 3600 * cooTowerFanWattsCol * runningCooMachineNumCol;
+    result[EnergySheet::CooTower] = cooTowerFanWattsCol * 3600 * runningCooMachineNumCol;
 
     //8760小时,每个时刻的冷冻水泵当前功率(W)
     Column<double> freWaterPumpWattsCol = partLoadPercentPLRCol * freWaterPumpWatts;
 
     //8760小时,每个时刻的冷冻水泵能耗(J)
-    result[EnergySheet::FreWaterPump] = 3600 * freWaterPumpWattsCol * runningCooMachineNumCol;
+    result[EnergySheet::FreWaterPump] = freWaterPumpWattsCol * 3600 * runningCooMachineNumCol;
 
     //8760小时,每个时刻的冷却水泵当前功率(W)
     Column<double> cooWaterPumpWattsCol = partLoadPercentPLRCol * cooWaterPumpWatts;
 
     //8760小时,每个时刻的冷却水泵能耗(J)
-    result[EnergySheet::CooWaterPump] = 3600 * cooWaterPumpWattsCol * runningCooMachineNumCol;
+    result[EnergySheet::CooWaterPump] = cooWaterPumpWattsCol * 3600 * runningCooMachineNumCol;
 
     //8760小时,每个时刻的热水泵当前功率(W)
     Column<double> hotWaterPumpWattsCol = boilerPLRCol * hotWaterPumpWatts;
 
     //8760小时,每个时刻的热水泵能耗(J)
-    result[EnergySheet::HotWaterPump] = 3600 * hotWaterPumpWattsCol;
+    result[EnergySheet::HotWaterPump] = hotWaterPumpWattsCol * 3600;
 
     //8760小时,每个时刻的风机能耗(J)
-    result[EnergySheet::Fan] = 3600 * hcfSheet._fansWatts;
+    result[EnergySheet::Fan] = hcfSheet._fansWatts * 3600;
 
     return result;
 }
