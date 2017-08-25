@@ -7,12 +7,19 @@ LoginWindow::LoginWindow(QWidget *parent):
     ui(new Ui::LoginWindow)
 {
     ui->setupUi(this);
-    QImage backGround(":/res/icons/login.jpg");
+    this->setWindowTitle("DELITEK");
+    QImage backGround(":/res/icons/background.jpg");
     ui->centralwidget->setAutoFillBackground(true);   // 这个属性一定要设置
     QPalette pal;
     pal.setBrush(QPalette::Window, QBrush(backGround.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
     ui->centralwidget->setPalette(pal);
     ui->edit_user_name->setReadOnly(true);
+    QFile qssFile(":/res/stylesheet/login.qss");
+    if(qssFile.open(QFile::ReadOnly))
+    {
+        this->setStyleSheet(qssFile.readAll());
+        qssFile.close();
+    }
     inputUserId();
 }
 
@@ -50,26 +57,6 @@ void LoginWindow::on_btn_login_clicked()
     }
 }
 
-void LoginWindow::on_btn_lang_clicked()
-{
-    static bool isChinese = true;
-    if (isChinese)
-    {
-        ui->btn_lang->setStyleSheet(".QPushButton#btn_lang {"\
-                                    "border-image: url(:/res/icons/language_2.png);"
-                                    "}");
-        emit updateLang(MainWindow::English);
-    }
-    else
-    {
-        ui->btn_lang->setStyleSheet(".QPushButton#btn_lang {"\
-                                    "border-image: url(:/res/icons/language_1.png);"\
-                                    "}");
-         emit updateLang(MainWindow::Chinese);
-    }
-    isChinese = !isChinese;
-}
-
 void LoginWindow::login()
 {
     QString password;
@@ -81,5 +68,20 @@ void LoginWindow::login()
     else
     {
         this->show();
+    }
+}
+
+void LoginWindow::on_btn_check_clicked()
+{
+    static bool isCheck = true;
+    if (isCheck)
+    {
+        ui->btn_check->setIcon(QIcon(":/res/icons/checkbox-off.png"));
+        isCheck = false;
+    }
+    else
+    {
+        ui->btn_check->setIcon(QIcon(":/res/icons/checkbox-on.png"));
+        isCheck = true;
     }
 }

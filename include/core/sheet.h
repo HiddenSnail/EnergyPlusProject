@@ -3,6 +3,8 @@
 #include "column.h"
 #include "./utils/csvreader/csvreader.h"
 
+
+//初始数据表单，从csv文件中直接读取
 struct RawDataSheet {
     static const int IgnoreLines = 49;
     enum TimeSpan {year = 0, quarter1, quarter2, quarter3, quarter4};
@@ -10,7 +12,7 @@ struct RawDataSheet {
                   eCoolCol, wCoolCol, sCoolCol, nCoolCol, dsCoolCol,
                   eFanCol, wFanCol, sFanCol, nFanCol};
 private:
-    std::map<ID, Column<double>> _memMap = {
+    QMap<ID, Column<double>> _memMap = {
         {eHeatCol, Column<double>()},
         {wHeatCol, Column<double>()},
         {sHeatCol, Column<double>()},
@@ -30,8 +32,8 @@ private:
     QStringList getSubSequence(const QStringList &list, const int begin, const int end);
 public:
     RawDataSheet() {}
-    RawDataSheet(QString csvFilePath, TimeSpan timeSpan = year);
     RawDataSheet(const RawDataSheet &sheet);
+    RawDataSheet(const QString &csvFilePath, const TimeSpan timeSpan = year);
     void setData(QString csvFilePath, TimeSpan timeSpan = year);
     bool isComplete() const;
     RawDataSheet& operator = (const RawDataSheet &rhs);
@@ -39,6 +41,7 @@ public:
 };
 
 
+//冷热负荷与风机能耗表单
 struct HCFSheet {
     friend HCFSheet operator + (const HCFSheet &lhs, const HCFSheet &rhs);
 public:
@@ -52,12 +55,14 @@ public:
     HCFSheet& operator += (const HCFSheet &rhs);
 };
 
+//能耗表单
 struct EnergySheet {
     friend EnergySheet operator + (const EnergySheet &lhs, const EnergySheet &rhs);
 public:
     enum ID {Light = 0, Device, CooMachine, BoilerFuelUse, CooTower,
             FreWaterPump, CooWaterPump, HotWaterPump, Fan};
-    std::map<ID, Column<double>> _memMap =
+    static QMap<QString, ID> _idMap;
+    QMap<ID, Column<double>> _memMap =
     {
         {Light, Column<double>()}, //照明能耗(J)
         {Device, Column<double>()}, //设备能耗(J)
@@ -73,8 +78,10 @@ public:
     EnergySheet(const EnergySheet &sheet);
     bool isComplete() const;
     double sum() const;
+    double sum(int begin, int length) const;
     EnergySheet& operator = (const EnergySheet &rhs);
     EnergySheet& operator += (const EnergySheet &rhs);
     Column<double>& operator [] (const ID id);
-    void saveToFile(QString filePath);
+    Column<double>& operator [] (const QString id);
+    void saveToFile(const QString filePath);
 };

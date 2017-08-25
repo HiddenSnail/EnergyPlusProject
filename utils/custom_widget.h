@@ -14,7 +14,7 @@ public:
 signals:
     void lSignal();
     void zSignal();
-    void rSignal();
+    void mSignal();
     void showSignal();
 };
 

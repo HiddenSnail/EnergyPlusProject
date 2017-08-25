@@ -1,13 +1,26 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/icons/language_1.png</file>
-        <file>res/icons/language_2.png</file>
+        <file>res/icons/account.png</file>
+        <file>res/icons/background.jpg</file>
+        <file>res/icons/checkbox-off.png</file>
+        <file>res/icons/checkbox-on.png</file>
+        <file>res/icons/chinese_off.png</file>
+        <file>res/icons/english_off.png</file>
+        <file>res/icons/ep.png</file>
+        <file>res/icons/L.png</file>
         <file>res/icons/login.jpg</file>
         <file>res/icons/logo.png</file>
+        <file>res/icons/password.png</file>
+        <file>res/icons/R.png</file>
+        <file>res/icons/rem.png</file>
+        <file>res/icons/tips.png</file>
+        <file>res/icons/title.png</file>
         <file>res/stylesheet/login.qss</file>
         <file>res/stylesheet/main.qss</file>
-        <file>res/stylesheet/rate_dialog.qss</file>
         <file>res/stylesheet/quarter_dialog.qss</file>
-        <file>res/icons/ep.png</file>
+        <file>res/stylesheet/rate_dialog.qss</file>
+        <file>res/icons/chinese_on.png</file>
+        <file>res/icons/english_on.png</file>
+        <file>res/icons/chart.png</file>
     </qresource>
 </RCC>

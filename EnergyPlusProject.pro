@@ -1,6 +1,13 @@
-QT += core gui
+QT += \
+    core gui \
+    charts \
+    testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+QMAKE_CXXFLAGS_RELEASE += -g
+QMAKE_CFLAGS_RELEASE += -g
+QMAKE_LFLAGS_RELEASE = -mthreads -Wl
 
 TARGET = EnergyPlusProject
 
@@ -15,7 +22,6 @@ HEADERS += \
     include/global/debug.h \
     include/global/stdafx.h \
     include/login/loginwindow.h \
-    include/mainwindow/energyform.h \
     include/mainwindow/mainwindow.h \
     utils/csvreader/csvreader.h \
     utils/pathmanager/pathmanager.h \
@@ -34,7 +40,12 @@ HEADERS += \
     include/core/sheet.h \
     include/core/processor.h \
     include/mainwindow/quarter_dialog.h \
-    utils/custom_widget.h
+    utils/custom_widget.h \
+    include/login/logo.h \
+    include/chart/drilldownchart.h \
+    include/chart/drilldownslice.h \
+    include/chart/datastage.h \
+    test/ColumnTest.h
 
 SOURCES += \
     src/login/loginwindow.cpp \
@@ -54,7 +65,12 @@ SOURCES += \
     src/core/sheet.cpp \
     src/core/processor.cpp \
     src/mainwindow/quarter_dialog.cpp \
-    utils/custom_widget.cpp
+    utils/custom_widget.cpp \
+    src/login/logo.cpp \
+    src/chart/drilldownchart.cpp \
+    src/chart/drilldownslice.cpp \
+    src/chart/datastage.cpp \
+    test/ColumnTest.cpp
 
 DISTFILES += \
     README.md \

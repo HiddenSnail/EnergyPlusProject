@@ -779,7 +779,6 @@ OperatePackage OperateFactory::opTimeSpan(const unsigned int quarter)
         }
         case 4:
         {
-            //year
             dataList << QString::number(10) << QString::number(1) << QString::number(12) << QString::number(31);
             break;
         }

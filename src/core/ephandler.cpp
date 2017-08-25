@@ -1,6 +1,5 @@
 ﻿#include "./core/ephandler.h"
 
-
 ErrorCode EPHandler::prepareEnv()
 {
     //修改Eplus的配置文件(.ini)
@@ -237,7 +236,7 @@ ErrorCode EPHandler::callEplus(QString filePath, QString weatherFileName)
 
         if (p_proc->waitForStarted())
         {
-            if(p_proc->waitForFinished(50000))
+            if(p_proc->waitForFinished(30*60000))
             {
                 if (0 == p_proc->exitCode())
                 {

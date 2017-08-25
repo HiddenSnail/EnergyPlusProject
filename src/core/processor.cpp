@@ -54,7 +54,7 @@ void RawDataSheetProcessor::fixFanWatts()
     }
 }
 
-HCFSheet RawDataSheetProcessor::produceHCFSheet(RoomState::RoomType roomType)
+HCFSheet RawDataSheetProcessor::produceHCFSheet(const RoomState::RoomType roomType)
 {
     HCFSheet sheet;
     if (isReady())
@@ -194,7 +194,7 @@ void HCFSheetProcessor::initScrewAndCOPVec()
     });
 }
 
-EnergySheet HCFSheetProcessor::mainProcess(HCFSheet hcfSheet, RoomState roomState,
+EnergySheet HCFSheetProcessor::mainProcess(HCFSheet &hcfSheet, RoomState &roomState,
                                            const RoomState::RoomType type, const bool isInheritCoreData)
 {
     EnergySheet result;
@@ -203,9 +203,9 @@ EnergySheet HCFSheetProcessor::mainProcess(HCFSheet hcfSheet, RoomState roomStat
     Column<int> roomCol = roomState.getRoomsVec(type);
 
     result[EnergySheet::Device] = Column<double>(hcfSheet._coolLoad.size(), 1);
-    result[EnergySheet::Device] *= roomCol * deviceWatts * 3600 * _deviceRatioCol;
-    result[EnergySheet::Light] = Column<double>(hcfSheet._coolLoad.size(), 1);
-    result[EnergySheet::Light] *= roomCol * lightWatts * 3600 * _lightRatioCol;
+    result[EnergySheet::Device] =  result[EnergySheet::Device] * roomCol * deviceWatts * 3600 * _deviceRatioCol;
+    result[EnergySheet::Light] = Column<double>(hcfSheet._coolLoad.size(), 1.0);
+    result[EnergySheet::Light] =  result[EnergySheet::Light] * roomCol * _lightRatioCol * lightWatts * 3600;
 
     static double maxHeatLoad = 0;
     static double maxCoolLoad = 0;

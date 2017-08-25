@@ -1,9 +1,7 @@
 ﻿#include "./core/sheet.h"
 #include <map>
 
-//---Struct RawDataSheet---//
-
-RawDataSheet::RawDataSheet(QString csvFilePath, TimeSpan timeSpan)
+RawDataSheet::RawDataSheet(const QString &csvFilePath, const TimeSpan timeSpan)
 {
     setData(csvFilePath, timeSpan);
 }
@@ -122,9 +120,9 @@ void RawDataSheet::setData(QString csvFilePath, TimeSpan timeSpan)
 
 bool RawDataSheet::isComplete() const
 {
-    for (auto &pair: _memMap)
+    for (auto &value: _memMap)
     {
-        if (pair.second.isEmpty())
+        if (value.isEmpty())
         {
             return false;
         }
@@ -210,11 +208,24 @@ HCFSheet operator + (const HCFSheet &lhs, const HCFSheet &rhs)
 
 
 //---Struct EnergySheet---//
+QMap<QString, EnergySheet::ID> EnergySheet::_idMap =
+{
+    {"Light", EnergySheet::Light}, //照明能耗(J)
+    {"Device", EnergySheet::Device}, //设备能耗(J)
+    {"CooMachine", EnergySheet::CooMachine},//冷机能耗(J)
+    {"BoilerFuelUse", EnergySheet::BoilerFuelUse},//锅炉能耗(J)
+    {"CooTower", EnergySheet::CooTower},//冷却塔能耗(J)
+    {"FreWaterPump", EnergySheet::FreWaterPump},//冷冻水泵能耗(J)
+    {"CooWaterPump", EnergySheet::CooWaterPump},//冷却水泵能耗(J)
+    {"HotWaterPump", EnergySheet::HotWaterPump},//热水泵能耗(J)
+    {"Fan", EnergySheet::Fan} //风机能耗(J)
+};
+
 EnergySheet::EnergySheet()
 {
-    for (auto &pair: _memMap)
+    for (auto &value: _memMap)
     {
-        pair.second.clear();
+        value.clear();
     }
 }
 
@@ -225,9 +236,9 @@ EnergySheet::EnergySheet(const EnergySheet &sheet)
 
 bool EnergySheet::isComplete() const
 {
-    for (auto &pair: _memMap)
+    for (auto &value: _memMap)
     {
-        if (pair.second.isEmpty())
+        if (value.isEmpty())
         {
             return false;
         }
@@ -238,9 +249,19 @@ bool EnergySheet::isComplete() const
 double EnergySheet::sum() const
 {
     double sum = 0;
-    for (auto &pair: _memMap)
+    for (auto &value: _memMap)
     {
-        sum += pair.second.sum();
+        sum += value.sum();
+    }
+    return sum;
+}
+
+double EnergySheet::sum(int begin, int length) const
+{
+    double sum = 0;
+    for (auto &value: _memMap)
+    {
+        sum += value.sum(begin, length);
     }
     return sum;
 }
@@ -260,12 +281,19 @@ Column<double>& EnergySheet::operator [] (const EnergySheet::ID id)
     return _memMap[id];
 }
 
+Column<double>& EnergySheet::operator [] (const QString id)
+{
+    return _memMap[_idMap[id]];
+}
+
 EnergySheet& EnergySheet::operator += (const EnergySheet &rhs)
 {
     auto val = rhs;
-    for (auto &pair: _memMap)
+    QMap<ID, Column<double>>::iterator it;
+    for (it = _memMap.begin(); it != _memMap.end(); it++)
     {
-        pair.second += val[pair.first];
+        *it += val[it.key()];
+//        pair.second += val[pair.first];
     }
     return *this;
 }
@@ -277,15 +305,15 @@ EnergySheet operator + (const EnergySheet &lhs, const EnergySheet &rhs)
     return result;
 }
 
-void EnergySheet::saveToFile(QString filePath)
+void EnergySheet::saveToFile(const QString filePath)
 {
     QFile file(filePath);
     if (file.open(QFile::WriteOnly))
     {
         QTextStream stream(&file);
-        for (auto pair: _memMap)
+        for (auto val: _memMap)
         {
-            for (auto data: pair.second.data())
+            for (auto data: val.data())
             {
                 stream << QString::number(data) << ",";
             }

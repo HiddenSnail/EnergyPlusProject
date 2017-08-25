@@ -2,11 +2,22 @@
 	font-family: 'Microsoft YaHei';
 }
 
-#title {
+#title
+{
 	text-align: center;
-	color: rgb(255, 255, 255);
+	color: #7d7d7d;
 	font-weight: 400;
 	font-size: 32px;
+	word-spacing: 50px;
+}
+
+#lab_title_eng
+{
+	font-family: consolas;
+	text-align: center;
+	color: #7d7d7d;
+	font-weight: 400;
+	font-size: 23px;
 }
 
 .Line {
@@ -15,17 +26,18 @@
 
 .QPushButton#btn_login
 {
-	color: rgb(59, 76, 97);
-	background-color: rgba(227, 226, 225, 0.5);
+	color: #7d7d7d;
+	background-color: rgb(244, 244, 244);
 	border-radius: 5px;
 	text-align: center;
-	font-size: 20px;
+	font-size: 23px;
+	letter-spacing: 10px;
 }
 
 
 .QPushButton#btn_login:hover
 {
-	background-color: rgb(227, 226, 225);
+	background-color: rgb(255, 255, 255);
 }
 
 .QPushButton#btn_login:pressed
@@ -34,19 +46,12 @@
 	color: rgb(255, 255, 255);
 }
 
-QLabel#lab_user_name, #lab_password
-{
-	color: rgb(255, 255, 255);
-	font-size: 25px;
-	text-align: justify;
-}
-
 .QLineEdit
 {
 	border-style: none;
 	background-color: rgba(255, 255, 255, 0);
 	font-size: 25px;
-  color: rgb(255, 255, 255);
+	color: rgb(59, 76, 97);
 }
 
 .QCheckBox {
@@ -54,13 +59,8 @@ QLabel#lab_user_name, #lab_password
 	font-size: 20px;
 }
 
-.QPushButton#btn_lang
-{
-    border-image: url(:/res/icons/language_1.png);
-}
-
 .QLabel#lab_pb
 {
 		font-size: 16px;
-		color: rgb(255, 255, 255);
+		color: #7d7d7d;
 }

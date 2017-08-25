@@ -13,6 +13,9 @@ private:
 public:
     static QErrorObject* instance();
     static std::map<std::string, Error> _errorMap;
+    /**
+     * @todo: 机制修改
+     **/
     ErrorCode addError(const std::string errorKey, const std::string detail = "");
     ErrorCode addError(const char *errorKey, const char *detail = "");
     ErrorCode addError(const QString errorKey, const QString detail = "");

@@ -20,41 +20,45 @@ protected:
 public:
     Column();
     Column(const QVector<E> &columnData);
-    Column(const E val);
-    Column(const unsigned int size, const E data);
+    Column(const E &val);
+    Column(const unsigned int size, const E &data);
     Column(const Column<E> &column);
     //花括号构造函数
     Column(const std::initializer_list<E> &list);
+    //更改数组数据
     void changeData(const QVector<E> &columnData);
+    //获取数组
     QVector<E>& data();
     int size() const;
-    void push_back(const E data);
-    void pop_back();
+    void push_back(const E &data);
+    E pop_back();
     void clear();
     bool isEmpty() const;
     void replace(const E &oldData, const E &newData);
     void replace(std::function<bool(E)> condition, const E &newData);
     E sum() const;
-    //类型转换函数
+    E sum(int begin, int length) const;
     template<typename S>
-    operator Column<S> () const;
-    Column<E>& operator = (const Column<E> &rhs);
-    Column<E>& operator += (const Column<E> &rhs);
-    Column<E>& operator -= (const Column<E> &rhs);
-    Column<E>& operator *= (const Column<E> &rhs);
+    operator Column<S> () const; //类型转换函数
+    Column<E>& operator = (const Column<E> &rhs);  //赋值重载
+    Column<E>& operator += (const Column<E> &rhs);  //+=重载
+    Column<E>& operator -= (const Column<E> &rhs); //-=重载
+    Column<E>& operator *= (const Column<E> &rhs); //*=重载
     //除法除数0，会使整个column为0
-    Column<E>& operator /= (const Column<E> &rhs);
-    E& operator [] (const int index);
-    void show();
+    Column<E>& operator /= (const Column<E> &rhs);// /=重载
+    bool operator == (const Column<E> &rhs) const;// ==重载
+    E& operator [] (const int index); //下标取值重载
+    void show(); //打印函数
 };
 
-
+//打印函数
 template<typename E>
 void Column<E>::show()
 {
     qDebug() << _data;
 }
 
+//默认构造函数
 template<typename E>
 Column<E>::Column()
 {
@@ -64,25 +68,21 @@ Column<E>::Column()
 template<typename E>
 Column<E>::Column(const QVector<E> &columnData)
 {
+    _data.clear();
     if (!columnData.isEmpty())
     {
-        _data.clear();
         _data = columnData;
-    }
-    else
-    {
-        _data.clear();
     }
 }
 
 template<typename E>
-Column<E>::Column(const E val)
+Column<E>::Column(const E &val)
 {
     _data = QVector<E>(1, val);
 }
 
 template<typename E>
-Column<E>::Column(const unsigned int size, const E data)
+Column<E>::Column(const unsigned int size, const E &data)
 {
     _data.clear();
     if (size != 0)
@@ -105,6 +105,7 @@ Column<E>::Column(const std::initializer_list<E> &list)
     _data = vec;
 }
 
+//更改列数据函数
 template<typename E>
 void Column<E>::changeData(const QVector<E> &columnData)
 {
@@ -112,7 +113,7 @@ void Column<E>::changeData(const QVector<E> &columnData)
     *this = newColumn;
 }
 
-
+//获取QVector类型数据
 template<typename E>
 QVector<E>& Column<E>::data()
 {
@@ -126,15 +127,17 @@ int Column<E>::size() const
 }
 
 template<typename E>
-void Column<E>::push_back(const E data)
+void Column<E>::push_back(const E &data)
 {
     _data.push_back(data);
 }
 
 template<typename E>
-void Column<E>::pop_back()
+E Column<E>::pop_back()
 {
+    E backEle = _data.back();
     _data.pop_back();
+    return backEle;
 }
 
 template<typename E>
@@ -167,6 +170,7 @@ void Column<E>::replace(std::function<bool(E)> condition, const E &newData)
     }
 }
 
+//列求和函数
 template<typename E>
 E Column<E>::sum() const
 {
@@ -178,6 +182,18 @@ E Column<E>::sum() const
     return sum;
 }
 
+template<typename E>
+E Column<E>::sum(int begin, int length) const
+{
+    E sum = 0;
+    for (int index = begin; index >= 0 && index < begin + length && index < _data.size(); index++)
+    {
+        sum += _data[index];
+    }
+    return sum;
+}
+
+//类型转换函数
 template<typename E>
 template<typename S>
 Column<E>::operator Column<S> () const
@@ -263,6 +279,14 @@ Column<E>& Column<E>::operator /= (const Column<E> &rhs)
     return *this;
 }
 
+// ==重载
+template<typename E>
+bool Column<E>::operator == (const Column<E> &rhs) const
+{
+    return this->_data == rhs._data;
+}
+
+//下标取值重载
 template<typename E>
 E& Column<E>::operator [] (const int index)
 {

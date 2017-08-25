@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init();
     connect(pdlg, &CustomProgressDialog::lSignal, this, &MainWindow::lStep);
     connect(pdlg, &CustomProgressDialog::zSignal, this, &MainWindow::zStep);
-    connect(pdlg, &CustomProgressDialog::rSignal, this, &MainWindow::rStep);
+    connect(pdlg, &CustomProgressDialog::mSignal, this, &MainWindow::mStep);
     connect(pdlg, &CustomProgressDialog::showSignal, this, &MainWindow::showStep);
 }
 
@@ -26,11 +26,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
+    setWindowTitle("DALITEK");
     initCoreData();
     initWidgetState();
     initWidgetValidator();
     setLanguage();
     initProcessDialog();
+    QFile qssFile(":/res/stylesheet/main.qss");
+    if(qssFile.open(QFile::ReadOnly))
+    {
+        this->setStyleSheet(qssFile.readAll());
+        qssFile.close();
+    }
 }
 
 
@@ -91,34 +98,32 @@ void MainWindow::initCoreData()
         return a < b;
     });
 
-    //获取冷热负荷缩减百分比关系
+    //获取空调可调节的冷热范围
     QFile loadReduceProfile(PathManager::instance()->getPath("ProfileDir") + "/load/loadReducePercent_profile.json");
-    if (!loadReduceProfile.open(QFile::ReadOnly)) { qFatal("Can't read the loadReducePercent profile profile!"); }
+    if (!loadReduceProfile.open(QFile::ReadOnly))
+    {
+        _P_ERR_OBJ_->addError("FILE_OPEN_FAIL" ,"Can't read the loadReducePercent profile.");
+    }
     //lrp == loadReduceProfile的缩写
     QTextStream lrpStream(&loadReduceProfile);
     lrpStream.setCodec("UTF-8");
     QJsonDocument lrpDoc = QJsonDocument::fromJson(lrpStream.readAll().toUtf8());
     loadReduceProfile.close();
 
-    if (!lrpDoc.isObject() || lrpDoc.isEmpty()) { qFatal("The loadReducePercent profile file maybe broken!"); }
+    if (!lrpDoc.isObject() || lrpDoc.isEmpty())
+    {
+        _P_ERR_OBJ_->addError("FILE_BROKEN", "The loadReducePercent profile file broken.");
+    }
     QJsonObject lrpRoot = lrpDoc.object();
     int coolTempTop = lrpRoot["coolTempTop"].toInt();
     int coolTempBottom = lrpRoot["coolTempBottom"].toInt();
-    QJsonArray coolLoadReducePercentArray = lrpRoot["coolReducePercent"].toArray();
-    for (int temp = coolTempBottom; temp <= coolTempTop; temp++)
-    {
-        double percent = coolLoadReducePercentArray[temp - coolTempBottom].toDouble();
-        _coolLoadReducePercentMap.insert(temp, percent);
-    }
     int heatTempTop = lrpRoot["heatTempTop"].toInt();
     int heatTempBottom = lrpRoot["heatTempBottom"].toInt();
-    QJsonArray heatLoadReducePercentArray = lrpRoot["heatReducePercent"].toArray();
-    for (int temp = heatTempBottom; temp <= heatTempTop; temp++)
-    {
-        double percent = heatLoadReducePercentArray[temp - heatTempBottom].toDouble();
-        _heatLoadReducePercentMap.insert(temp, percent);
-    }
-
+    _airTempRange.clear();
+    _airTempRange.push_back(coolTempTop);
+    _airTempRange.push_back(coolTempBottom);
+    _airTempRange.push_back(heatTempTop);
+    _airTempRange.push_back(heatTempBottom);
 }
 
 /**
@@ -140,6 +145,10 @@ void MainWindow::initWidgetValidator()
 
     //section2
     ui->edit_sec2_year->setValidator(new QRegExpValidator(float0To100Reg, this));
+    ui->edit_sec2_quarter1->setValidator(new QRegExpValidator(float0To100Reg, this));
+    ui->edit_sec2_quarter2->setValidator(new QRegExpValidator(float0To100Reg, this));
+    ui->edit_sec2_quarter3->setValidator(new QRegExpValidator(float0To100Reg, this));
+    ui->edit_sec2_quarter4->setValidator(new QRegExpValidator(float0To100Reg, this));
 
     //section4
     ui->edit_sec4_UC_noCardNum->setValidator(new QRegExpValidator(float0To1Reg, this));
@@ -169,10 +178,10 @@ void MainWindow::initWidgetValidator()
 
     //已租状态：空调面板可设定温度范围
     IntValidator *heatValid, *coolValid;
-    int coolTempBottom = *_coolLoadReducePercentMap.keyBegin();
-    int coolTempTop = *--_coolLoadReducePercentMap.keyEnd();
-    int heatTempBottom = *_heatLoadReducePercentMap.keyBegin();
-    int heatTempTop = *--_heatLoadReducePercentMap.keyEnd();
+    int coolTempTop = _airTempRange[0];
+    int coolTempBottom = _airTempRange[1];
+    int heatTempTop = _airTempRange[2];
+    int heatTempBottom = _airTempRange[3];
     coolValid = new IntValidator(coolTempBottom, coolTempTop, this);
     heatValid = new IntValidator(heatTempBottom, heatTempTop, this);
     ui->edit_sec6_lowTemp->setValidator(coolValid);
@@ -198,28 +207,28 @@ void MainWindow::initWidgetValidator()
             heatValid->setBottom(heatTempBottom);
         }
     });
-
     ui->edit_sec6_nightTempOffset->setValidator(new IntValidator(0, 30, this));
     ui->edit_sec6_keepTime->setValidator(new IntValidator(0, 24, this));
+
     //未租状态:保温模式
-    int tempInitBottomNR = 18, tempInitTopNR = 28;
-    IntValidator *summerTempValidNR = new IntValidator(tempInitBottomNR, tempInitTopNR, this);
-    IntValidator *winterTempValidNR = new IntValidator(tempInitBottomNR, tempInitTopNR, this);
+
+    IntValidator *summerTempValidNR = new IntValidator(24, 28, this);
+    IntValidator *winterTempValidNR = new IntValidator(18, 20, this);
     ui->edit_sec6_keepCoolTempNR->setValidator(summerTempValidNR);
     ui->edit_sec6_keepHeatTempNR->setValidator(winterTempValidNR);
     //夏季温度 >= 冬季温度
-    connect(ui->edit_sec6_keepCoolTempNR, &QLineEdit::editingFinished, ui->edit_sec6_keepHeatTempNR, [=]()
-    {
-        int summerTempNR = ui->edit_sec6_keepCoolTempNR->text().toInt();
-        winterTempValidNR->setTop(summerTempNR);
-        QString winterTempNRStr = ui->edit_sec6_keepHeatTempNR->text();
-        int pos = 0;
-        if (!winterTempNRStr.isEmpty() && winterTempValidNR->validate(winterTempNRStr, pos) != QValidator::Acceptable)
-        {
-            winterTempValidNR->fixup(winterTempNRStr);
-            ui->edit_sec6_keepHeatTemp->setText(winterTempNRStr);
-        }
-    });
+//    connect(ui->edit_sec6_keepCoolTempNR, &QLineEdit::editingFinished, ui->edit_sec6_keepHeatTempNR, [=]()
+//    {
+//        int summerTempNR = ui->edit_sec6_keepCoolTempNR->text().toInt();
+//        winterTempValidNR->setTop(summerTempNR);
+//        QString winterTempNRStr = ui->edit_sec6_keepHeatTempNR->text();
+//        int pos = 0;
+//        if (!winterTempNRStr.isEmpty() && winterTempValidNR->validate(winterTempNRStr, pos) != QValidator::Acceptable)
+//        {
+//            winterTempValidNR->fixup(winterTempNRStr);
+//            ui->edit_sec6_keepHeatTemp->setText(winterTempNRStr);
+//        }
+//    });
     ui->edit_sec6_averUsingTime->setValidator(new IntValidator(0, 24, this));
 
     //section7
@@ -267,12 +276,8 @@ void MainWindow::initWidgetState()
 
 
     //section2
-    ui->radioButton_sec2_year->setChecked(true);
-    ui->edit_sec2_year->setEnabled(true);
-    ui->btn_sec2_quarter->setEnabled(false);
-    connect(ui->btn_sec2_quarter, &QPushButton::clicked, _pQuaterDialog, &QuarterDialog::exec);
+    on_checkBox_sec2_year_toggled(true);
     connect(ui->btn_sec2_inroomrate, &QPushButton::clicked, _pRateDialog, &SetRateDialog::exec);
-
 
     //section3
     ui->radioButton_sec3_CO_keep->setChecked(true);
@@ -307,41 +312,30 @@ void MainWindow::initWidgetState()
     ui->edit_sec8_4To6Mon->setReadOnly(true);
     ui->edit_sec8_7To9Mon->setReadOnly(true);
     ui->edit_sec8_10To12Mon->setReadOnly(true);
-
-    //menubar
-    QMenuBar *pMenuBar = ui->menuBar;
-    QMenu *pLangMenu = new QMenu(QString::fromLocal8Bit("Language"), this);
-    pMenuBar->addMenu(pLangMenu);
-    QAction *pActionChi = new QAction(QString::fromLocal8Bit("中文"), pLangMenu);
-    QAction *pActionEng = new QAction(QString::fromLocal8Bit("English"), pLangMenu);
-    pLangMenu->addAction(pActionChi);
-    pLangMenu->addAction(pActionEng);
-    connect(pMenuBar, &QMenuBar::triggered, this, [=](QAction *pAction)
-    {
-        if (pAction->text() == QString::fromLocal8Bit("中文"))
-        {
-            this->setLanguage();
-        }
-        else if (pAction->text() == QString::fromLocal8Bit("English"))
-        {
-            this->setLanguage(English);
-        }
-        else
-        {
-            ;
-        }
-    });
+    ui->btn_sec8_year->setEnabled(false);
+    ui->btn_sec8_1To3Mon->setEnabled(false);
+    ui->btn_sec8_4To6Mon->setEnabled(false);
+    ui->btn_sec8_7To9Mon->setEnabled(false);
+    ui->btn_sec8_10To12Mon->setEnabled(false);
 }
 
+/**
+ * @brief MainWindow::clear >> 清除界面信息
+ */
 void MainWindow::clear()
 {
     _roomSize = 0;
-    _result.clear();
     ui->edit_sec8_1To3Mon->clear();
     ui->edit_sec8_4To6Mon->clear();
     ui->edit_sec8_7To9Mon->clear();
     ui->edit_sec8_10To12Mon->clear();
     ui->edit_sec8_year->clear();
+    ui->btn_sec8_year->setEnabled(false);
+    ui->btn_sec8_1To3Mon->setEnabled(false);
+    ui->btn_sec8_4To6Mon->setEnabled(false);
+    ui->btn_sec8_7To9Mon->setEnabled(false);
+    ui->btn_sec8_10To12Mon->setEnabled(false);
+
 }
 
 
@@ -352,7 +346,6 @@ void MainWindow::on_btn_start_clicked()
     clear();
     if (checkUserInput())
     {
-
         preImpData();
         callEplus();
         pdlg->setLabelText(_noticeList[3]);
@@ -365,7 +358,10 @@ void MainWindow::on_btn_start_clicked()
     }
 }
 
-
+/**
+ * @brief MainWindow::checkUserInput >> 检查用户输入
+ * @return
+ */
 bool MainWindow::checkUserInput()
 {
     //section1
@@ -377,10 +373,21 @@ bool MainWindow::checkUserInput()
 
     //section2
     bool isSec2Ready = true;
-    if (ui->radioButton_sec2_year->isChecked()) {
+    if (ui->checkBox_sec2_year->isChecked()) {
         isSec2Ready = isSec2Ready && ui->edit_sec2_year->hasAcceptableInput();
     } else {
-        isSec2Ready = isSec2Ready && true;
+        if (ui->checkBox_sec2_quarter1->isChecked()) {
+            isSec2Ready = isSec2Ready && ui->edit_sec2_quarter1->hasAcceptableInput();
+        }
+        if (ui->checkBox_sec2_quarter2->isChecked()) {
+            isSec2Ready = isSec2Ready && ui->edit_sec2_quarter2->hasAcceptableInput();
+        }
+        if (ui->checkBox_sec2_quarter3->isChecked()) {
+            isSec2Ready = isSec2Ready && ui->edit_sec2_quarter3->hasAcceptableInput();
+        }
+        if (ui->checkBox_sec2_quarter4->isChecked()) {
+            isSec2Ready = isSec2Ready && ui->edit_sec2_quarter4->hasAcceptableInput();
+        }
     }
 
     //section4
@@ -426,9 +433,13 @@ bool MainWindow::checkUserInput()
         isSec6Ready = isSec6Ready && ui->edit_sec6_keepCoolTempNR->hasAcceptableInput()
                 && ui->edit_sec6_keepHeatTempNR->hasAcceptableInput();
     }
-    else
+    else if (ui->radioButton_sec6_newWind->isChecked())
     {
         isSec6Ready = isSec6Ready && ui->edit_sec6_averUsingTime->hasAcceptableInput();
+    }
+    else
+    {
+        isSec6Ready = isSec6Ready && true;
     }
 
     //section7
@@ -495,21 +506,6 @@ bool MainWindow::checkUserInput()
 
     bool isAllReady = isSec1Ready && isSec2Ready && isSec4Ready && isSec6Ready && isSec7Ready;
     return isAllReady;
-}
-
-
-void MainWindow::on_radioButton_sec2_year_toggled(bool checked)
-{
-    if (checked) {
-        ui->edit_sec2_year->setEnabled(true);
-    } else {
-        ui->edit_sec2_year->setEnabled(false);
-    }
-}
-
-void MainWindow::on_radioButton_sec2_quarter_toggled(bool checked)
-{
-    ui->btn_sec2_quarter->setEnabled(checked);
 }
 
 void MainWindow::on_radioButton_sec4_useCard_toggled(bool checked)
@@ -664,7 +660,6 @@ void MainWindow::preImpData()
         }
     } 
 }
-
 
 
 /**---------------------------文件IO及Eplus调用操作---------------------------------**/
@@ -886,9 +881,9 @@ void MainWindow::zStep()
     p_thread_rp->start();
 }
 
-void MainWindow::rStep()
+void MainWindow::mStep()
 {
-    std::function<double(double rate, RawDataSheet::TimeSpan timeSpan)> compFunc = [=](double rate, RawDataSheet::TimeSpan timeSpan)
+    std::function<std::pair<EnergySheet, EnergySheet>(double rate, RawDataSheet::TimeSpan timeSpan)> compFunc = [=](double rate, RawDataSheet::TimeSpan timeSpan)
     {
         QString filePathStr(PathManager::instance()->getPath("OutPutDir") + "/" + QString::number(_roomSize) + "/%1/%1.csv");
         int eRooms = ui->edit_sec1_eastRoomNum->text().toInt();
@@ -1001,22 +996,18 @@ void MainWindow::rStep()
 
         EnergySheet baseEnergySheet = baseHCFProc.produceEnergySheet(RoomState::all);
         EnergySheet proposedEnergySheet = proposedHCFProc.produceEnergySheet(RoomState::rentedPe);
-        double baseTotal = baseEnergySheet.sum();
-        double proposedTotal = proposedEnergySheet.sum();
-        return (baseTotal - proposedTotal)/baseTotal;
+        return std::pair<EnergySheet, EnergySheet>(baseEnergySheet, proposedEnergySheet);
     };
 
     QThread *p_thread_res = new QThread();
-    if (ui->radioButton_sec2_year->isChecked())
+    if (ui->checkBox_sec2_year->isChecked())
     {
         connect(p_thread_res, &QThread::started, [=]()
         {
             double rentalRate = ui->edit_sec2_year->text().toDouble() / 100.0;
-            double percent = compFunc(rentalRate, RawDataSheet::TimeSpan::year);
-            _result.push_back(QString::number(percent*100, 'f', 2));
-
+            std::pair<EnergySheet, EnergySheet> sheets = compFunc(rentalRate, RawDataSheet::TimeSpan::year);
+            _stageYear.setData(sheets.first, sheets.second);
             emit pSig(3, _noticeList[5]);
-
             p_thread_res->quit();
         });
     }
@@ -1024,18 +1015,34 @@ void MainWindow::rStep()
     {
         connect(p_thread_res, &QThread::started, [=]()
         {
-            QVector<double> rentalRateVec = _pQuaterDialog->getRentalRateVec();
-            double percent1 = compFunc(rentalRateVec[0], RawDataSheet::TimeSpan::quarter1);
-            double percent2 = compFunc(rentalRateVec[1], RawDataSheet::TimeSpan::quarter2);
-            double percent3 = compFunc(rentalRateVec[2], RawDataSheet::TimeSpan::quarter3);
-            double percent4 = compFunc(rentalRateVec[3], RawDataSheet::TimeSpan::quarter4);
-            _result.push_back(QString::number(percent1*100, 'f', 2));
-            _result.push_back(QString::number(percent2*100, 'f', 2));
-            _result.push_back(QString::number(percent3*100, 'f', 2));
-            _result.push_back(QString::number(percent4*100, 'f', 2));
+            QVector<double> rentalRateVec(4, 0);
+            if (ui->checkBox_sec2_quarter1->isChecked())
+            {
+                rentalRateVec[0] = ui->edit_sec2_quarter1->text().toDouble() / 100.0;
+            }
+            if (ui->checkBox_sec2_quarter2->isChecked())
+            {
+                rentalRateVec[1] = ui->edit_sec2_quarter2->text().toDouble() / 100.0;
+            }
+            if (ui->checkBox_sec2_quarter3->isChecked())
+            {
+                rentalRateVec[2] = ui->edit_sec2_quarter3->text().toDouble() / 100.0;
+            }
+            if (ui->checkBox_sec2_quarter4->isChecked())
+            {
+                rentalRateVec[3] = ui->edit_sec2_quarter4->text().toDouble() / 100.0;
+            }
+            std::pair<EnergySheet, EnergySheet> sheets1 = compFunc(rentalRateVec[0], RawDataSheet::TimeSpan::quarter1);
+            std::pair<EnergySheet, EnergySheet> sheets2 = compFunc(rentalRateVec[1], RawDataSheet::TimeSpan::quarter2);
+            std::pair<EnergySheet, EnergySheet> sheets3 = compFunc(rentalRateVec[2], RawDataSheet::TimeSpan::quarter3);
+            std::pair<EnergySheet, EnergySheet> sheets4 = compFunc(rentalRateVec[3], RawDataSheet::TimeSpan::quarter4);
+
+            _stageQuar1.setData(sheets1.first, sheets1.second);
+            _stageQuar2.setData(sheets2.first, sheets2.second);
+            _stageQuar3.setData(sheets3.first, sheets3.second);
+            _stageQuar4.setData(sheets4.first, sheets4.second);
 
             emit pSig(3, _noticeList[5]);
-
             p_thread_res->quit();
         });
     }
@@ -1046,16 +1053,43 @@ void MainWindow::rStep()
 
 void MainWindow::showStep()
 {
-    if (_result.size() == 1)
+    if (ui->checkBox_sec2_year->isChecked())
     {
-        ui->edit_sec8_year->setText(_result[0]);
+        QString percent = QString::number(_stageYear.getSumPercent()*100, 'f', 2);
+        ui->edit_sec8_year->setText(percent);
+        ui->btn_sec8_year->setEnabled(true);
+        _stageYear.setChartInfo(0);
     }
     else
     {
-        ui->edit_sec8_1To3Mon->setText(_result[0]);
-        ui->edit_sec8_4To6Mon->setText(_result[1]);
-        ui->edit_sec8_7To9Mon->setText(_result[2]);
-        ui->edit_sec8_10To12Mon->setText(_result[3]);
+        if (ui->checkBox_sec2_quarter1->isChecked())
+        {
+           QString percent = QString::number(_stageQuar1.getSumPercent()*100, 'f', 2);
+           ui->edit_sec8_1To3Mon->setText(percent);
+           ui->btn_sec8_1To3Mon->setEnabled(true);
+           _stageQuar1.setChartInfo(1);
+        }
+        if (ui->checkBox_sec2_quarter2->isChecked())
+        {
+            QString percent = QString::number(_stageQuar2.getSumPercent()*100, 'f', 2);
+            ui->edit_sec8_4To6Mon->setText(percent);
+            ui->btn_sec8_4To6Mon->setEnabled(true);
+            _stageQuar2.setChartInfo(2);
+        }
+        if (ui->checkBox_sec2_quarter3->isChecked())
+        {
+            QString percent = QString::number(_stageQuar3.getSumPercent()*100, 'f', 2);
+            ui->edit_sec8_7To9Mon->setText(percent);
+            ui->btn_sec8_7To9Mon->setEnabled(true);
+            _stageQuar3.setChartInfo(3);
+        }
+        if (ui->checkBox_sec2_quarter4->isChecked())
+        {
+            QString percent = QString::number(_stageQuar4.getSumPercent()*100, 'f', 2);
+            ui->edit_sec8_10To12Mon->setText(percent);
+            ui->btn_sec8_10To12Mon->setEnabled(true);
+            _stageQuar4.setChartInfo(4);
+        }
     }
 }
 
@@ -1114,10 +1148,11 @@ void MainWindow::setLanguage(Language lang)
     QJsonArray sec2Arr = lpRoot["section_2"].toArray();
     index = 0;
     ui->lab_sec2_title->setText(sec2Arr[index++].toString());
-    ui->lab_sec2_rentRate->setText(sec2Arr[index++].toString());
     ui->lab_sec2_year->setText(sec2Arr[index++].toString());
-    ui->lab_sec2_quarter->setText(sec2Arr[index++].toString());
-    ui->btn_sec2_quarter->setText(sec2Arr[index++].toString());
+    ui->lab_sec2_quarter1->setText(sec2Arr[index++].toString());
+    ui->lab_sec2_quarter2->setText(sec2Arr[index++].toString());
+    ui->lab_sec2_quarter3->setText(sec2Arr[index++].toString());
+    ui->lab_sec2_quarter4->setText(sec2Arr[index++].toString());
     ui->btn_sec2_inroomrate->setText(sec2Arr[index++].toString());
 
     //section3
@@ -1173,6 +1208,7 @@ void MainWindow::setLanguage(Language lang)
     ui->lab_sec6_keepHeatTempNR->setText(sec6Arr[index++].toString());
     ui->radioButton_sec6_newWind->setText(sec6Arr[index++].toString());
     ui->lab_sec6_averUsingTime->setText(sec6Arr[index++].toString());
+    ui->radioButton_sec6_close->setText(sec6Arr[index++].toString());
 
     //section7
     QJsonArray sec7Arr = lpRoot["section_7"].toArray();
@@ -1227,4 +1263,98 @@ void MainWindow::setLanguage(Language lang)
         _noticeList << notice.toString();
     }
 
+}
+
+void MainWindow::on_checkBox_sec2_year_toggled(bool checked)
+{
+    ui->edit_sec2_year->setEnabled(checked);
+    ui->checkBox_sec2_year->setChecked(checked);
+    if (checked) {
+        on_checkBox_sec2_quarter1_toggled(false);
+        on_checkBox_sec2_quarter2_toggled(false);
+        on_checkBox_sec2_quarter3_toggled(false);
+        on_checkBox_sec2_quarter4_toggled(false);
+    }
+}
+
+void MainWindow::on_checkBox_sec2_quarter1_toggled(bool checked)
+{
+    ui->edit_sec2_quarter1->setEnabled(checked);
+    ui->checkBox_sec2_quarter1->setChecked(checked);
+    if (checked) {
+        ui->checkBox_sec2_year->setChecked(false);
+    }
+}
+
+
+void MainWindow::on_checkBox_sec2_quarter2_toggled(bool checked)
+{
+    ui->edit_sec2_quarter2->setEnabled(checked);
+    ui->checkBox_sec2_quarter2->setChecked(checked);
+    if (checked) {
+        ui->checkBox_sec2_year->setChecked(false);
+    }
+}
+
+
+void MainWindow::on_checkBox_sec2_quarter3_toggled(bool checked)
+{
+    ui->edit_sec2_quarter3->setEnabled(checked);
+    ui->checkBox_sec2_quarter3->setChecked(checked);
+    if (checked) {
+        ui->checkBox_sec2_year->setChecked(false);
+    }
+}
+
+void MainWindow::on_checkBox_sec2_quarter4_toggled(bool checked)
+{
+    ui->edit_sec2_quarter4->setEnabled(checked);
+    ui->checkBox_sec2_quarter4->setChecked(checked);
+    if (checked) {
+        ui->checkBox_sec2_year->setChecked(false);
+    }
+}
+
+void MainWindow::on_btn_sec8_year_clicked()
+{
+    _stageYear.showChart();
+}
+
+void MainWindow::on_btn_sec8_1To3Mon_clicked()
+{
+    _stageQuar1.showChart();
+}
+
+void MainWindow::on_btn_sec8_4To6Mon_clicked()
+{
+    _stageQuar2.showChart();
+}
+
+void MainWindow::on_btn_sec8_7To9Mon_clicked()
+{
+    _stageQuar3.showChart();
+}
+
+void MainWindow::on_btn_sec8_10To12Mon_clicked()
+{
+    _stageQuar4.showChart();
+}
+
+void MainWindow::on_btn_chinese_clicked()
+{
+    if (_language != Chinese) {
+        setLanguage(Chinese);
+        ui->btn_chinese->setIcon(QIcon(":/res/icons/chinese_on.png"));
+        ui->btn_english->setIcon(QIcon(":/res/icons/english_off.png"));
+    }
+}
+
+
+void MainWindow::on_btn_english_clicked()
+{
+    if (_language != English) {
+        setLanguage(English);
+        ui->btn_english->setIcon(QIcon(":/res/icons/english_on.png"));
+        ui->btn_chinese->setIcon(QIcon(":/res/icons/chinese_off.png"));
+    }
 }

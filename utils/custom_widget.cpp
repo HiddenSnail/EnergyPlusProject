@@ -51,7 +51,7 @@ void CustomProgressDialog::update(int stepId, QString detail)
         toValue = 10;
         break;
     case 1:
-        toValue = 45;
+        toValue = 55;
         break;
     case 2:
         toValue = 85;
@@ -86,7 +86,7 @@ void CustomProgressDialog::update(int stepId, QString detail)
                 emit zSignal();
                 break;
             case 2:
-                emit rSignal();
+                emit mSignal();
                 break;
             case 3:
                 emit showSignal();

@@ -1,5 +1,4 @@
 ﻿#include "qerrorobject.h"
-
 //---Class QErrorObject---//
 
 QErrorObject *_P_ERR_OBJ_ = QErrorObject::instance();
@@ -89,7 +88,7 @@ void QErrorHandler::doSuccess()
     _P_ERR_OBJ_->getError(e);
     handle(e);
     QFile errorFile("error.log");
-    if (errorFile.open(QFile::Append))
+    if (errorFile.open(QFile::WriteOnly))
     {
         QTextStream outStream(&errorFile);
         outStream.setCodec("UTF-8");
@@ -107,7 +106,7 @@ void QErrorHandler::doException()
     _P_ERR_OBJ_->getError(e);
     handle(e);
     QFile errorFile("error.log");
-    if (errorFile.open(QFile::Append))
+    if (errorFile.open(QFile::WriteOnly))
     {
         QTextStream outStream(&errorFile);
         outStream.setCodec("UTF-8");
@@ -125,7 +124,7 @@ void QErrorHandler::doFatal()
     _P_ERR_OBJ_->getError(e);
     handle(e);
     QFile errorFile("error.log");
-    if (errorFile.open(QFile::Append))
+    if (errorFile.open(QFile::WriteOnly))
     {
         QTextStream outStream(&errorFile);
         outStream.setCodec("UTF-8");

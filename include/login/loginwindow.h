@@ -23,7 +23,7 @@ signals:
 
 private slots:
     void on_btn_login_clicked();
-    void on_btn_lang_clicked();
+    void on_btn_check_clicked();
 
 private:
     Ui::LoginWindow *ui;
